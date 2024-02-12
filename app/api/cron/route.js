@@ -3,7 +3,6 @@ import { unstable_noStore as noStore } from "next/cache";
 // import MOCK_DATA from "../../../mock-data.json";
 
 // TODO: Error handling
-// TODO: Handle logic for stealth wallets
 // TODO: Add a cron job to run this every 5 minutes
 // TODO: Call telegram API for notifications
 
