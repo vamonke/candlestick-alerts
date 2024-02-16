@@ -16,9 +16,8 @@ bot.on("message", async (ctx) => {
   await ctx.reply("I got your message!");
 });
 
-export const POST = (request) => {
-  const body = request.body;
-  console.log("body", JSON.stringify(body));
+export const POST = async (request) => {
+  console.log("request");
   webhookCallback(bot, "std/http")(request);
-  return Response.json({ ok: true, body });
+  return Response.json({ ok: true });
 };
