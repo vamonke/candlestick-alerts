@@ -10,4 +10,10 @@ bot.command("start", async (ctx) => {
   await ctx.reply("Hello!");
 });
 
+bot.on("message", async (ctx) => {
+  const message = ctx.message; // the message object
+  console.log("message", JSON.stringify(message));
+  await ctx.reply("I got your message!");
+});
+
 export const POST = webhookCallback(bot, "std/http");
