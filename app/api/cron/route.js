@@ -38,6 +38,8 @@ export async function GET() {
 
   const message = craftMessage(meetsConditions);
 
+  sendMessage(message);
+
   return Response.json({ meetsConditions, message }, { status: 200 });
 }
 
@@ -255,3 +257,9 @@ const craftMessage = (meetsConditions) => {
 
   return message;
 };
+
+const sendMessage = await (message) => {
+  const bot = new Bot(process.env.BOT_TOKEN);
+  // Send a text message to user 12345.
+  await bot.api.sendMessage(12345, "Hi!");
+}
