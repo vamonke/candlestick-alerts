@@ -30,7 +30,7 @@ export async function GET() {
   );
 
   if (meetsConditions.length === 0) {
-    console.log("❌ No token meets conditions");
+    console.log("🥱 No token meets conditions");
     return Response.json({ meetsConditions }, { status: 200 });
   } else {
     console.log("✅ Meets conditions", meetsConditions.length, "tokens");
