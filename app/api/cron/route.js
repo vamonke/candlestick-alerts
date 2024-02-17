@@ -2,8 +2,6 @@ import { kv } from "@vercel/kv";
 import { unstable_noStore as noStore } from "next/cache";
 import bot from "../../../bot";
 
-// TODO: Add a cron job to run this every 5 minutes
-
 const LOGIN_URL = "https://www.candlestick.io/api/v2/user/login-email";
 const STEATH_WALLETS_URL =
   "https://www.candlestick.io/api/v1/stealth-money/degen-explorer-by-stealth-money?current_page=1&page_size=100&sort_type=3&oriented=1&blockchain_id=2&exploreType=token&days=1&value_filter=200&include_noise_trades=false&fundingSource=ALL&boughtTokenLimit=true&hide_first_mins=0&activeSource=ETH";
@@ -30,12 +28,12 @@ export async function GET() {
   );
 
   // For debugging
-  // if (meetsConditions.length === 0) {
-  //   console.log("🥱 No token meets conditions");
-  //   return Response.json({ meetsConditions }, { status: 200 });
-  // } else {
-  //   console.log("✅ Meets conditions", meetsConditions.length, "tokens");
-  // }
+  if (meetsConditions.length === 0) {
+    console.log("🥱 No token meets conditions");
+    return Response.json({ meetsConditions }, { status: 200 });
+  } else {
+    console.log("✅ Meets conditions", meetsConditions.length, "tokens");
+  }
 
   const message = craftMessage(meetsConditions);
   console.log("Message", message);
@@ -262,10 +260,7 @@ const craftMessage = (meetsConditions) => {
 
 const DEVELOPER_USER_ID = 265435469;
 
-const USER_IDS = [
-  DEVELOPER_USER_ID,
-  // 278239097
-];
+const USER_IDS = [DEVELOPER_USER_ID, 278239097];
 
 const sendMessage = async (message) => {
   for (const userId of USER_IDS) {
