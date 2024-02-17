@@ -1,25 +1,25 @@
 import { kv } from "@vercel/kv";
 import { unstable_noStore as noStore } from "next/cache";
-// import MOCK_DATA from "../../../mock-data.json";
+import bot from "../../../bot";
 
-// TODO: Error handling
 // TODO: Add a cron job to run this every 5 minutes
-// TODO: Call telegram API for notifications
 
 const LOGIN_URL = "https://www.candlestick.io/api/v2/user/login-email";
 const STEATH_WALLETS_URL =
   "https://www.candlestick.io/api/v1/stealth-money/degen-explorer-by-stealth-money?current_page=1&page_size=100&sort_type=3&oriented=1&blockchain_id=2&exploreType=token&days=1&value_filter=200&include_noise_trades=false&fundingSource=ALL&boughtTokenLimit=true&hide_first_mins=0&activeSource=ETH";
 
-const TOKEN_KEY = "TOKEN";
+const AUTH_TOKEN_KEY = "TOKEN";
 const MINS_AGO = 10;
-const TXN_COUNT_THRESHOLD = 3;
-const EXCLUDE_TOKENS = ["WETH", "weth"];
+const WALLET_COUNT_THRESHOLD = 3;
+const EXCLUDED_TOKENS = ["WETH", "weth"];
 
 export async function GET() {
   noStore();
   const token = await getAuthToken();
   if (!token) {
-    return Response.json({ error: "Missing token" }, { status: 500 });
+    const error = "⁉️ Missing token";
+    sendError(error);
+    return Response.json({ error }, { status: 500 });
   }
 
   const steathMoney = await getStealthWallets(token);
@@ -29,16 +29,17 @@ export async function GET() {
     steathMoney.data.chart
   );
 
-  if (meetsConditions.length === 0) {
-    console.log("🥱 No token meets conditions");
-    return Response.json({ meetsConditions }, { status: 200 });
-  } else {
-    console.log("✅ Meets conditions", meetsConditions.length, "tokens");
-  }
+  // For debugging
+  // if (meetsConditions.length === 0) {
+  //   console.log("🥱 No token meets conditions");
+  //   return Response.json({ meetsConditions }, { status: 200 });
+  // } else {
+  //   console.log("✅ Meets conditions", meetsConditions.length, "tokens");
+  // }
 
   const message = craftMessage(meetsConditions);
-
-  sendMessage(message);
+  console.log("Message", message);
+  await sendMessage(message);
 
   return Response.json({ meetsConditions, message }, { status: 200 });
 }
@@ -58,7 +59,7 @@ const getAuthToken = async () => {
 };
 
 const getToken = async () => {
-  const result = await kv.get(TOKEN_KEY);
+  const result = await kv.get(AUTH_TOKEN_KEY);
   if (result) {
     console.log("Found token from KV store");
   } else {
@@ -134,8 +135,8 @@ const getLoginToken = async () => {
 const setToken = async (token) => {
   try {
     console.log("Setting token in KV store..");
-    await kv.del(TOKEN_KEY);
-    const result = await kv.set(TOKEN_KEY, token);
+    await kv.del(AUTH_TOKEN_KEY);
+    const result = await kv.set(AUTH_TOKEN_KEY, token);
     console.log("✅ Successfully set token in KV store");
   } catch (error) {
     // TODO: Handle error
@@ -160,6 +161,7 @@ const getStealthWallets = async (token) => {
     );
     return json;
   } catch (error) {
+    sendError({ message: "Error fetching stealth wallets", error });
     console.log("Error fetching stealth wallets", error);
     return null;
   }
@@ -219,11 +221,11 @@ const evaluateTransactions = (list) => {
     );
     tokenObj.totalTxnValue = totalTxnValue;
 
-    if (EXCLUDE_TOKENS.includes(buy_token_symbol)) {
+    if (EXCLUDED_TOKENS.includes(buy_token_symbol)) {
       continue;
     }
 
-    if (uniqueAddressesCount >= TXN_COUNT_THRESHOLD) {
+    if (uniqueAddressesCount >= WALLET_COUNT_THRESHOLD) {
       meetsConditions.push(tokenObj);
     }
   }
@@ -242,7 +244,7 @@ const parseDate = (utcTimeString) => {
 
 const craftMessage = (meetsConditions) => {
   if (meetsConditions.length === 0) {
-    return "No stealth wallets found";
+    return `🥱 No tokens have been purchased by ${WALLET_COUNT_THRESHOLD} stealth wallets in the past ${MINS_AGO} mins`;
   }
 
   const message = meetsConditions
@@ -250,7 +252,7 @@ const craftMessage = (meetsConditions) => {
       const { buy_token_symbol, uniqueAddressesCount, totalTxnValue } =
         tokenObj;
 
-      const tokenMessage = `Token: ${buy_token_symbol}, Unique Addresses Count: ${uniqueAddressesCount}, Total Txn Value: $${totalTxnValue.toLocaleString()}`;
+      const tokenMessage = `Token: ${buy_token_symbol}\nBought by ${uniqueAddressesCount} stealth wallets in the last ${MINS_AGO} mins\nTotal Txn Value: $${totalTxnValue.toLocaleString()}`;
       return tokenMessage;
     })
     .join("\n\n");
@@ -258,8 +260,22 @@ const craftMessage = (meetsConditions) => {
   return message;
 };
 
+const DEVELOPER_USER_ID = 265435469;
+
+const USER_IDS = [
+  DEVELOPER_USER_ID,
+  // 278239097
+];
+
 const sendMessage = async (message) => {
-  const bot = new Bot(process.env.BOT_TOKEN);
-  // Send a text message to user 12345.
-  await bot.api.sendMessage(12345, "Hi!");
+  for (const userId of USER_IDS) {
+    await bot.api.sendMessage(userId, message);
+  }
+};
+
+const sendError = async (error) => {
+  await bot.api.sendMessage(
+    DEVELOPER_USER_ID,
+    `Something went wrong\n\n${JSON.stringify(error)}`
+  );
 };
