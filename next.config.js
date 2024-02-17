@@ -1,5 +1,5 @@
-const nextConfig = {
-  serverMinification: false,
+module.exports = {
+  experimental: {
+    serverMinification: false,
+  },
 };
-
-export default nextConfig;
