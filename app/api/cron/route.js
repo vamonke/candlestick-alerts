@@ -247,10 +247,14 @@ const craftMessage = (meetsConditions) => {
 
   const message = meetsConditions
     .map((tokenObj) => {
-      const { buy_token_symbol, uniqueAddressesCount, totalTxnValue } =
-        tokenObj;
+      const {
+        buy_token_symbol,
+        uniqueAddressesCount,
+        totalTxnValue,
+        buy_token_address,
+      } = tokenObj;
 
-      const tokenMessage = `Token: ${buy_token_symbol}\nBought by ${uniqueAddressesCount} stealth wallets in the last ${MINS_AGO} mins\nTotal Txn Value: $${totalTxnValue.toLocaleString()}`;
+      const tokenMessage = `Token: <b>${buy_token_symbol}</b> \nCA: ${buy_token_address}\nBought by ${uniqueAddressesCount} stealth wallets in the last ${MINS_AGO} mins\nTotal Txn Value: $${totalTxnValue.toLocaleString()}\n<a href="https://www.candlestick.io/crypto/${buy_token_address}">View on Candlestick.io</a>`;
       return tokenMessage;
     })
     .join("\n\n");
@@ -259,12 +263,22 @@ const craftMessage = (meetsConditions) => {
 };
 
 const DEVELOPER_USER_ID = 265435469;
+const USER_V_ID = 278239097;
 
-const USER_IDS = [DEVELOPER_USER_ID, 278239097];
+const USER_IDS = [
+  // dev
+  DEVELOPER_USER_ID,
+  USER_V_ID,
+];
 
 const sendMessage = async (message) => {
   for (const userId of USER_IDS) {
-    await bot.api.sendMessage(userId, message);
+    await bot.api.sendMessage(userId, message, {
+      parse_mode: "HTML",
+      link_preview_options: {
+        is_disabled: true,
+      },
+    });
   }
 };
 
