@@ -4,7 +4,7 @@ import bot from "../../../bot";
 
 const LOGIN_URL = "https://www.candlestick.io/api/v2/user/login-email";
 const STEATH_WALLETS_URL =
-  "https://www.candlestick.io/api/v1/stealth-money/degen-explorer-by-stealth-money?current_page=1&page_size=100&sort_type=3&oriented=1&blockchain_id=2&exploreType=token&days=1&value_filter=200&include_noise_trades=false&fundingSource=ALL&boughtTokenLimit=true&hide_first_mins=0&activeSource=ETH";
+  "https://www.candlestick.io/api/v1/stealth-money/degen-explorer-by-stealth-money?current_page=1&page_size=100&sort_type=3&oriented=1&blockchain_id=2&exploreType=token&days=1&value_filter=120&include_noise_trades=false&fundingSource=ALL&boughtTokenLimit=true&hide_first_mins=0&activeSource=ETH";
 
 const AUTH_TOKEN_KEY = "TOKEN";
 const MINS_AGO = 10;
