@@ -1,5 +1,6 @@
 import { kv } from "@vercel/kv";
 import { unstable_noStore as noStore } from "next/cache";
+import { markdownTable } from "markdown-table";
 import bot from "../../../bot";
 import MOCK_DATA from "../../../mock-data.json";
 
@@ -12,6 +13,7 @@ const PARAMETERS = {
   MINS_AGO: 10,
   WALLET_COUNT_THRESHOLD: 3,
   EXCLUDED_TOKENS: ["WETH", "weth"],
+  DEV_MODE: false,
 };
 
 const {
@@ -24,8 +26,9 @@ const {
   MINS_AGO,
   WALLET_COUNT_THRESHOLD,
   EXCLUDED_TOKENS,
-  // KV store
+  // Dev constants
   AUTH_TOKEN_KEY,
+  DEV_MODE,
 } = PARAMETERS;
 
 console.log("🚀 Running cron job");
@@ -61,7 +64,10 @@ export async function GET() {
   // For debugging
   const message = craftMessage(meetsConditions);
   console.log("Message", message);
-  await sendMessage(message);
+
+  if (!DEV_MODE) {
+    await sendMessage(message);
+  }
 
   return Response.json({ meetsConditions, message }, { status: 200 });
 }
@@ -83,7 +89,7 @@ const getAuthToken = async () => {
 const getToken = async () => {
   const result = await kv.get(AUTH_TOKEN_KEY);
   if (result) {
-    console.log("Found token from KV store");
+    console.log("🔑 Found token from KV store");
   } else {
     console.log("❌ Missing token from KV store");
   }
@@ -198,14 +204,28 @@ const refreshToken = (refreshToken) => {
     body: JSON.stringify({ refresh: refreshToken }),
     method: "PUT",
   });
+  // returns
+  //   {
+  //     "code": 1,
+  //     "message": null,
+  //     "data": {
+  //         "token": "eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiJmYjM0ODM3MS1mZmI1LTQ0OTQtYWI4Ni04MjU3ODZmYjAwMTciLCJyZWZyZXNoVG9rZW5JZCI6MTE4NDEyLCJ1c2VySWQiOjE5MzYwLCJleHAiOjE3MDg0Mzg0MDgsImlhdCI6MTcwODQzODEwOH0.EMoO3YbXwxydhx9FW6zZT0ZJrfJwl61dgE-wzFHVNVvmDncno1XLLgLqX_59XH21uP9R5LNenhcOUmrPF97pGg"
+  //     },
+  //     "extra": null
+  // }
 };
 
 const evaluateTransactions = (list) => {
-  const currentTime = new Date();
-  // const currentTime = parseDate(list[0].time);
+  let currentTime = new Date();
+  if (DEV_MODE) {
+    currentTime = parseDate(list[0].time);
+  }
   const startDate = new Date(currentTime.getTime() - MINS_AGO * 60 * 1000);
 
   // console.log("Start date:", startDate);
+
+  console.log("Evaluating transactions..");
+  // console.log(list[0]);
 
   const map = {};
   list
@@ -219,13 +239,13 @@ const evaluateTransactions = (list) => {
       if (EXCLUDED_TOKENS.includes(buy_token_symbol)) {
         // break;
       } else if (tokenObj) {
-        tokenObj.uniqueAddresses.add(address);
+        tokenObj.distinctAddresses.add(address);
         tokenObj.transactions.push(txn);
       } else {
         map[buy_token_address] = {
           buy_token_address,
           buy_token_symbol,
-          uniqueAddresses: new Set([address]),
+          distinctAddresses: new Set([address]),
           transactions: [txn],
         };
       }
@@ -236,11 +256,11 @@ const evaluateTransactions = (list) => {
 
   for (const token in map) {
     const tokenObj = map[token];
-    const { buy_token_symbol, uniqueAddresses } = tokenObj;
-    const uniqueAddressesCount = uniqueAddresses.size;
+    const { buy_token_symbol, distinctAddresses } = tokenObj;
+    const distinctAddressesCount = distinctAddresses.size;
 
-    tokenObj.uniqueAddresses = Array.from(uniqueAddresses);
-    tokenObj.uniqueAddressesCount = uniqueAddressesCount;
+    tokenObj.distinctAddresses = Array.from(distinctAddresses);
+    tokenObj.distinctAddressesCount = distinctAddressesCount;
 
     const totalTxnValue = tokenObj.transactions.reduce(
       (acc, txn) => acc + txn.txn_value,
@@ -252,8 +272,8 @@ const evaluateTransactions = (list) => {
       token: tokenObj.buy_token_symbol,
       contract_address: tokenObj.buy_token_address,
       transactions: tokenObj.transactions.length,
-      uniqueAddressesCount: tokenObj.uniqueAddressesCount,
-      uniqueAddresses: tokenObj.uniqueAddresses,
+      distinctAddressesCount: tokenObj.distinctAddressesCount,
+      distinctAddresses: tokenObj.distinctAddresses,
     };
     console.log(JSON.stringify(log, null, 2));
 
@@ -261,13 +281,13 @@ const evaluateTransactions = (list) => {
       continue;
     }
 
-    if (uniqueAddressesCount >= WALLET_COUNT_THRESHOLD) {
+    if (distinctAddressesCount >= WALLET_COUNT_THRESHOLD) {
       meetsConditions.push(tokenObj);
     }
   }
 
   meetsConditions = meetsConditions.sort(
-    (a, b) => b.uniqueAddressesCount - a.uniqueAddressesCount
+    (a, b) => b.distinctAddressesCount - a.distinctAddressesCount
   );
 
   return { tokensMap: map, meetsConditions };
@@ -278,26 +298,71 @@ const parseDate = (utcTimeString) => {
   return new Date(Date.UTC(year, month - 1, day, hour, minute, second));
 };
 
+const utcToSgt = (utcDate) => {
+  const offset = 8;
+  const sgtDate = new Date(utcDate.getTime() + offset * 60 * 60 * 1000);
+  return sgtDate;
+};
+
 const craftMessage = (meetsConditions) => {
   if (meetsConditions.length === 0) {
     return `🥱 No tokens have been purchased by ${WALLET_COUNT_THRESHOLD} stealth wallets in the past ${MINS_AGO} mins`;
   }
 
-  const message = meetsConditions
-    .map((tokenObj) => {
-      const {
-        buy_token_symbol,
-        uniqueAddressesCount,
-        totalTxnValue,
-        buy_token_address,
-      } = tokenObj;
+  let message = `<b>Alert #1</b>\nValue ≥ ${VALUE_FILTER}, Wallet Age: ${WALLET_AGE_DAYS}D,${
+    BOUGHT_TOKEN_LIMIT ? "Tokens bought ≤ 2" : ""
+  }, ${WALLET_COUNT_THRESHOLD}+ distinct wallets\n\n`;
 
-      const tokenMessage = `Token: <b>${buy_token_symbol}</b> \nCA: ${buy_token_address}\nBought by ${uniqueAddressesCount} stealth wallets in the last ${MINS_AGO} mins\nTotal Txn Value: $${totalTxnValue.toLocaleString()}\n<a href="https://www.candlestick.io/crypto/${buy_token_address}">View on Candlestick.io</a>`;
-      return tokenMessage;
+  message += meetsConditions
+    .map((tokenObj) => {
+      return constructMessage(tokenObj);
     })
     .join("\n\n");
 
   return message;
+};
+
+const constructMessage = (tokenObj) => {
+  const {
+    buy_token_symbol,
+    distinctAddressesCount,
+    totalTxnValue,
+    buy_token_address,
+    transactions,
+  } = tokenObj;
+
+  const message = `Token: <b>${buy_token_symbol}</b> \nCA: <code>${buy_token_address}</code>\nBought by <b>${distinctAddressesCount}</b> distinct stealth wallets in the last ${MINS_AGO} mins\nTotal Txn Value: $${totalTxnValue.toLocaleString()}\n\n<pre>${constructTable(
+    transactions
+  )}</pre>\n<a href="https://www.candlestick.io/crypto/${buy_token_address}">View token on Candlestick.io</a>`;
+
+  return message;
+};
+
+const constructTable = (transactions) => {
+  return markdownTable(
+    [
+      ["Addr.", "Src", "Price", "Txn Val", "Time"],
+      ...transactions.map((txn) => [
+        `.` + txn.address.slice(-4),
+        txn.fundingSource,
+        txn.buy_price.toLocaleString(undefined, {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1,
+        }),
+        txn.txn_value.toLocaleString(undefined, {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }),
+        utcToSgt(parseDate(txn.time)).toLocaleTimeString("en-SG", {
+          hour12: false, // Use 24-hour time format
+          hour: "2-digit", // 2-digit hour representation
+          minute: "2-digit", // 2-digit minute representation
+          second: "2-digit", // 2-digit second representation (optional)
+        }),
+      ]),
+    ],
+    { align: ["l", "l", "r", "r", "l"] }
+  );
 };
 
 const DEVELOPER_USER_ID = 265435469;
