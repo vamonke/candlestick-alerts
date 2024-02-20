@@ -1,15 +1,38 @@
 import { kv } from "@vercel/kv";
 import { unstable_noStore as noStore } from "next/cache";
 import bot from "../../../bot";
+import MOCK_DATA from "../../../mock-data.json";
+
+const PARAMETERS = {
+  PAGE_SIZE: 100,
+  VALUE_FILTER: 120,
+  WALLET_AGE_DAYS: 1,
+  BOUGHT_TOKEN_LIMIT: true, // Tokens bought <= 2
+  AUTH_TOKEN_KEY: "TOKEN",
+  MINS_AGO: 10,
+  WALLET_COUNT_THRESHOLD: 3,
+  EXCLUDED_TOKENS: ["WETH", "weth"],
+};
+
+const {
+  // API constants
+  PAGE_SIZE,
+  VALUE_FILTER,
+  WALLET_AGE_DAYS,
+  BOUGHT_TOKEN_LIMIT,
+  // Logic constants
+  MINS_AGO,
+  WALLET_COUNT_THRESHOLD,
+  EXCLUDED_TOKENS,
+  // KV store
+  AUTH_TOKEN_KEY,
+} = PARAMETERS;
+
+console.log("🚀 Running cron job");
+console.log(`Parameters: ${JSON.stringify(PARAMETERS, null, 2)}`);
 
 const LOGIN_URL = "https://www.candlestick.io/api/v2/user/login-email";
-const STEATH_WALLETS_URL =
-  "https://www.candlestick.io/api/v1/stealth-money/degen-explorer-by-stealth-money?current_page=1&page_size=100&sort_type=3&oriented=1&blockchain_id=2&exploreType=token&days=1&value_filter=120&include_noise_trades=false&fundingSource=ALL&boughtTokenLimit=true&hide_first_mins=0&activeSource=ETH";
-
-const AUTH_TOKEN_KEY = "TOKEN";
-const MINS_AGO = 10;
-const WALLET_COUNT_THRESHOLD = 3;
-const EXCLUDED_TOKENS = ["WETH", "weth"];
+const STEATH_WALLETS_URL = `https://www.candlestick.io/api/v1/stealth-money/degen-explorer-by-stealth-money?current_page=1&page_size=${PAGE_SIZE}&sort_type=3&oriented=1&blockchain_id=2&exploreType=token&days=${WALLET_AGE_DAYS}&value_filter=${VALUE_FILTER}&include_noise_trades=false&fundingSource=ALL&boughtTokenLimit=${BOUGHT_TOKEN_LIMIT}&hide_first_mins=0&activeSource=ETH`;
 
 export async function GET() {
   noStore();
@@ -31,10 +54,11 @@ export async function GET() {
   if (meetsConditions.length === 0) {
     console.log("🥱 No token meets conditions");
     return Response.json({ meetsConditions }, { status: 200 });
-  } else {
-    console.log("✅ Meets conditions", meetsConditions.length, "tokens");
   }
 
+  console.log("✅ Meets conditions", meetsConditions.length, "tokens");
+
+  // For debugging
   const message = craftMessage(meetsConditions);
   console.log("Message", message);
   await sendMessage(message);
@@ -67,7 +91,7 @@ const getToken = async () => {
 };
 
 const checkToken = async (token) => {
-  console.log("Checking if token is valid..");
+  console.log("Checking if auth token is valid..");
   try {
     const result = await fetch(
       "https://www.candlestick.io/api/v1/user/user-info",
@@ -82,15 +106,15 @@ const checkToken = async (token) => {
     const valid = json.code === 1;
 
     if (valid) {
-      console.log("✅ Token is valid");
+      console.log("✅ Auth token is valid");
     } else {
-      console.log("❌ Invalid token from KV store");
+      console.log("❌ Invalid auth token from KV store");
     }
 
     return valid;
   } catch (error) {
     console.error(error);
-    console.log("❌ Invalid token from KV store");
+    console.log("❌ Invalid auth token from KV store");
     return false;
   }
 };
@@ -178,8 +202,10 @@ const refreshToken = (refreshToken) => {
 
 const evaluateTransactions = (list) => {
   const currentTime = new Date();
+  // const currentTime = parseDate(list[0].time);
   const startDate = new Date(currentTime.getTime() - MINS_AGO * 60 * 1000);
-  // const startDate = parseDate("2024-02-12 08:00:00");
+
+  // console.log("Start date:", startDate);
 
   const map = {};
   list
@@ -190,7 +216,9 @@ const evaluateTransactions = (list) => {
     .forEach((txn) => {
       const { address, buy_token_symbol, buy_token_address } = txn;
       const tokenObj = map[buy_token_address];
-      if (tokenObj) {
+      if (EXCLUDED_TOKENS.includes(buy_token_symbol)) {
+        // break;
+      } else if (tokenObj) {
         tokenObj.uniqueAddresses.add(address);
         tokenObj.transactions.push(txn);
       } else {
@@ -204,6 +232,7 @@ const evaluateTransactions = (list) => {
     });
 
   let meetsConditions = [];
+  console.log("Token map:");
 
   for (const token in map) {
     const tokenObj = map[token];
@@ -218,6 +247,15 @@ const evaluateTransactions = (list) => {
       0
     );
     tokenObj.totalTxnValue = totalTxnValue;
+
+    const log = {
+      token: tokenObj.buy_token_symbol,
+      contract_address: tokenObj.buy_token_address,
+      transactions: tokenObj.transactions.length,
+      uniqueAddressesCount: tokenObj.uniqueAddressesCount,
+      uniqueAddresses: tokenObj.uniqueAddresses,
+    };
+    console.log(JSON.stringify(log, null, 2));
 
     if (EXCLUDED_TOKENS.includes(buy_token_symbol)) {
       continue;
