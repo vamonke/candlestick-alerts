@@ -4725,160 +4725,10 @@
         "botOperationTrade": false
       },
       {
-        "time": "2024-02-19 19:30:35",
-        "address": "0xd25738ad2c5e5b436321cae82c13280c91a6c242",
-        "address_info": {
-          "address": "0xd25738ad2c5e5b436321cae82c13280c91a6c242",
-          "icons": null,
-          "tags": null,
-          "name": null,
-          "level": null
-        },
-        "buy_token_symbol": "OTER",
-        "buy_token_address": "0x4fdf9408b32c706026bfb954d6d33d69f1f4e13b",
-        "buy_token_identifier": null,
-        "buy_token_amount": 12701374.137100604,
-        "buy_price": 0.00001152009211134074261568464464,
-        "buy_token_honeypot": false,
-        "buy_token_decimals": 9,
-        "buy_token_name": "Oter",
-        "buy_token_icon": "https://storage.googleapis.com/candlestick/logo/none.png",
-        "sell_token_symbol": "WETH",
-        "sell_token_address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-        "sell_token_identifier": null,
-        "sell_token_amount": 0.050000000000000000,
-        "sell_price": 2926.42,
-        "sell_token_honeypot": false,
-        "sell_token_decimals": 18,
-        "sell_token_name": "Wrapped Ether",
-        "sell_token_icon": "https://storage.googleapis.com/candlestick/logo/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.png",
-        "txn_value": 146.32100000000000000000,
-        "dex": "Uniswap V2",
-        "via": "0x3328f7f4a1d1c57c35df56bbf0c9dcafca309c49",
-        "via_info": {
-          "address": "0x3328f7f4a1d1c57c35df56bbf0c9dcafca309c49",
-          "icons": [
-            100
-          ],
-          "tags": [
-            "Contract"
-          ],
-          "name": "Contract: TransparentUpgradeableProxy",
-          "level": null
-        },
-        "tx_hash": "0xee9cf244e5f58a90938d20be4407873e1a3fc3873299ba03312bd235cf338d4f",
-        "pool": "OTER/weth",
-        "in_flashbot": false,
-        "is_noise": null,
-        "is_tax": true,
-        "fundingSource": "CEX",
-        "botOperationTrade": false
-      },
-      {
-        "time": "2024-02-19 19:30:35",
-        "address": "0x2c2593399287f137222b52bc51bc9b3e50463026",
-        "address_info": {
-          "address": "0x2c2593399287f137222b52bc51bc9b3e50463026",
-          "icons": null,
-          "tags": null,
-          "name": null,
-          "level": null
-        },
-        "buy_token_symbol": "OTER",
-        "buy_token_address": "0x4fdf9408b32c706026bfb954d6d33d69f1f4e13b",
-        "buy_token_identifier": null,
-        "buy_token_amount": 11426149.721015688,
-        "buy_price": 0.00001280580104169974954183937166,
-        "buy_token_honeypot": false,
-        "buy_token_decimals": 9,
-        "buy_token_name": "Oter",
-        "buy_token_icon": "https://storage.googleapis.com/candlestick/logo/none.png",
-        "sell_token_symbol": "WETH",
-        "sell_token_address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-        "sell_token_identifier": null,
-        "sell_token_amount": 0.050000000000000000,
-        "sell_price": 2926.42,
-        "sell_token_honeypot": false,
-        "sell_token_decimals": 18,
-        "sell_token_name": "Wrapped Ether",
-        "sell_token_icon": "https://storage.googleapis.com/candlestick/logo/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.png",
-        "txn_value": 146.32100000000000000000,
-        "dex": "Uniswap V2",
-        "via": "0x3328f7f4a1d1c57c35df56bbf0c9dcafca309c49",
-        "via_info": {
-          "address": "0x3328f7f4a1d1c57c35df56bbf0c9dcafca309c49",
-          "icons": [
-            100
-          ],
-          "tags": [
-            "Contract"
-          ],
-          "name": "Contract: TransparentUpgradeableProxy",
-          "level": null
-        },
-        "tx_hash": "0x12fb7641fb44fb20fa1db67c008766d3b8dc7bbbfe8c36088f97c98fbc4b06e2",
-        "pool": "OTER/weth",
-        "in_flashbot": false,
-        "is_noise": null,
-        "is_tax": true,
-        "fundingSource": "CEX",
-        "botOperationTrade": false
-      },
-      {
-        "time": "2024-02-19 19:30:35",
-        "address": "0x89c388742d12b9f804bf5ada493d61d2fc273295",
-        "address_info": {
-          "address": "0x89c388742d12b9f804bf5ada493d61d2fc273295",
-          "icons": null,
-          "tags": null,
-          "name": null,
-          "level": null
-        },
-        "buy_token_symbol": "OTER",
-        "buy_token_address": "0x4fdf9408b32c706026bfb954d6d33d69f1f4e13b",
-        "buy_token_identifier": null,
-        "buy_token_amount": 10859416.883439358,
-        "buy_price": 0.00001347411206057849626374716211,
-        "buy_token_honeypot": false,
-        "buy_token_decimals": 9,
-        "buy_token_name": "Oter",
-        "buy_token_icon": "https://storage.googleapis.com/candlestick/logo/none.png",
-        "sell_token_symbol": "WETH",
-        "sell_token_address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-        "sell_token_identifier": null,
-        "sell_token_amount": 0.050000000000000000,
-        "sell_price": 2926.42,
-        "sell_token_honeypot": false,
-        "sell_token_decimals": 18,
-        "sell_token_name": "Wrapped Ether",
-        "sell_token_icon": "https://storage.googleapis.com/candlestick/logo/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.png",
-        "txn_value": 146.32100000000000000000,
-        "dex": "Uniswap V2",
-        "via": "0x3328f7f4a1d1c57c35df56bbf0c9dcafca309c49",
-        "via_info": {
-          "address": "0x3328f7f4a1d1c57c35df56bbf0c9dcafca309c49",
-          "icons": [
-            100
-          ],
-          "tags": [
-            "Contract"
-          ],
-          "name": "Contract: TransparentUpgradeableProxy",
-          "level": null
-        },
-        "tx_hash": "0xdd8de002c2c760d78cd01f00e51d10faf88748bf9ee7b7a6aba1fcd040e157a9",
-        "pool": "OTER/weth",
-        "in_flashbot": false,
-        "is_noise": null,
-        "is_tax": true,
-        "fundingSource": "CEX",
-        "botOperationTrade": false
-      },
-      {
         "time": "2024-02-19 19:27:35",
-        "address": "0x440e3b405588f922a3e12cc5320463f7c911b0b3",
+        "address": "0xce7fe0caa13339b6be0d889eb23cafd262c3a11b",
         "address_info": {
-          "address": "0x440e3b405588f922a3e12cc5320463f7c911b0b3",
+          "address": "0xce7fe0caa13339b6be0d889eb23cafd262c3a11b",
           "icons": null,
           "tags": null,
           "name": null,
@@ -4887,8 +4737,8 @@
         "buy_token_symbol": "OTER",
         "buy_token_address": "0x4fdf9408b32c706026bfb954d6d33d69f1f4e13b",
         "buy_token_identifier": null,
-        "buy_token_amount": 5276318.836833002,
-        "buy_price": 0.00002772956004452139234290078658,
+        "buy_token_amount": 5501195.854895237,
+        "buy_price": 0.00002659603545469229262013612287,
         "buy_token_honeypot": false,
         "buy_token_decimals": 9,
         "buy_token_name": "Oter",
@@ -4916,107 +4766,7 @@
           "name": "Contract: TransparentUpgradeableProxy",
           "level": null
         },
-        "tx_hash": "0x311ae8a1e2f9985edaa8aff3bc5e26f1f3882962480b4fe6ec7189baeb4d189d",
-        "pool": "OTER/weth",
-        "in_flashbot": false,
-        "is_noise": null,
-        "is_tax": true,
-        "fundingSource": "CEX",
-        "botOperationTrade": false
-      },
-      {
-        "time": "2024-02-19 19:27:35",
-        "address": "0x28ce7a26e4c86e88139a44d6a1e177c01446a1b3",
-        "address_info": {
-          "address": "0x28ce7a26e4c86e88139a44d6a1e177c01446a1b3",
-          "icons": null,
-          "tags": null,
-          "name": null,
-          "level": null
-        },
-        "buy_token_symbol": "OTER",
-        "buy_token_address": "0x4fdf9408b32c706026bfb954d6d33d69f1f4e13b",
-        "buy_token_identifier": null,
-        "buy_token_amount": 4678653.327375497,
-        "buy_price": 0.00003127181899627365269466912829,
-        "buy_token_honeypot": false,
-        "buy_token_decimals": 9,
-        "buy_token_name": "Oter",
-        "buy_token_icon": "https://storage.googleapis.com/candlestick/logo/none.png",
-        "sell_token_symbol": "WETH",
-        "sell_token_address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-        "sell_token_identifier": null,
-        "sell_token_amount": 0.050000000000000000,
-        "sell_price": 2926.2,
-        "sell_token_honeypot": false,
-        "sell_token_decimals": 18,
-        "sell_token_name": "Wrapped Ether",
-        "sell_token_icon": "https://storage.googleapis.com/candlestick/logo/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.png",
-        "txn_value": 146.3100000000000000000,
-        "dex": "Uniswap V2",
-        "via": "0x3328f7f4a1d1c57c35df56bbf0c9dcafca309c49",
-        "via_info": {
-          "address": "0x3328f7f4a1d1c57c35df56bbf0c9dcafca309c49",
-          "icons": [
-            100
-          ],
-          "tags": [
-            "Contract"
-          ],
-          "name": "Contract: TransparentUpgradeableProxy",
-          "level": null
-        },
-        "tx_hash": "0x58f7e154b292b80a4db528a6662bee696edef7a39a12fa77542ea0964b059e4a",
-        "pool": "OTER/weth",
-        "in_flashbot": false,
-        "is_noise": null,
-        "is_tax": true,
-        "fundingSource": "CEX",
-        "botOperationTrade": false
-      },
-      {
-        "time": "2024-02-19 19:27:35",
-        "address": "0x0b9ee122e11d335e0ab0e04911a39c196a48ae1c",
-        "address_info": {
-          "address": "0x0b9ee122e11d335e0ab0e04911a39c196a48ae1c",
-          "icons": null,
-          "tags": null,
-          "name": null,
-          "level": null
-        },
-        "buy_token_symbol": "OTER",
-        "buy_token_address": "0x4fdf9408b32c706026bfb954d6d33d69f1f4e13b",
-        "buy_token_identifier": null,
-        "buy_token_amount": 5064960.727501918,
-        "buy_price": 0.00002888669979326006438611552437,
-        "buy_token_honeypot": false,
-        "buy_token_decimals": 9,
-        "buy_token_name": "Oter",
-        "buy_token_icon": "https://storage.googleapis.com/candlestick/logo/none.png",
-        "sell_token_symbol": "WETH",
-        "sell_token_address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-        "sell_token_identifier": null,
-        "sell_token_amount": 0.050000000000000000,
-        "sell_price": 2926.2,
-        "sell_token_honeypot": false,
-        "sell_token_decimals": 18,
-        "sell_token_name": "Wrapped Ether",
-        "sell_token_icon": "https://storage.googleapis.com/candlestick/logo/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.png",
-        "txn_value": 146.3100000000000000000,
-        "dex": "Uniswap V2",
-        "via": "0x3328f7f4a1d1c57c35df56bbf0c9dcafca309c49",
-        "via_info": {
-          "address": "0x3328f7f4a1d1c57c35df56bbf0c9dcafca309c49",
-          "icons": [
-            100
-          ],
-          "tags": [
-            "Contract"
-          ],
-          "name": "Contract: TransparentUpgradeableProxy",
-          "level": null
-        },
-        "tx_hash": "0x7953d02ddc974d7b1b69620b636277e28e3349fdd45dfe0c1886bac6e217abc9",
+        "tx_hash": "0xcaee7747761331477c1f8a69e9e4f3a6fbc952bef5eb4bcc6054b9fbd508ac17",
         "pool": "OTER/weth",
         "in_flashbot": false,
         "is_noise": null,
@@ -5029,6 +4779,206 @@
         "address": "0xce7fe0caa13339b6be0d889eb23cafd262c3a11b",
         "address_info": {
           "address": "0xce7fe0caa13339b6be0d889eb23cafd262c3a11b",
+          "icons": null,
+          "tags": null,
+          "name": null,
+          "level": null
+        },
+        "buy_token_symbol": "OTER",
+        "buy_token_address": "0x4fdf9408b32c706026bfb954d6d33d69f1f4e13b",
+        "buy_token_identifier": null,
+        "buy_token_amount": 5501195.854895237,
+        "buy_price": 0.00002659603545469229262013612287,
+        "buy_token_honeypot": false,
+        "buy_token_decimals": 9,
+        "buy_token_name": "Oter",
+        "buy_token_icon": "https://storage.googleapis.com/candlestick/logo/none.png",
+        "sell_token_symbol": "WETH",
+        "sell_token_address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "sell_token_identifier": null,
+        "sell_token_amount": 0.050000000000000000,
+        "sell_price": 2926.2,
+        "sell_token_honeypot": false,
+        "sell_token_decimals": 18,
+        "sell_token_name": "Wrapped Ether",
+        "sell_token_icon": "https://storage.googleapis.com/candlestick/logo/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.png",
+        "txn_value": 146.3100000000000000000,
+        "dex": "Uniswap V2",
+        "via": "0x3328f7f4a1d1c57c35df56bbf0c9dcafca309c49",
+        "via_info": {
+          "address": "0x3328f7f4a1d1c57c35df56bbf0c9dcafca309c49",
+          "icons": [
+            100
+          ],
+          "tags": [
+            "Contract"
+          ],
+          "name": "Contract: TransparentUpgradeableProxy",
+          "level": null
+        },
+        "tx_hash": "0xcaee7747761331477c1f8a69e9e4f3a6fbc952bef5eb4bcc6054b9fbd508ac17",
+        "pool": "OTER/weth",
+        "in_flashbot": false,
+        "is_noise": null,
+        "is_tax": true,
+        "fundingSource": "CEX",
+        "botOperationTrade": false
+      },
+      {
+        "time": "2024-02-19 19:27:35",
+        "address": "0xce7fe0caa13339b6be0d889eb23cafd262c3a11b",
+        "address_info": {
+          "address": "0xce7fe0caa13339b6be0d889eb23cafd262c3a11b",
+          "icons": null,
+          "tags": null,
+          "name": null,
+          "level": null
+        },
+        "buy_token_symbol": "OTER",
+        "buy_token_address": "0x4fdf9408b32c706026bfb954d6d33d69f1f4e13b",
+        "buy_token_identifier": null,
+        "buy_token_amount": 5501195.854895237,
+        "buy_price": 0.00002659603545469229262013612287,
+        "buy_token_honeypot": false,
+        "buy_token_decimals": 9,
+        "buy_token_name": "Oter",
+        "buy_token_icon": "https://storage.googleapis.com/candlestick/logo/none.png",
+        "sell_token_symbol": "WETH",
+        "sell_token_address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "sell_token_identifier": null,
+        "sell_token_amount": 0.050000000000000000,
+        "sell_price": 2926.2,
+        "sell_token_honeypot": false,
+        "sell_token_decimals": 18,
+        "sell_token_name": "Wrapped Ether",
+        "sell_token_icon": "https://storage.googleapis.com/candlestick/logo/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.png",
+        "txn_value": 346.3100000000000000000,
+        "dex": "Uniswap V2",
+        "via": "0x3328f7f4a1d1c57c35df56bbf0c9dcafca309c49",
+        "via_info": {
+          "address": "0x3328f7f4a1d1c57c35df56bbf0c9dcafca309c49",
+          "icons": [
+            100
+          ],
+          "tags": [
+            "Contract"
+          ],
+          "name": "Contract: TransparentUpgradeableProxy",
+          "level": null
+        },
+        "tx_hash": "0xcaee7747761331477c1f8a69e9e4f3a6fbc952bef5eb4bcc6054b9fbd508ac17",
+        "pool": "OTER/weth",
+        "in_flashbot": false,
+        "is_noise": null,
+        "is_tax": true,
+        "fundingSource": "CEX",
+        "botOperationTrade": false
+      },
+      {
+        "time": "2024-02-19 19:27:35",
+        "address": "0xce7fe0caa13339b6be0d889eb23cafd262c3a11b",
+        "address_info": {
+          "address": "0xce7fe0caa13339b6be0d889eb23cafd262c3a11b",
+          "icons": null,
+          "tags": null,
+          "name": null,
+          "level": null
+        },
+        "buy_token_symbol": "OTER",
+        "buy_token_address": "0x4fdf9408b32c706026bfb954d6d33d69f1f4e13b",
+        "buy_token_identifier": null,
+        "buy_token_amount": 5501195.854895237,
+        "buy_price": 0.00002659603545469229262013612287,
+        "buy_token_honeypot": false,
+        "buy_token_decimals": 9,
+        "buy_token_name": "Oter",
+        "buy_token_icon": "https://storage.googleapis.com/candlestick/logo/none.png",
+        "sell_token_symbol": "WETH",
+        "sell_token_address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "sell_token_identifier": null,
+        "sell_token_amount": 0.050000000000000000,
+        "sell_price": 2926.2,
+        "sell_token_honeypot": false,
+        "sell_token_decimals": 18,
+        "sell_token_name": "Wrapped Ether",
+        "sell_token_icon": "https://storage.googleapis.com/candlestick/logo/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.png",
+        "txn_value": 346.3100000000000000000,
+        "dex": "Uniswap V2",
+        "via": "0x3328f7f4a1d1c57c35df56bbf0c9dcafca309c49",
+        "via_info": {
+          "address": "0x3328f7f4a1d1c57c35df56bbf0c9dcafca309c49",
+          "icons": [
+            100
+          ],
+          "tags": [
+            "Contract"
+          ],
+          "name": "Contract: TransparentUpgradeableProxy",
+          "level": null
+        },
+        "tx_hash": "0xcaee7747761331477c1f8a69e9e4f3a6fbc952bef5eb4bcc6054b9fbd508ac17",
+        "pool": "OTER/weth",
+        "in_flashbot": false,
+        "is_noise": null,
+        "is_tax": true,
+        "fundingSource": "CEX",
+        "botOperationTrade": false
+      },
+      {
+        "time": "2024-02-19 19:27:35",
+        "address": "0x333ce7fe0caa19b6be0d889eb23cafd262c3a11b",
+        "address_info": {
+          "address": "0x333ce7fe0caa19b6be0d889eb23cafd262c3a11b",
+          "icons": null,
+          "tags": null,
+          "name": null,
+          "level": null
+        },
+        "buy_token_symbol": "OTER",
+        "buy_token_address": "0x4fdf9408b32c706026bfb954d6d33d69f1f4e13b",
+        "buy_token_identifier": null,
+        "buy_token_amount": 5501195.854895237,
+        "buy_price": 0.00002659603545469229262013612287,
+        "buy_token_honeypot": false,
+        "buy_token_decimals": 9,
+        "buy_token_name": "Oter",
+        "buy_token_icon": "https://storage.googleapis.com/candlestick/logo/none.png",
+        "sell_token_symbol": "WETH",
+        "sell_token_address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "sell_token_identifier": null,
+        "sell_token_amount": 0.050000000000000000,
+        "sell_price": 2926.2,
+        "sell_token_honeypot": false,
+        "sell_token_decimals": 18,
+        "sell_token_name": "Wrapped Ether",
+        "sell_token_icon": "https://storage.googleapis.com/candlestick/logo/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.png",
+        "txn_value": 246.3100000000000000000,
+        "dex": "Uniswap V2",
+        "via": "0x3328f7f4a1d1c57c35df56bbf0c9dcafca309c49",
+        "via_info": {
+          "address": "0x3328f7f4a1d1c57c35df56bbf0c9dcafca309c49",
+          "icons": [
+            100
+          ],
+          "tags": [
+            "Contract"
+          ],
+          "name": "Contract: TransparentUpgradeableProxy",
+          "level": null
+        },
+        "tx_hash": "0xcaee7747761331477c1f8a69e9e4f3a6fbc952bef5eb4bcc6054b9fbd508ac17",
+        "pool": "OTER/weth",
+        "in_flashbot": false,
+        "is_noise": null,
+        "is_tax": true,
+        "fundingSource": "CEX",
+        "botOperationTrade": false
+      },
+      {
+        "time": "2024-02-19 19:27:35",
+        "address": "0xa11bce7fe0caa13339b6be0d889eb23cafd262c3",
+        "address_info": {
+          "address": "0xa11bce7fe0caa13339b6be0d889eb23cafd262c3",
           "icons": null,
           "tags": null,
           "name": null,

@@ -14,6 +14,7 @@ const PARAMETERS = {
   WALLET_COUNT_THRESHOLD: 3,
   EXCLUDED_TOKENS: ["WETH", "weth"],
   DEV_MODE: false,
+  USE_MOCK_DATA: false,
 };
 
 const {
@@ -29,6 +30,7 @@ const {
   // Dev constants
   AUTH_TOKEN_KEY,
   DEV_MODE,
+  USE_MOCK_DATA,
 } = PARAMETERS;
 
 console.log("🚀 Running cron job");
@@ -46,8 +48,10 @@ export async function GET() {
     return Response.json({ error }, { status: 500 });
   }
 
-  const steathMoney = await getStealthWallets(token);
-  // const steathMoney = MOCK_DATA;
+  let steathMoney = await getStealthWallets(token);
+  if (USE_MOCK_DATA) {
+    steathMoney = MOCK_DATA;
+  }
 
   const { meetsConditions, tokensMap } = evaluateTransactions(
     steathMoney.data.chart
@@ -65,9 +69,7 @@ export async function GET() {
   const message = craftMessage(meetsConditions);
   console.log("Message", message);
 
-  if (!DEV_MODE) {
-    await sendMessage(message);
-  }
+  await sendMessage(message);
 
   return Response.json({ meetsConditions, message }, { status: 200 });
 }
@@ -304,6 +306,51 @@ const utcToSgt = (utcDate) => {
   return sgtDate;
 };
 
+const parsePrice = (number) => {
+  if (number >= 10) {
+    return number.toPrecision(4);
+  }
+
+  if (number >= 1) {
+    return number.toPrecision(4);
+  }
+
+  if (number >= 0.1) {
+    return number.toLocaleString(undefined, {
+      minimumFractionDigits: 4,
+      maximumFractionDigits: 4,
+    });
+  }
+
+  if (number >= 0.01) {
+    return number.toLocaleString(undefined, {
+      minimumFractionDigits: 5,
+      maximumFractionDigits: 5,
+    });
+  }
+
+  // Convert the number to scientific notation first to easily extract parts
+  let scientificNotation = number.toExponential();
+  let [base, exponent] = scientificNotation
+    .split("e")
+    .map((part) => parseFloat(part, 10));
+
+  let zerosNeeded = Math.abs(exponent) - 1; // Subtract 1 to account for the digit before the decimal
+
+  // Construct the custom format
+  let formattedNumber = `0.0(${zerosNeeded})${base
+    .toFixed(3)
+    .replace(".", "")}`;
+  return formattedNumber;
+};
+
+const parseValue = (number) => {
+  return number.toLocaleString(undefined, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
+};
+
 const craftMessage = (meetsConditions) => {
   if (meetsConditions.length === 0) {
     return `🥱 No tokens have been purchased by ${WALLET_COUNT_THRESHOLD} stealth wallets in the past ${MINS_AGO} mins`;
@@ -341,18 +388,12 @@ const constructMessage = (tokenObj) => {
 const constructTable = (transactions) => {
   return markdownTable(
     [
-      ["Addr.", "Src", "Price", "Txn Val", "Time"],
+      ["Addr", "Src", "Price", "TxnVal", "Time"],
       ...transactions.map((txn) => [
-        `.` + txn.address.slice(-4),
+        txn.address.slice(-4),
         txn.fundingSource,
-        txn.buy_price.toLocaleString(undefined, {
-          minimumFractionDigits: 1,
-          maximumFractionDigits: 1,
-        }),
-        txn.txn_value.toLocaleString(undefined, {
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0,
-        }),
+        parsePrice(txn.buy_price),
+        parseValue(txn.txn_value),
         utcToSgt(parseDate(txn.time)).toLocaleTimeString("en-SG", {
           hour12: false, // Use 24-hour time format
           hour: "2-digit", // 2-digit hour representation
@@ -360,8 +401,14 @@ const constructTable = (transactions) => {
           second: "2-digit", // 2-digit second representation (optional)
         }),
       ]),
+      ...(transactions.length <= 3 ? [["", "", "", "", ""]] : []),
     ],
-    { align: ["l", "l", "r", "r", "l"] }
+    {
+      align: ["l", "l", "r", "r", "l"],
+      padding: true,
+      delimiterStart: false,
+      delimiterEnd: false,
+    }
   );
 };
 
@@ -375,7 +422,8 @@ const USER_IDS = [
 ];
 
 const sendMessage = async (message) => {
-  for (const userId of USER_IDS) {
+  const recipientIds = DEV_MODE ? [DEVELOPER_USER_ID] : USER_IDS;
+  for (const userId of recipientIds) {
     await bot.api.sendMessage(userId, message, {
       parse_mode: "HTML",
       link_preview_options: {
