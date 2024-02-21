@@ -10,7 +10,7 @@ const PARAMETERS = {
   WALLET_AGE_DAYS: 1,
   BOUGHT_TOKEN_LIMIT: true, // Tokens bought <= 2
   AUTH_TOKEN_KEY: "TOKEN",
-  MINS_AGO: 10,
+  MINS_AGO: 5,
   WALLET_COUNT_THRESHOLD: 3,
   EXCLUDED_TOKENS: ["WETH", "weth"],
   DEV_MODE: false,
