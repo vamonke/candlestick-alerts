@@ -27,16 +27,17 @@ const ALERTS = [
     minDistinctWallets: 3,
     excludedTokens: ["WETH", "weth"],
   },
-  // {
-  //   name: "Stealth Wallets (7D, any token)",
-  //   pageSize: 100,
-  //   valueFilter: 120,
-  //   walletAgeDays: 7,
-  //   boughtTokenLimit: false, // Any tokens bought
-  //   minsAgo: 5,
-  //   minDistinctWallets: 3,
-  //   excludedTokens: ["WETH", "weth"],
-  // },
+  {
+    name: "Stealth Wallets (7D, any token)",
+    pageSize: 100,
+    valueFilter: 120,
+    walletAgeDays: 7,
+    boughtTokenLimit: false, // Any tokens bought
+    minsAgo: 5,
+    // minsAgo: 30, // For testing
+    minDistinctWallets: 3,
+    excludedTokens: ["WETH", "weth"],
+  },
 ];
 
 console.log("🚀 Running cron job");
@@ -60,6 +61,7 @@ export async function GET() {
     console.log(`Executing alert #${index + 1}`);
     console.log(`Parameters: ${JSON.stringify(alert, null, 2)}`);
     await executeAlert({ alert, authToken: token });
+    console.log(`Finished executing alert #${index + 1}`);
   }
 
   return Response.json({ success: true }, { status: 200 });
