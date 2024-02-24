@@ -4,74 +4,65 @@ import { markdownTable } from "markdown-table";
 import bot from "../../../bot";
 import MOCK_DATA from "../../../mock-data.json";
 
-const PARAMETERS = {
-  PAGE_SIZE: 100,
-  VALUE_FILTER: 120,
-  WALLET_AGE_DAYS: 1,
-  BOUGHT_TOKEN_LIMIT: true, // Tokens bought <= 2
-  AUTH_TOKEN_KEY: "TOKEN",
-  MINS_AGO: 5,
-  WALLET_COUNT_THRESHOLD: 3,
-  EXCLUDED_TOKENS: ["WETH", "weth"],
-  DEV_MODE: false,
-  USE_MOCK_DATA: false,
-};
+const AUTH_TOKEN_KEY = "auth_token";
+const DEV_MODE = false;
+const USE_MOCK_DATA = false;
+const SEND_MESSAGE = true;
 
-const {
-  // API constants
-  PAGE_SIZE,
-  VALUE_FILTER,
-  WALLET_AGE_DAYS,
-  BOUGHT_TOKEN_LIMIT,
-  // Logic constants
-  MINS_AGO,
-  WALLET_COUNT_THRESHOLD,
-  EXCLUDED_TOKENS,
-  // Dev constants
+const PARAMETERS = {
   AUTH_TOKEN_KEY,
   DEV_MODE,
   USE_MOCK_DATA,
-} = PARAMETERS;
+  SEND_MESSAGE,
+};
+
+const ALERTS = [
+  {
+    name: "Stealth Wallets (1D, 1 token)",
+    pageSize: 100,
+    valueFilter: 120,
+    walletAgeDays: 1,
+    boughtTokenLimit: true, // Tokens bought <= 2
+    minsAgo: 5,
+    minDistinctWallets: 3,
+    excludedTokens: ["WETH", "weth"],
+  },
+  // {
+  //   name: "Stealth Wallets (7D, any token)",
+  //   pageSize: 100,
+  //   valueFilter: 120,
+  //   walletAgeDays: 7,
+  //   boughtTokenLimit: false, // Any tokens bought
+  //   minsAgo: 5,
+  //   minDistinctWallets: 3,
+  //   excludedTokens: ["WETH", "weth"],
+  // },
+];
 
 console.log("🚀 Running cron job");
 console.log(`Parameters: ${JSON.stringify(PARAMETERS, null, 2)}`);
 
 const LOGIN_URL = "https://www.candlestick.io/api/v2/user/login-email";
-const STEATH_WALLETS_URL = `https://www.candlestick.io/api/v1/stealth-money/degen-explorer-by-stealth-money?current_page=1&page_size=${PAGE_SIZE}&sort_type=3&oriented=1&blockchain_id=2&exploreType=token&days=${WALLET_AGE_DAYS}&value_filter=${VALUE_FILTER}&include_noise_trades=false&fundingSource=ALL&boughtTokenLimit=${BOUGHT_TOKEN_LIMIT}&hide_first_mins=0&activeSource=ETH`;
 
 export async function GET() {
   noStore();
   const token = await getAuthToken();
+
   if (!token) {
     const error = "⁉️ Missing token";
     sendError(error);
     return Response.json({ error }, { status: 500 });
   }
 
-  let steathMoney = await getStealthWallets(token);
-  if (USE_MOCK_DATA) {
-    steathMoney = MOCK_DATA;
+  console.log(`Alerts to execute: ${ALERTS.length}`);
+
+  for (const [index, alert] of ALERTS.entries()) {
+    console.log(`Executing alert #${index + 1}`);
+    console.log(`Parameters: ${JSON.stringify(alert, null, 2)}`);
+    await executeAlert({ alert, authToken: token });
   }
 
-  const { meetsConditions, tokensMap } = evaluateTransactions(
-    steathMoney.data.chart
-  );
-
-  // For debugging
-  if (meetsConditions.length === 0) {
-    console.log("🥱 No token meets conditions");
-    return Response.json({ meetsConditions }, { status: 200 });
-  }
-
-  console.log("✅ Meets conditions", meetsConditions.length, "tokens");
-
-  // For debugging
-  const message = craftMessage(meetsConditions);
-  console.log("Message", message);
-
-  await sendMessage(message);
-
-  return Response.json({ meetsConditions, message }, { status: 200 });
+  return Response.json({ success: true }, { status: 200 });
 }
 
 const getAuthToken = async () => {
@@ -174,11 +165,11 @@ const setToken = async (token) => {
   }
 };
 
-const getStealthWallets = async (token) => {
+const getStealthWallets = async ({ url, authToken }) => {
   try {
-    const result = await fetch(STEATH_WALLETS_URL, {
+    const result = await fetch(url, {
       headers: {
-        "x-authorization": token,
+        "x-authorization": authToken,
         "Content-Type": "application/json",
       },
       method: "GET",
@@ -197,54 +188,61 @@ const getStealthWallets = async (token) => {
   }
 };
 
-const refreshToken = (refreshToken) => {
-  fetch("https://www.candlestick.io/api/v2/user/refresh-token", {
-    headers: {
-      accept: "application/json",
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({ refresh: refreshToken }),
-    method: "PUT",
-  });
-  // returns
-  //   {
-  //     "code": 1,
-  //     "message": null,
-  //     "data": {
-  //         "token": "eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiJmYjM0ODM3MS1mZmI1LTQ0OTQtYWI4Ni04MjU3ODZmYjAwMTciLCJyZWZyZXNoVG9rZW5JZCI6MTE4NDEyLCJ1c2VySWQiOjE5MzYwLCJleHAiOjE3MDg0Mzg0MDgsImlhdCI6MTcwODQzODEwOH0.EMoO3YbXwxydhx9FW6zZT0ZJrfJwl61dgE-wzFHVNVvmDncno1XLLgLqX_59XH21uP9R5LNenhcOUmrPF97pGg"
-  //     },
-  //     "extra": null
-  // }
-};
+// const refreshToken = (refreshToken) => {
+//   fetch("https://www.candlestick.io/api/v2/user/refresh-token", {
+//     headers: {
+//       accept: "application/json",
+//       "content-type": "application/json",
+//     },
+//     body: JSON.stringify({ refresh: refreshToken }),
+//     method: "PUT",
+//   });
+//   // returns
+//   //   {
+//   //     "code": 1,
+//   //     "message": null,
+//   //     "data": {
+//   //         "token": "eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiJmYjM0ODM3MS1mZmI1LTQ0OTQtYWI4Ni04MjU3ODZmYjAwMTciLCJyZWZyZXNoVG9rZW5JZCI6MTE4NDEyLCJ1c2VySWQiOjE5MzYwLCJleHAiOjE3MDg0Mzg0MDgsImlhdCI6MTcwODQzODEwOH0.EMoO3YbXwxydhx9FW6zZT0ZJrfJwl61dgE-wzFHVNVvmDncno1XLLgLqX_59XH21uP9R5LNenhcOUmrPF97pGg"
+//   //     },
+//   //     "extra": null
+//   // }
+// };
 
-const evaluateTransactions = (list) => {
+const evaluateTransactions = ({ transactions, alert }) => {
+  const {
+    minsAgo,
+    minDistinctWallets,
+    excludedTokens,
+    // valueFilter,
+    // walletAgeDays,
+  } = alert;
+
   let currentTime = new Date();
-  if (DEV_MODE) {
-    currentTime = parseDate(list[0].time);
+  if (USE_MOCK_DATA) {
+    currentTime = parseDate(transactions[0].time);
   }
-  const startDate = new Date(currentTime.getTime() - MINS_AGO * 60 * 1000);
+  const startTime = new Date(currentTime.getTime() - minsAgo * 60 * 1000);
 
-  // console.log("Start date:", startDate);
-
+  // console.log("Start time:", startTime);
   console.log("Evaluating transactions..");
-  // console.log(list[0]);
+  // console.log(transactions[0]);
 
-  const map = {};
-  list
+  const tokensMap = {};
+  transactions
     .filter((txn) => {
       const time = parseDate(txn.time);
-      return time > startDate;
+      return time > startTime;
     })
     .forEach((txn) => {
       const { address, buy_token_symbol, buy_token_address } = txn;
-      const tokenObj = map[buy_token_address];
-      if (EXCLUDED_TOKENS.includes(buy_token_symbol)) {
-        // break;
+      const tokenObj = tokensMap[buy_token_address];
+      if (excludedTokens.includes(buy_token_symbol)) {
+        return;
       } else if (tokenObj) {
         tokenObj.distinctAddresses.add(address);
         tokenObj.transactions.push(txn);
       } else {
-        map[buy_token_address] = {
+        tokensMap[buy_token_address] = {
           buy_token_address,
           buy_token_symbol,
           distinctAddresses: new Set([address]),
@@ -253,11 +251,15 @@ const evaluateTransactions = (list) => {
       }
     });
 
-  let meetsConditions = [];
-  console.log("Token map:");
+  let matchedTokens = [];
 
-  for (const token in map) {
-    const tokenObj = map[token];
+  console.log("Token map:");
+  if (Object.keys(tokensMap).length === 0) {
+    console.log("(empty)");
+  }
+
+  for (const token in tokensMap) {
+    const tokenObj = tokensMap[token];
     const { buy_token_symbol, distinctAddresses } = tokenObj;
     const distinctAddressesCount = distinctAddresses.size;
 
@@ -279,20 +281,20 @@ const evaluateTransactions = (list) => {
     };
     console.log(JSON.stringify(log, null, 2));
 
-    if (EXCLUDED_TOKENS.includes(buy_token_symbol)) {
+    if (excludedTokens.includes(buy_token_symbol)) {
       continue;
     }
 
-    if (distinctAddressesCount >= WALLET_COUNT_THRESHOLD) {
-      meetsConditions.push(tokenObj);
+    if (distinctAddressesCount >= minDistinctWallets) {
+      matchedTokens.push(tokenObj);
     }
   }
 
-  meetsConditions = meetsConditions.sort(
+  matchedTokens = matchedTokens.sort(
     (a, b) => b.distinctAddressesCount - a.distinctAddressesCount
   );
 
-  return { tokensMap: map, meetsConditions };
+  return { tokensMap, matchedTokens };
 };
 
 const parseDate = (utcTimeString) => {
@@ -351,25 +353,53 @@ const parseValue = (number) => {
   });
 };
 
-const craftMessage = (meetsConditions) => {
-  if (meetsConditions.length === 0) {
-    return `🥱 No tokens have been purchased by ${WALLET_COUNT_THRESHOLD} stealth wallets in the past ${MINS_AGO} mins`;
+const craftMessage = ({ alert, matchedTokens }) => {
+  const {
+    name,
+    minsAgo,
+    minDistinctWallets,
+    boughtTokenLimit,
+    valueFilter,
+    walletAgeDays,
+  } = alert;
+
+  if (matchedTokens.length === 0) {
+    return `🥱 No tokens have been purchased by ${minDistinctWallets} stealth wallets in the past ${minsAgo} mins`;
   }
 
-  let message = `<b>Alert #1</b>\nValue ≥ ${VALUE_FILTER}, Wallet Age: ${WALLET_AGE_DAYS}D,${
-    BOUGHT_TOKEN_LIMIT ? "Tokens bought ≤ 2" : ""
-  }, ${WALLET_COUNT_THRESHOLD}+ distinct wallets\n\n`;
+  // Alert name
+  const nameString = `<b>${name}</b>`;
 
-  message += meetsConditions
-    .map((tokenObj) => {
-      return constructMessage(tokenObj);
-    })
-    .join("\n\n");
+  // Alert conditions
+  const valueFilterString = `Buy ≥ $${valueFilter.toLocaleString()}`;
+  const walletAgeString = `Wallet age ≤ ${walletAgeDays}D`;
+  const minDistinctWalletsString = `Distinct wallets ≥ ${minDistinctWallets}`;
+  const boughtTokenLimitString = boughtTokenLimit ? "Tokens bought ≤ 2" : null;
+  const alertConditionsString = [
+    valueFilterString,
+    walletAgeString,
+    minDistinctWalletsString,
+    boughtTokenLimitString,
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+  // Matched tokens
+  const matchedTokensStrings = matchedTokens.map((tokenObj) => {
+    return craftMatchedTokenString({ alert, tokenObj });
+  });
+
+  const message = [
+    nameString,
+    alertConditionsString + "\n",
+    matchedTokensStrings.join("\n\n"),
+  ].join("\n");
 
   return message;
 };
 
-const constructMessage = (tokenObj) => {
+const craftMatchedTokenString = ({ alert, tokenObj }) => {
+  const { minsAgo } = alert;
   const {
     buy_token_symbol,
     distinctAddressesCount,
@@ -378,15 +408,27 @@ const constructMessage = (tokenObj) => {
     transactions,
   } = tokenObj;
 
-  const message = `Token: <b>${buy_token_symbol}</b> \nCA: <code>${buy_token_address}</code>\nBought by <b>${distinctAddressesCount}</b> distinct stealth wallets in the last ${MINS_AGO} mins\nTotal Txn Value: $${totalTxnValue.toLocaleString()}\n\n<pre>${constructTable(
-    transactions
-  )}</pre>\n<a href="https://www.candlestick.io/crypto/${buy_token_address}">View token on Candlestick.io</a>`;
+  const tokenString = `Token: <b>${buy_token_symbol}</b>`;
+  const caString = `CA: <code>${buy_token_address}</code>`;
+  const distinctWalletsString = `Bought by <b>${distinctAddressesCount}</b> distinct stealth wallets in the last ${minsAgo} mins`;
+  const totalTxnValueString = `Total Txn Value: $${totalTxnValue.toLocaleString()}`;
+  const transactionsTable = constructTable(transactions);
+  const tokenLinkString = `<a href="https://www.candlestick.io/crypto/${buy_token_address}">View token on Candlestick.io</a>`;
+
+  const message = [
+    tokenString,
+    caString,
+    distinctWalletsString,
+    totalTxnValueString + "\n",
+    transactionsTable,
+    tokenLinkString,
+  ].join("\n");
 
   return message;
 };
 
 const constructTable = (transactions) => {
-  return markdownTable(
+  const table = markdownTable(
     [
       ["Addr", "Src", "Price", "TxnVal", "Time"],
       ...transactions.map((txn) => [
@@ -410,6 +452,7 @@ const constructTable = (transactions) => {
       delimiterEnd: false,
     }
   );
+  return `<pre>\n` + table + `\n</pre>`;
 };
 
 const DEVELOPER_USER_ID = 265435469;
@@ -424,6 +467,9 @@ const USER_IDS = [
 const sendMessage = async (message) => {
   const recipientIds = DEV_MODE ? [DEVELOPER_USER_ID] : USER_IDS;
   for (const userId of recipientIds) {
+    if (!SEND_MESSAGE) {
+      continue;
+    }
     await bot.api.sendMessage(userId, message, {
       parse_mode: "HTML",
       link_preview_options: {
@@ -438,4 +484,56 @@ const sendError = async (error) => {
     DEVELOPER_USER_ID,
     `Something went wrong\n\n${JSON.stringify(error)}`
   );
+};
+
+// const STEATH_WALLETS_URL = `https://www.candlestick.io/api/v1/stealth-money/degen-explorer-by-stealth-money?current_page=1&page_size=${PAGE_SIZE}&sort_type=3&oriented=1&blockchain_id=2&exploreType=token&days=${WALLET_AGE_DAYS}&value_filter=${VALUE_FILTER}&include_noise_trades=false&fundingSource=ALL&boughtTokenLimit=${BOUGHT_TOKEN_LIMIT}&hide_first_mins=0&activeSource=ETH`;
+
+// https://www.candlestick.io/api/v1/stealth-money/degen-explorer-by-stealth-money?current_page=1&page_size=100&sort_type=3&oriented=1&blockchain_id=2&exploreType=token&days=1&value_filter=120&include_noise_trades=false&fundingSource=ALL&boughtTokenLimit=true&hide_first_mins=0&activeSource=ETH
+
+const executeAlert = async ({ alert, authToken }) => {
+  let steathMoney = [];
+  if (USE_MOCK_DATA) {
+    steathMoney = MOCK_DATA;
+  } else {
+    const baseUrl =
+      "https://www.candlestick.io/api/v1/stealth-money/degen-explorer-by-stealth-money";
+
+    const urlParams = new URLSearchParams({
+      current_page: 1,
+      page_size: alert.pageSize,
+      sort_type: 3,
+      oriented: 1,
+      blockchain_id: 2,
+      exploreType: "token",
+      days: alert.walletAgeDays,
+      value_filter: alert.valueFilter,
+      include_noise_trades: false,
+      fundingSource: "ALL",
+      boughtTokenLimit: alert.boughtTokenLimit,
+      hide_first_mins: 0,
+      activeSource: "ETH",
+    });
+
+    const url = `${baseUrl}?${urlParams.toString()}`;
+    console.log("🔗 Fetching stealth wallets from:", url);
+    steathMoney = await getStealthWallets({ url, authToken });
+  }
+
+  const transactions = steathMoney.data.chart;
+  const { matchedTokens, tokensMap } = evaluateTransactions({
+    transactions,
+    alert,
+  });
+
+  if (matchedTokens.length === 0) {
+    console.log("🥱 No token satisfies conditions");
+    return Response.json({ matchedTokens }, { status: 200 });
+  }
+
+  console.log("✅ Matched tokens", matchedTokens.length, "tokens");
+
+  const message = craftMessage({ alert, matchedTokens });
+  console.log("\n\n\nMessage:\n" + message);
+
+  await sendMessage(message);
 };
