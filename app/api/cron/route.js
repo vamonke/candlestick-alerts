@@ -1,10 +1,11 @@
 import { kv } from "@vercel/kv";
 import { unstable_noStore as noStore } from "next/cache";
 import { markdownTable } from "markdown-table";
+import CryptoJS from "crypto-js";
 import bot from "../../../bot";
 import MOCK_DATA from "../../../mock-data.json";
 
-const AUTH_TOKEN_KEY = "auth_token";
+const AUTH_TOKEN_KEY = "authToken";
 const DEV_MODE = false;
 const USE_MOCK_DATA = false;
 const SEND_MESSAGE = true;
@@ -24,6 +25,7 @@ const ALERTS = [
     walletAgeDays: 1,
     boughtTokenLimit: true, // Tokens bought <= 2
     minsAgo: 5,
+    // minsAgo: 300, // For testing
     minDistinctWallets: 3,
     excludedTokens: ["WETH", "weth"],
   },
@@ -37,6 +39,7 @@ const ALERTS = [
     // minsAgo: 30, // For testing
     minDistinctWallets: 3,
     excludedTokens: ["WETH", "weth"],
+    showWalletStats: true,
   },
 ];
 
@@ -68,7 +71,7 @@ export async function GET() {
 }
 
 const getAuthToken = async () => {
-  const kvToken = await getToken();
+  const kvToken = await getKvToken();
   if (!kvToken) {
     return getNewToken();
   }
@@ -81,7 +84,7 @@ const getAuthToken = async () => {
   return kvToken;
 };
 
-const getToken = async () => {
+const getKvToken = async () => {
   const result = await kv.get(AUTH_TOKEN_KEY);
   if (result) {
     console.log("🔑 Found token from KV store");
@@ -241,13 +244,13 @@ const evaluateTransactions = ({ transactions, alert }) => {
       if (excludedTokens.includes(buy_token_symbol)) {
         return;
       } else if (tokenObj) {
-        tokenObj.distinctAddresses.add(address);
+        tokenObj.addressSet.add(address);
         tokenObj.transactions.push(txn);
       } else {
         tokensMap[buy_token_address] = {
           buy_token_address,
           buy_token_symbol,
-          distinctAddresses: new Set([address]),
+          addressSet: new Set([address]),
           transactions: [txn],
         };
       }
@@ -262,11 +265,13 @@ const evaluateTransactions = ({ transactions, alert }) => {
 
   for (const token in tokensMap) {
     const tokenObj = tokensMap[token];
-    const { buy_token_symbol, distinctAddresses } = tokenObj;
-    const distinctAddressesCount = distinctAddresses.size;
+    const { buy_token_symbol, addressSet } = tokenObj;
+    const distinctAddressesCount = addressSet.size;
 
-    tokenObj.distinctAddresses = Array.from(distinctAddresses);
     tokenObj.distinctAddressesCount = distinctAddressesCount;
+    tokenObj.distinctAddresses = Array.from(addressSet).map((addr) => ({
+      address: addr,
+    }));
 
     const totalTxnValue = tokenObj.transactions.reduce(
       (acc, txn) => acc + txn.txn_value,
@@ -370,21 +375,26 @@ const craftMessage = ({ alert, matchedTokens }) => {
   }
 
   // Alert name
-  const nameString = `<b>${name}</b>`;
+  const nameString = `<b><i>${name}</i></b>`;
 
   // Alert conditions
   const valueFilterString = `Buy ≥ $${valueFilter.toLocaleString()}`;
   const walletAgeString = `Wallet age ≤ ${walletAgeDays}D`;
   const minDistinctWalletsString = `Distinct wallets ≥ ${minDistinctWallets}`;
   const boughtTokenLimitString = boughtTokenLimit ? "Tokens bought ≤ 2" : null;
-  const alertConditionsString = [
-    valueFilterString,
-    walletAgeString,
-    minDistinctWalletsString,
-    boughtTokenLimitString,
-  ]
-    .filter(Boolean)
-    .join(", ");
+  const windowString = `Past ${minsAgo} mins`;
+  const alertConditionsString =
+    `<i>` +
+    [
+      valueFilterString,
+      walletAgeString,
+      minDistinctWalletsString,
+      boughtTokenLimitString,
+      windowString,
+    ]
+      .filter(Boolean)
+      .join(", ") +
+    `</i>`;
 
   // Matched tokens
   const matchedTokensStrings = matchedTokens.map((tokenObj) => {
@@ -401,35 +411,43 @@ const craftMessage = ({ alert, matchedTokens }) => {
 };
 
 const craftMatchedTokenString = ({ alert, tokenObj }) => {
-  const { minsAgo } = alert;
+  const { minsAgo, showWalletStats } = alert;
   const {
     buy_token_symbol,
     distinctAddressesCount,
     totalTxnValue,
     buy_token_address,
     transactions,
+    distinctAddresses,
   } = tokenObj;
 
-  const tokenString = `Token: <b>${buy_token_symbol}</b>`;
+  const tokenString = `Token: <b>${buy_token_symbol} ($${buy_token_symbol.toUpperCase()})</b>`;
   const caString = `CA: <code>${buy_token_address}</code>`;
-  const distinctWalletsString = `Bought by <b>${distinctAddressesCount}</b> distinct stealth wallets in the last ${minsAgo} mins`;
-  const totalTxnValueString = `Total Txn Value: $${totalTxnValue.toLocaleString()}`;
-  const transactionsTable = constructTable(transactions);
-  const tokenLinkString = `<a href="https://www.candlestick.io/crypto/${buy_token_address}">View token on Candlestick.io</a>`;
+  const distinctWalletsString = `Distinct wallets: ${distinctAddressesCount}`;
+  const totalTxnValueString = `Total txn value: $${totalTxnValue.toLocaleString()}`;
+  const tokenLinkString = `<a href="https://www.candlestick.io/crypto/${buy_token_address}">View on Candlestick</a>`;
+  const transactionsTable = constructTxnsTable(transactions);
+
+  const walletsTable = showWalletStats
+    ? constructWalletsTable(distinctAddresses)
+    : null;
 
   const message = [
     tokenString,
     caString,
     distinctWalletsString,
-    totalTxnValueString + "\n",
+    totalTxnValueString,
+    tokenLinkString + "\n",
     transactionsTable,
-    tokenLinkString,
-  ].join("\n");
+    walletsTable,
+  ]
+    .filter(Boolean)
+    .join("\n");
 
   return message;
 };
 
-const constructTable = (transactions) => {
+const constructTxnsTable = (transactions) => {
   const table = markdownTable(
     [
       ["Addr", "Src", "Price", "TxnVal", "Time"],
@@ -454,7 +472,40 @@ const constructTable = (transactions) => {
       delimiterEnd: false,
     }
   );
-  return `<pre>\n` + table + `\n</pre>`;
+  return `📈 <b>Transactions</b>\n` + `<pre>` + table + `</pre>`;
+};
+
+const constructWalletsTable = (distinctAddresses) => {
+  const table = markdownTable(
+    [
+      ["Addr", "Win Rate", "ROI", "Tokens"],
+      ...distinctAddresses.map((wallet) => {
+        const addr = wallet.address.slice(-4);
+        const winRate = isNaN(wallet.winRate)
+          ? "-"
+          : (wallet.winRate * 100).toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }) + "%";
+        const roi = isNaN(wallet.roi)
+          ? "-"
+          : (wallet.roi * 100).toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }) + "%";
+        const coinTraded = isNaN(wallet.coinTraded) ? "-" : wallet.coinTraded;
+        return [addr, winRate, roi, coinTraded];
+      }),
+      ...(distinctAddresses.length <= 3 ? [["", "", "", ""]] : []),
+    ],
+    {
+      align: ["l", "r", "r", "r"],
+      padding: true,
+      delimiterStart: false,
+      delimiterEnd: false,
+    }
+  );
+  return `\n📊 <b>Wallet stats</b>\n` + `<pre>` + table + `\n</pre>`;
 };
 
 const DEVELOPER_USER_ID = 265435469;
@@ -534,8 +585,107 @@ const executeAlert = async ({ alert, authToken }) => {
 
   console.log("✅ Matched tokens", matchedTokens.length, "tokens");
 
+  if (alert.showWalletStats) {
+    await addBuyerStats({ matchedTokens, authToken });
+  }
+
   const message = craftMessage({ alert, matchedTokens });
-  console.log("\n\n\nMessage:\n" + message);
+  console.log("\n\nMessage:\n" + message);
 
   await sendMessage(message);
+};
+
+const addBuyerStats = async ({ matchedTokens, authToken }) => {
+  const portfolioAESKey = await fetchPortfolioAESKey();
+  console.log("Fetching wallet stats..");
+  await Promise.all(
+    matchedTokens.map(async (tokenObj) => {
+      const { distinctAddresses } = tokenObj;
+      await Promise.all(
+        distinctAddresses.map(async (buyer) => {
+          const walletAddressHash = hash(buyer.address, portfolioAESKey);
+          const walletPerformance = await getWalletPerformance({
+            walletAddressHash,
+            authToken,
+          });
+
+          const winRate = walletPerformance?.stat?.est_win_Rate;
+          const roi = walletPerformance?.stat?.est_profit_ratio;
+          const coinTraded = walletPerformance?.stat?.coin_traded;
+
+          buyer.winRate = winRate;
+          buyer.roi = roi;
+          buyer.coinTraded = coinTraded;
+
+          console.log("📊 Wallet stats:", buyer);
+        })
+      );
+    })
+  );
+};
+
+const hash = (walletAddress, portfolioAESKey) => {
+  const key = CryptoJS.enc.Utf8.parse(portfolioAESKey);
+  var iv = CryptoJS.enc.Utf8.parse(portfolioAESKey);
+  return CryptoJS.AES.encrypt(walletAddress, key, {
+    iv: iv,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+  }).toString();
+};
+
+async function fetchPortfolioAESKey() {
+  try {
+    // Fetch the HTML content
+    const response = await fetch("https://www.candlestick.io", {
+      headers: {
+        Accept: "text/html",
+      },
+    });
+    const htmlContent = await response.text();
+
+    // console.log("HTML content:\n" + htmlContent);
+
+    // Regular expression to match the portfolioAESKey
+    var regex = /portfolioAESKey:"([^"]+)"/;
+
+    // Executing the regex on the htmlText
+    var matches = regex.exec(htmlContent);
+
+    // Extracting the portfolioAESKey value
+    if (matches && matches.length > 1) {
+      var portfolioAESKey = matches[1];
+      console.log("PortfolioAESKey:", portfolioAESKey);
+      return portfolioAESKey;
+    } else {
+      console.log("PortfolioAESKey not found");
+    }
+  } catch (error) {
+    console.error("Error fetching the HTML:", error);
+  }
+}
+
+const getWalletPerformance = async ({ walletAddressHash, authToken }) => {
+  try {
+    const baseUrl =
+      "https://www.candlestick.io/api/v1/trading-performance/trading-performance-table";
+    const params = new URLSearchParams({
+      current_page: 1,
+      page_size: 15,
+      blockchain_id: 2,
+      wallet_address: walletAddressHash,
+      active_in: 0,
+      first_in: 1,
+    });
+    const url = `${baseUrl}?${params}`;
+    const result = await fetch(url, {
+      headers: { "x-authorization": authToken },
+    });
+    const json = await result.json();
+    const data = json.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching wallet performance:", error);
+    return null;
+  }
 };
