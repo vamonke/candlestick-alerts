@@ -19,7 +19,7 @@ const PARAMETERS = {
 
 const ALERTS = [
   {
-    name: "Stealth Wallets (1D, 1 token)",
+    name: "🔴 Alert 1 - Stealth Wallets (1D, 1 token)",
     pageSize: 100,
     valueFilter: 120,
     walletAgeDays: 1,
@@ -30,16 +30,21 @@ const ALERTS = [
     excludedTokens: ["WETH", "weth"],
   },
   {
-    name: "Stealth Wallets (7D, any token)",
+    name: "🟠 Alert 2 - Stealth Wallets (7D, any token)",
     pageSize: 100,
     valueFilter: 120,
     walletAgeDays: 7,
     boughtTokenLimit: false, // Any tokens bought
     minsAgo: 5,
-    // minsAgo: 30, // For testing
+    // minsAgo: 500, // For testing
     minDistinctWallets: 3,
     excludedTokens: ["WETH", "weth"],
     showWalletStats: true,
+    walletStats: {
+      rule: "any",
+      minWinRate: 0.75,
+      // minRoi: 0.5,
+    },
   },
 ];
 
@@ -292,9 +297,11 @@ const evaluateTransactions = ({ transactions, alert }) => {
       continue;
     }
 
-    if (distinctAddressesCount >= minDistinctWallets) {
-      matchedTokens.push(tokenObj);
+    if (distinctAddressesCount < minDistinctWallets) {
+      continue;
     }
+
+    matchedTokens.push(tokenObj);
   }
 
   matchedTokens = matchedTokens.sort(
@@ -302,6 +309,50 @@ const evaluateTransactions = ({ transactions, alert }) => {
   );
 
   return { tokensMap, matchedTokens };
+};
+
+const evaluateWallets = async ({ alert, matchedTokens, authToken }) => {
+  const { walletStats } = alert;
+
+  if (!walletStats) {
+    return { matchedTokens };
+  }
+
+  const { rule: operator, minWinRate, minRoi } = walletStats;
+
+  const evaluateWallet = ({ winRate, roi }) => {
+    if (!isNaN(winRate) && !isNaN(minWinRate)) {
+      if (winRate < minWinRate) {
+        return false;
+      }
+    }
+
+    if (!isNaN(roi) && !isNaN(minRoi)) {
+      if (roi < minRoi) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  await addBuyerStats({ matchedTokens, authToken });
+
+  console.log("Evaluating wallets..");
+
+  const matches = matchedTokens.filter(({ distinctAddresses }) => {
+    if (operator === "every") {
+      return distinctAddresses.every(evaluateWallet);
+    } else if (operator === "any") {
+      return distinctAddresses.some(evaluateWallet);
+    } else {
+      return true; // No wallet stats rule
+    }
+  });
+
+  console.log("Matched wallets:", matches.length, "tokens");
+
+  return { matchedTokens: matches };
 };
 
 const parseDate = (utcTimeString) => {
@@ -368,7 +419,12 @@ const craftMessage = ({ alert, matchedTokens }) => {
     boughtTokenLimit,
     valueFilter,
     walletAgeDays,
+    walletStats,
+    showWalletStats,
   } = alert;
+
+  const minRoi = walletStats?.minRoi;
+  const minWinRate = walletStats?.minWinRate;
 
   if (matchedTokens.length === 0) {
     return `🥱 No tokens have been purchased by ${minDistinctWallets} stealth wallets in the past ${minsAgo} mins`;
@@ -382,14 +438,22 @@ const craftMessage = ({ alert, matchedTokens }) => {
   const walletAgeString = `Wallet age ≤ ${walletAgeDays}D`;
   const minDistinctWalletsString = `Distinct wallets ≥ ${minDistinctWallets}`;
   const boughtTokenLimitString = boughtTokenLimit ? "Tokens bought ≤ 2" : null;
+  const walletRoiString =
+    showWalletStats && !isNaN(minRoi) ? `ROI ≥ ${minRoi * 100}%` : null;
+  const walletWinRateString =
+    showWalletStats && !isNaN(minWinRate)
+      ? `Win rate ≥ ${minWinRate * 100}%`
+      : null;
   const windowString = `Past ${minsAgo} mins`;
   const alertConditionsString =
     `<i>` +
     [
       valueFilterString,
       walletAgeString,
-      minDistinctWalletsString,
       boughtTokenLimitString,
+      walletRoiString,
+      minDistinctWalletsString,
+      walletWinRateString,
       windowString,
     ]
       .filter(Boolean)
@@ -544,6 +608,14 @@ const sendError = async (error) => {
 // https://www.candlestick.io/api/v1/stealth-money/degen-explorer-by-stealth-money?current_page=1&page_size=100&sort_type=3&oriented=1&blockchain_id=2&exploreType=token&days=1&value_filter=120&include_noise_trades=false&fundingSource=ALL&boughtTokenLimit=true&hide_first_mins=0&activeSource=ETH
 
 const executeAlert = async ({ alert, authToken }) => {
+  const {
+    pageSize,
+    walletAgeDays,
+    valueFilter,
+    boughtTokenLimit,
+    walletStats,
+  } = alert;
+
   let steathMoney = [];
   if (USE_MOCK_DATA) {
     steathMoney = MOCK_DATA;
@@ -553,16 +625,16 @@ const executeAlert = async ({ alert, authToken }) => {
 
     const urlParams = new URLSearchParams({
       current_page: 1,
-      page_size: alert.pageSize,
+      page_size: pageSize,
       sort_type: 3,
       oriented: 1,
       blockchain_id: 2,
       exploreType: "token",
-      days: alert.walletAgeDays,
-      value_filter: alert.valueFilter,
+      days: walletAgeDays,
+      value_filter: valueFilter,
       include_noise_trades: false,
       fundingSource: "ALL",
-      boughtTokenLimit: alert.boughtTokenLimit,
+      boughtTokenLimit: boughtTokenLimit,
       hide_first_mins: 0,
       activeSource: "ETH",
     });
@@ -573,10 +645,19 @@ const executeAlert = async ({ alert, authToken }) => {
   }
 
   const transactions = steathMoney.data.chart;
-  const { matchedTokens, tokensMap } = evaluateTransactions({
+  let { matchedTokens, tokensMap } = evaluateTransactions({
     transactions,
     alert,
   });
+
+  if (walletStats) {
+    const results = await evaluateWallets({
+      alert,
+      matchedTokens,
+      authToken,
+    });
+    matchedTokens = results.matchedTokens;
+  }
 
   if (matchedTokens.length === 0) {
     console.log("🥱 No token satisfies conditions");
@@ -584,10 +665,6 @@ const executeAlert = async ({ alert, authToken }) => {
   }
 
   console.log("✅ Matched tokens", matchedTokens.length, "tokens");
-
-  if (alert.showWalletStats) {
-    await addBuyerStats({ matchedTokens, authToken });
-  }
 
   const message = craftMessage({ alert, matchedTokens });
   console.log("\n\nMessage:\n" + message);
