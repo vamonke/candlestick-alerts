@@ -2,6 +2,9 @@ import { kv } from "@vercel/kv";
 import { unstable_noStore as noStore } from "next/cache";
 import { markdownTable } from "markdown-table";
 import CryptoJS from "crypto-js";
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+
 import bot from "../../../bot";
 import MOCK_DATA from "../../../mock-data.json";
 
@@ -36,7 +39,7 @@ const ALERTS = [
     walletAgeDays: 7,
     boughtTokenLimit: false, // Any tokens bought
     minsAgo: 5,
-    // minsAgo: 500, // For testing
+    // minsAgo: 50, // For testing
     minDistinctWallets: 3,
     excludedTokens: ["WETH", "weth"],
     showWalletStats: true,
@@ -52,6 +55,8 @@ console.log("🚀 Running cron job");
 console.log(`Parameters: ${JSON.stringify(PARAMETERS, null, 2)}`);
 
 const LOGIN_URL = "https://www.candlestick.io/api/v2/user/login-email";
+
+dayjs.extend(duration);
 
 export async function GET() {
   noStore();
@@ -350,7 +355,7 @@ const evaluateWallets = async ({ alert, matchedTokens, authToken }) => {
     }
   });
 
-  console.log("Matched wallets:", matches.length, "tokens");
+  console.log("✅ Matched wallets:", matches.length, "tokens");
 
   return { matchedTokens: matches };
 };
@@ -475,7 +480,7 @@ const craftMessage = ({ alert, matchedTokens }) => {
 };
 
 const craftMatchedTokenString = ({ alert, tokenObj }) => {
-  const { minsAgo, showWalletStats } = alert;
+  const { showWalletStats } = alert;
   const {
     buy_token_symbol,
     distinctAddressesCount,
@@ -483,10 +488,17 @@ const craftMatchedTokenString = ({ alert, tokenObj }) => {
     buy_token_address,
     transactions,
     distinctAddresses,
+    tokenName,
+    creationDate,
   } = tokenObj;
 
-  const tokenString = `Token: <b>${buy_token_symbol} ($${buy_token_symbol.toUpperCase()})</b>`;
+  const tokenString = `Token: <b>${
+    tokenName ?? buy_token_symbol
+  } ($${buy_token_symbol.toUpperCase()})</b>`;
   const caString = `CA: <code>${buy_token_address}</code>`;
+  const ageString = `Token age: ${
+    creationDate ? getAgeString(creationDate) : "-"
+  }`;
   const distinctWalletsString = `Distinct wallets: ${distinctAddressesCount}`;
   const totalTxnValueString = `Total txn value: $${totalTxnValue.toLocaleString()}`;
   const tokenLinkString = `<a href="https://www.candlestick.io/crypto/${buy_token_address}">View on Candlestick</a>`;
@@ -499,6 +511,7 @@ const craftMatchedTokenString = ({ alert, tokenObj }) => {
   const message = [
     tokenString,
     caString,
+    ageString,
     distinctWalletsString,
     totalTxnValueString,
     tokenLinkString + "\n",
@@ -509,6 +522,26 @@ const craftMatchedTokenString = ({ alert, tokenObj }) => {
     .join("\n");
 
   return message;
+};
+
+const getAgeString = (date) => {
+  if (!date) return "-";
+
+  const createdAt = dayjs(date);
+  const duration = dayjs.duration(dayjs().diff(createdAt));
+
+  const days = duration.days();
+  const hours = duration.hours();
+  const minutes = duration.minutes();
+
+  let result = ``;
+  if (days > 0) result += `${days} ${days > 1 ? "days" : "day"} `;
+  if (hours > 0) result += `${hours} ${hours > 1 ? "hours" : "hour"} `;
+  if (days === 0 && minutes > 0)
+    result += `${minutes > 1 ? "minutes" : "minute"} `;
+  result += `ago`;
+
+  return result;
 };
 
 const constructTxnsTable = (transactions) => {
@@ -664,12 +697,55 @@ const executeAlert = async ({ alert, authToken }) => {
     return Response.json({ matchedTokens }, { status: 200 });
   }
 
-  console.log("✅ Matched tokens", matchedTokens.length, "tokens");
+  await getTokensInfo({ matchedTokens });
 
   const message = craftMessage({ alert, matchedTokens });
   console.log("\n\nMessage:\n" + message);
 
   await sendMessage(message);
+};
+
+const getTokensInfo = async ({ matchedTokens }) => {
+  await Promise.all(
+    matchedTokens.map(async (tokenObj) => {
+      const { buy_token_address } = tokenObj;
+      const tokenInfo = await getTokenInfo(buy_token_address);
+      if (!tokenInfo) {
+        return;
+      }
+      const { tokenName, timeStamp } = tokenInfo;
+      if (timeStamp) {
+        tokenObj.creationDate = new Date(timeStamp * 1000);
+      }
+      if (tokenName) {
+        tokenObj.tokenName = tokenName;
+      }
+    })
+  );
+};
+
+const getTokenInfo = async (tokenAddress) => {
+  try {
+    const endPoint = `https://api.etherscan.io/api`;
+    const searchParams = new URLSearchParams({
+      module: "account",
+      action: "tokentx",
+      contractaddress: tokenAddress,
+      address: "0x0000000000000000000000000000000000000000",
+      apikey: process.env.ETHERSCAN_API_KEY,
+      sort: "asc",
+      page: 1,
+    });
+    console.log("Fetching token info for:", tokenAddress);
+    const url = `${endPoint}?${searchParams.toString()}`;
+    const response = await fetch(url);
+    const json = await response.json();
+    console.log(`✅ Fetched token info for ${tokenAddress}`);
+    return json?.result?.[0];
+  } catch (error) {
+    console.error("Error fetching token info:", error);
+    return null;
+  }
 };
 
 const addBuyerStats = async ({ matchedTokens, authToken }) => {

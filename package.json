@@ -8,6 +8,7 @@
   "dependencies": {
     "@vercel/kv": "^1.0.1",
     "crypto-js": "^4.2.0",
+    "dayjs": "^1.11.10",
     "grammy": "^1.21.0",
     "markdown-table": "^3.0.3",
     "next": "latest",
