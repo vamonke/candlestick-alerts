@@ -26,7 +26,7 @@ dayjs.updateLocale("en", {
 });
 
 export async function GET(req) {
-  const createdAt = dayjs("Tue Feb 28 2024 06:43:35 GMT+0800");
+  const createdAt = dayjs("2024-02-28T08:13:47.000Z");
   var duration = dayjs.duration(dayjs().diff(createdAt));
   // .format("D[d] H[h] m[m] [ago]");
 

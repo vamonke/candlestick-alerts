@@ -39,7 +39,7 @@ const ALERTS = [
     walletAgeDays: 7,
     boughtTokenLimit: false, // Any tokens bought
     minsAgo: 5,
-    // minsAgo: 50, // For testing
+    // minsAgo: 100, // For testing
     minDistinctWallets: 3,
     excludedTokens: ["WETH", "weth"],
     showWalletStats: true,
@@ -530,7 +530,7 @@ const getAgeString = (date) => {
   const createdAt = dayjs(date);
   const duration = dayjs.duration(dayjs().diff(createdAt));
 
-  const days = duration.days();
+  const days = Math.floor(duration.asDays());
   const hours = duration.hours();
   const minutes = duration.minutes();
 
@@ -538,7 +538,7 @@ const getAgeString = (date) => {
   if (days > 0) result += `${days} ${days > 1 ? "days" : "day"} `;
   if (hours > 0) result += `${hours} ${hours > 1 ? "hours" : "hour"} `;
   if (days === 0 && minutes > 0)
-    result += `${minutes > 1 ? "minutes" : "minute"} `;
+    result += `${minutes} ${minutes > 1 ? "minutes" : "minute"} `;
   result += `ago`;
 
   return result;
@@ -635,10 +635,6 @@ const sendError = async (error) => {
     `Something went wrong\n\n${JSON.stringify(error)}`
   );
 };
-
-// const STEATH_WALLETS_URL = `https://www.candlestick.io/api/v1/stealth-money/degen-explorer-by-stealth-money?current_page=1&page_size=${PAGE_SIZE}&sort_type=3&oriented=1&blockchain_id=2&exploreType=token&days=${WALLET_AGE_DAYS}&value_filter=${VALUE_FILTER}&include_noise_trades=false&fundingSource=ALL&boughtTokenLimit=${BOUGHT_TOKEN_LIMIT}&hide_first_mins=0&activeSource=ETH`;
-
-// https://www.candlestick.io/api/v1/stealth-money/degen-explorer-by-stealth-money?current_page=1&page_size=100&sort_type=3&oriented=1&blockchain_id=2&exploreType=token&days=1&value_filter=120&include_noise_trades=false&fundingSource=ALL&boughtTokenLimit=true&hide_first_mins=0&activeSource=ETH
 
 const executeAlert = async ({ alert, authToken }) => {
   const {
