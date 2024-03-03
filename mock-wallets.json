@@ -1,0 +1,1065 @@
+[
+  {
+    "trader": "0xc0c56c9de98c70eda173ff45de5e848acf4ab9db",
+    "addressInfo": {
+      "address": "0xc0c56c9de98c70eda173ff45de5e848acf4ab9db",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 35.20160106751088,
+    "totalProfit": 16632.840988241453,
+    "totalCost": 472.5024,
+    "realizedProfit": 198.96432341889414,
+    "realizedProfitRate": 0.42108637632082746,
+    "unrealizedProfit": 16433.876664822557,
+    "unrealizedProfitRate": 34.78051469119005,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 157.5008
+  },
+  {
+    "trader": "0xc94d16a307d07f721a06b623bb7bbdaa1a3d62d6",
+    "addressInfo": {
+      "address": "0xc94d16a307d07f721a06b623bb7bbdaa1a3d62d6",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 18.766484502800953,
+    "totalProfit": 12297.900615851047,
+    "totalCost": 655.3119,
+    "realizedProfit": 12297.900615851047,
+    "realizedProfitRate": 18.766484502800953,
+    "unrealizedProfit": 0,
+    "unrealizedProfitRate": 0,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 218.4373
+  },
+  {
+    "trader": "0x59be579eaafe69f4d7adb9317f02152c694d88c4",
+    "addressInfo": {
+      "address": "0x59be579eaafe69f4d7adb9317f02152c694d88c4",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 14.093737083941802,
+    "totalProfit": 101379.94374504536,
+    "totalCost": 7193.262024204793,
+    "realizedProfit": 5343.1798660579325,
+    "realizedProfitRate": 0.74280345246406,
+    "unrealizedProfit": 96036.76387898743,
+    "unrealizedProfitRate": 13.350933631477742,
+    "win": 6,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 1198.8770040341321
+  },
+  {
+    "trader": "0x3569e6759dd76c6dca38773d209ccd7b465a7a02",
+    "addressInfo": {
+      "address": "0x3569e6759dd76c6dca38773d209ccd7b465a7a02",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 12.554750953401802,
+    "totalProfit": 6134.8162796250235,
+    "totalCost": 488.645,
+    "realizedProfit": 6134.8162796250235,
+    "realizedProfitRate": 12.554750953401802,
+    "unrealizedProfit": 0,
+    "unrealizedProfitRate": 0,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 162.88166666666666
+  },
+  {
+    "trader": "0x3e13397f2b1c7bb98438639de28d88b4e68dde36",
+    "addressInfo": {
+      "address": "0x3e13397f2b1c7bb98438639de28d88b4e68dde36",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 10.861799430269182,
+    "totalProfit": 19574.810165428153,
+    "totalCost": 1802.1701,
+    "realizedProfit": 751.164483351621,
+    "realizedProfitRate": 0.41681108978093745,
+    "unrealizedProfit": 18823.64568207653,
+    "unrealizedProfitRate": 10.444988340488244,
+    "win": 6,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 300.36168333333336
+  },
+  {
+    "trader": "0x4fd46a636a2d00c84cfe6b715587467989b442c4",
+    "addressInfo": {
+      "address": "0x4fd46a636a2d00c84cfe6b715587467989b442c4",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 10.266605721569702,
+    "totalProfit": 11250.316258110777,
+    "totalCost": 1095.816530138519,
+    "realizedProfit": 11250.316258110777,
+    "realizedProfitRate": 10.266605721569702,
+    "unrealizedProfit": 0,
+    "unrealizedProfitRate": 0,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 365.2721767128397
+  },
+  {
+    "trader": "0x7be9b094d4aaa75050aec8ccfb332ec9f09f10be",
+    "addressInfo": {
+      "address": "0x7be9b094d4aaa75050aec8ccfb332ec9f09f10be",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 9.693716323406722,
+    "totalProfit": 4452.747038058224,
+    "totalCost": 459.34365,
+    "realizedProfit": 977.2818338536262,
+    "realizedProfitRate": 2.127561432173115,
+    "unrealizedProfit": 3475.4652042045977,
+    "unrealizedProfitRate": 7.566154891233606,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 153.11455
+  },
+  {
+    "trader": "0xc3f8a57fd69205641b69d85d6fdfea410a99cff5",
+    "addressInfo": {
+      "address": "0xc3f8a57fd69205641b69d85d6fdfea410a99cff5",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 9.248936469949182,
+    "totalProfit": 12300.480624587279,
+    "totalCost": 1329.9346,
+    "realizedProfit": 10383.265399552263,
+    "realizedProfitRate": 7.807350376140499,
+    "unrealizedProfit": 1917.215225035015,
+    "unrealizedProfitRate": 1.4415860938086842,
+    "win": 4,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 332.48365
+  },
+  {
+    "trader": "0xe825186e9a1ca0dbb8aaa3871a9b3ecb87bfcf12",
+    "addressInfo": {
+      "address": "0xe825186e9a1ca0dbb8aaa3871a9b3ecb87bfcf12",
+      "icons": [
+        400
+      ],
+      "tags": [
+        "Smart Meme Pro",
+        "2X Plus"
+      ],
+      "name": "Smart Meme Pro: 0xe825",
+      "level": null
+    },
+    "totalRoi": 9.216907239873622,
+    "totalProfit": 6811.51661520793,
+    "totalCost": 739.0241040660974,
+    "realizedProfit": 4105.183101556804,
+    "realizedProfitRate": 5.554870374281651,
+    "unrealizedProfit": 2706.333513651126,
+    "unrealizedProfitRate": 3.6620368655919715,
+    "win": 4,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 184.75602601652434
+  },
+  {
+    "trader": "0x0bd2e8c09f083257069b676c280799dbdef68616",
+    "addressInfo": {
+      "address": "0x0bd2e8c09f083257069b676c280799dbdef68616",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 8.842069387579102,
+    "totalProfit": 23451.38742931123,
+    "totalCost": 2652.2510061111448,
+    "realizedProfit": 23325.557723707076,
+    "realizedProfitRate": 8.794626779276108,
+    "unrealizedProfit": 125.82970560415608,
+    "unrealizedProfitRate": 0.04744260830299523,
+    "win": 4,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 530.450201222229
+  },
+  {
+    "trader": "0x46c6778d0e37d432c99316eca10cf1d177f1632c",
+    "addressInfo": {
+      "address": "0x46c6778d0e37d432c99316eca10cf1d177f1632c",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 8.367862348896825,
+    "totalProfit": 41392.33484604169,
+    "totalCost": 4946.5841,
+    "realizedProfit": 2650.2373560791557,
+    "realizedProfitRate": 0.5357712115071804,
+    "unrealizedProfit": 38742.09748996253,
+    "unrealizedProfitRate": 7.832091137389645,
+    "win": 9,
+    "lose": 1,
+    "winRate": 0.9,
+    "avgBuySize": 380.50646923076926
+  },
+  {
+    "trader": "0x3af8703d0fd8235f5e365d3700bea9825deabe9f",
+    "addressInfo": {
+      "address": "0x3af8703d0fd8235f5e365d3700bea9825deabe9f",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 7.70443535445573,
+    "totalProfit": 20179.13105416599,
+    "totalCost": 2619.1576833071526,
+    "realizedProfit": 20025.787934982243,
+    "realizedProfitRate": 7.645888623893818,
+    "unrealizedProfit": 153.3431191837471,
+    "unrealizedProfitRate": 0.05854673056191261,
+    "win": 4,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 523.8315366614305
+  },
+  {
+    "trader": "0xa29bb20ebe9d72e979b628e1757d302dbcdae9ec",
+    "addressInfo": {
+      "address": "0xa29bb20ebe9d72e979b628e1757d302dbcdae9ec",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 6.7603628961241435,
+    "totalProfit": 4548.059080409821,
+    "totalCost": 672.7536894531679,
+    "realizedProfit": 0,
+    "realizedProfitRate": 0,
+    "unrealizedProfit": 4548.059080409821,
+    "unrealizedProfitRate": 6.7603628961241435,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 224.25122981772265
+  },
+  {
+    "trader": "0xa63b5a8eb8504a202c2602e65643823d5027d804",
+    "addressInfo": {
+      "address": "0xa63b5a8eb8504a202c2602e65643823d5027d804",
+      "icons": [
+        400
+      ],
+      "tags": [
+        "High Win Rate",
+        "Smart Meme Pro",
+        "2X Plus"
+      ],
+      "name": "Smart Meme Pro: 0xa63b",
+      "level": null
+    },
+    "totalRoi": 6.1567827207389865,
+    "totalProfit": 4614.811758724209,
+    "totalCost": 749.5492318056503,
+    "realizedProfit": 1913.4229985834172,
+    "realizedProfitRate": 2.5527649384337523,
+    "unrealizedProfit": 2701.3887601407914,
+    "unrealizedProfitRate": 3.604017782305234,
+    "win": 4,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 187.38730795141257
+  },
+  {
+    "trader": "0x044b091732401692fcc61ca77290ba9363d4a53b",
+    "addressInfo": {
+      "address": "0x044b091732401692fcc61ca77290ba9363d4a53b",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 5.881360386583339,
+    "totalProfit": 4213.1936757023095,
+    "totalCost": 716.3638,
+    "realizedProfit": 4213.1936757023095,
+    "realizedProfitRate": 5.881360386583339,
+    "unrealizedProfit": 0,
+    "unrealizedProfitRate": 0,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 179.09095
+  },
+  {
+    "trader": "0x35ab769925823dd0c1d4469b9657308b6f98b0c0",
+    "addressInfo": {
+      "address": "0x35ab769925823dd0c1d4469b9657308b6f98b0c0",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 5.796998970862287,
+    "totalProfit": 17141.760738833607,
+    "totalCost": 2957.006,
+    "realizedProfit": 6133.786310738526,
+    "realizedProfitRate": 2.074323254920188,
+    "unrealizedProfit": 11007.974428095082,
+    "unrealizedProfitRate": 3.722675715942099,
+    "win": 4,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 369.62575
+  },
+  {
+    "trader": "0xf22e98eae89732b155b915f9d3e5be02085df86b",
+    "addressInfo": {
+      "address": "0xf22e98eae89732b155b915f9d3e5be02085df86b",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 5.600441194398203,
+    "totalProfit": 12572.369810422195,
+    "totalCost": 2244.8891746238864,
+    "realizedProfit": 12432.879598723963,
+    "realizedProfitRate": 5.538304402401955,
+    "unrealizedProfit": 139.49021169823226,
+    "unrealizedProfitRate": 0.062136791996247547,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 561.2222936559716
+  },
+  {
+    "trader": "0x5e42793bcfbdf446c8a1d64c6dbf0b9e74d291a4",
+    "addressInfo": {
+      "address": "0x5e42793bcfbdf446c8a1d64c6dbf0b9e74d291a4",
+      "icons": null,
+      "tags": null,
+      "name": "Boredaper.eth",
+      "level": null
+    },
+    "totalRoi": 5.525676443142745,
+    "totalProfit": 14075.871119742418,
+    "totalCost": 2547.3571,
+    "realizedProfit": 0,
+    "realizedProfitRate": 0,
+    "unrealizedProfit": 14075.871119742418,
+    "unrealizedProfitRate": 5.525676443142745,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 849.1190333333333
+  },
+  {
+    "trader": "0x9df3d71477049240bc1314faf5831df368f46db8",
+    "addressInfo": {
+      "address": "0x9df3d71477049240bc1314faf5831df368f46db8",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 5.476020211565534,
+    "totalProfit": 60285.50650912496,
+    "totalCost": 11009,
+    "realizedProfit": 0,
+    "realizedProfitRate": 0,
+    "unrealizedProfit": 60285.50650912496,
+    "unrealizedProfitRate": 5.476020211565534,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 3669.6666666666665
+  },
+  {
+    "trader": "0x9acf8d0315094d33aa6875b673eb126483c3a2c0",
+    "addressInfo": {
+      "address": "0x9acf8d0315094d33aa6875b673eb126483c3a2c0",
+      "icons": [],
+      "tags": [
+        "Debank Tops"
+      ],
+      "name": "Cat-dad.eth",
+      "level": null
+    },
+    "totalRoi": 4.707119871430037,
+    "totalProfit": 27794.213654166,
+    "totalCost": 5904.717622099145,
+    "realizedProfit": 579.5374780366741,
+    "realizedProfitRate": 0.09814821217998343,
+    "unrealizedProfit": 27214.676176129327,
+    "unrealizedProfitRate": 4.608971659250053,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 1968.2392073663816
+  },
+  {
+    "trader": "0xa22c3d864fd052be2956e2ec8b86bee15574b484",
+    "addressInfo": {
+      "address": "0xa22c3d864fd052be2956e2ec8b86bee15574b484",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 4.403887162640307,
+    "totalProfit": 13022.320763250364,
+    "totalCost": 2957.006,
+    "realizedProfit": 12604.777594894511,
+    "realizedProfitRate": 4.262682454785182,
+    "unrealizedProfit": 417.54316835585195,
+    "unrealizedProfitRate": 0.14120470785512507,
+    "win": 4,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 369.62575
+  },
+  {
+    "trader": "0x323cbbb66c58be60b8a9f30e8d851527bffff17b",
+    "addressInfo": {
+      "address": "0x323cbbb66c58be60b8a9f30e8d851527bffff17b",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 4.173436861631393,
+    "totalProfit": 36923.44511687995,
+    "totalCost": 8847.2514,
+    "realizedProfit": 0,
+    "realizedProfitRate": 0,
+    "unrealizedProfit": 36923.44511687995,
+    "unrealizedProfitRate": 4.173436861631393,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 2949.0838
+  },
+  {
+    "trader": "0xf1a55526347d82b3ef4273ce28d6d7ada8839835",
+    "addressInfo": {
+      "address": "0xf1a55526347d82b3ef4273ce28d6d7ada8839835",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 4.12040450165268,
+    "totalProfit": 7750.662165406764,
+    "totalCost": 1881.044,
+    "realizedProfit": 0,
+    "realizedProfitRate": 0,
+    "unrealizedProfit": 7750.662165406764,
+    "unrealizedProfitRate": 4.12040450165268,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 627.0146666666667
+  },
+  {
+    "trader": "0x9d7f9da916533b1bbad4b9b9c562e96b570dba68",
+    "addressInfo": {
+      "address": "0x9d7f9da916533b1bbad4b9b9c562e96b570dba68",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 3.6619761281523777,
+    "totalProfit": 21045.355108049265,
+    "totalCost": 5746.9940741169,
+    "realizedProfit": 0,
+    "realizedProfitRate": 0,
+    "unrealizedProfit": 21045.355108049265,
+    "unrealizedProfitRate": 3.6619761281523777,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 1915.6646913723
+  },
+  {
+    "trader": "0xda656d6fd4bc165058e6b56396efa4097f2ebadd",
+    "addressInfo": {
+      "address": "0xda656d6fd4bc165058e6b56396efa4097f2ebadd",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 3.5799924376376833,
+    "totalProfit": 9275.197253291168,
+    "totalCost": 2590.842694464338,
+    "realizedProfit": 5070.8043003713765,
+    "realizedProfitRate": 1.957202693627749,
+    "unrealizedProfit": 4204.392952919791,
+    "unrealizedProfitRate": 1.6227897440099341,
+    "win": 4,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 518.1685388928676
+  },
+  {
+    "trader": "0xdc6db4d945901aeea4a7e48e0b73887964c41cc7",
+    "addressInfo": {
+      "address": "0xdc6db4d945901aeea4a7e48e0b73887964c41cc7",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 3.5025236669701103,
+    "totalProfit": 6999.546573605229,
+    "totalCost": 1998.429486605083,
+    "realizedProfit": 6999.546573605229,
+    "realizedProfitRate": 3.5025236669701103,
+    "unrealizedProfit": 0,
+    "unrealizedProfitRate": 0,
+    "win": 4,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 499.60737165127074
+  },
+  {
+    "trader": "0x2afb248c0ee1fe669d47d5c5bc67e1d8db189f9f",
+    "addressInfo": {
+      "address": "0x2afb248c0ee1fe669d47d5c5bc67e1d8db189f9f",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 3.4770066250936162,
+    "totalProfit": 9947.135294286445,
+    "totalCost": 2860.833,
+    "realizedProfit": 3538.809976489203,
+    "realizedProfitRate": 1.2369858626802763,
+    "unrealizedProfit": 6408.325317797243,
+    "unrealizedProfitRate": 2.24002076241334,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 953.611
+  },
+  {
+    "trader": "0x49695f6b19f97b55a47dd9b08344d07a2e45d67d",
+    "addressInfo": {
+      "address": "0x49695f6b19f97b55a47dd9b08344d07a2e45d67d",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 3.386806734317304,
+    "totalProfit": 8137.721370685485,
+    "totalCost": 2402.771108321257,
+    "realizedProfit": 0,
+    "realizedProfitRate": 0,
+    "unrealizedProfit": 8137.721370685485,
+    "unrealizedProfitRate": 3.386806734317304,
+    "win": 4,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 600.6927770803143
+  },
+  {
+    "trader": "0xe4958d6b357466349c910a522e6947625995ccf6",
+    "addressInfo": {
+      "address": "0xe4958d6b357466349c910a522e6947625995ccf6",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 3.3519313094352565,
+    "totalProfit": 4442.245849802702,
+    "totalCost": 1325.2795,
+    "realizedProfit": 0,
+    "realizedProfitRate": 0,
+    "unrealizedProfit": 4442.245849802702,
+    "unrealizedProfitRate": 3.3519313094352565,
+    "win": 5,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 220.87991666666667
+  },
+  {
+    "trader": "0x7911670881a81f8410d06053d7b3c237ce77b9b4",
+    "addressInfo": {
+      "address": "0x7911670881a81f8410d06053d7b3c237ce77b9b4",
+      "icons": null,
+      "tags": null,
+      "name": "Maxpain.eth",
+      "level": null
+    },
+    "totalRoi": 3.284932331535193,
+    "totalProfit": 31747.302763003863,
+    "totalCost": 9664.522601647308,
+    "realizedProfit": 8295.845736465617,
+    "realizedProfitRate": 0.858381327087134,
+    "unrealizedProfit": 23451.457026538246,
+    "unrealizedProfitRate": 2.426551004448059,
+    "win": 4,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 2416.130650411827
+  },
+  {
+    "trader": "0xb76bf37b275ecf925c58292d04d0f0d16d442393",
+    "addressInfo": {
+      "address": "0xb76bf37b275ecf925c58292d04d0f0d16d442393",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 3.2806991951308935,
+    "totalProfit": 5541.596326154544,
+    "totalCost": 1689.151,
+    "realizedProfit": 2084.03813465751,
+    "realizedProfitRate": 1.2337784689808726,
+    "unrealizedProfit": 3457.5581914970335,
+    "unrealizedProfitRate": 2.0469207261500206,
+    "win": 4,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 337.8302
+  },
+  {
+    "trader": "0xc4b09662a6a5cc48e3cd31c0d711ca6a99b1f61e",
+    "addressInfo": {
+      "address": "0xc4b09662a6a5cc48e3cd31c0d711ca6a99b1f61e",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 3.2564141107549576,
+    "totalProfit": 6405.0185382354475,
+    "totalCost": 1966.8931285740332,
+    "realizedProfit": 6405.0185382354475,
+    "realizedProfitRate": 3.2564141107549576,
+    "unrealizedProfit": 0,
+    "unrealizedProfitRate": 0,
+    "win": 4,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 491.7232821435083
+  },
+  {
+    "trader": "0xe63b1d290d62b8ac3bcdf4d9d4c6a66dcf28a7d3",
+    "addressInfo": {
+      "address": "0xe63b1d290d62b8ac3bcdf4d9d4c6a66dcf28a7d3",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 3.2083323280633165,
+    "totalProfit": 106492.2692160028,
+    "totalCost": 33192.406,
+    "realizedProfit": 14270.181848323327,
+    "realizedProfitRate": 0.4299230929003257,
+    "unrealizedProfit": 92222.08736767946,
+    "unrealizedProfitRate": 2.7784092351629908,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 4149.05075
+  },
+  {
+    "trader": "0xeff18cb4ffe7b6f7ef1226d61462e5f7d35bf3aa",
+    "addressInfo": {
+      "address": "0xeff18cb4ffe7b6f7ef1226d61462e5f7d35bf3aa",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 3.1622204111197454,
+    "totalProfit": 5286.546325563001,
+    "totalCost": 1671.783,
+    "realizedProfit": 4568.137205419001,
+    "realizedProfitRate": 2.7324941128238533,
+    "unrealizedProfit": 718.409120144001,
+    "unrealizedProfitRate": 0.4297262982958919,
+    "win": 4,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 417.94575
+  },
+  {
+    "trader": "0x8ea25aa546a57ab1e6ba9e38a1339fbe6ec63c6e",
+    "addressInfo": {
+      "address": "0x8ea25aa546a57ab1e6ba9e38a1339fbe6ec63c6e",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 3.1346980117908916,
+    "totalProfit": 8988.37383321678,
+    "totalCost": 2867.3811,
+    "realizedProfit": 6816.9399209618,
+    "realizedProfitRate": 2.377409797728596,
+    "unrealizedProfit": 2171.433912254979,
+    "unrealizedProfitRate": 0.7572882140622951,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 955.7937
+  },
+  {
+    "trader": "0x161e1add25651a03b6b4a056202b71337822cf7d",
+    "addressInfo": {
+      "address": "0x161e1add25651a03b6b4a056202b71337822cf7d",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 3.045414976566275,
+    "totalProfit": 8664.249898121381,
+    "totalCost": 2845.0145431051824,
+    "realizedProfit": 8664.249898121381,
+    "realizedProfitRate": 3.045414976566275,
+    "unrealizedProfit": 0,
+    "unrealizedProfitRate": 0,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 569.0029086210366
+  },
+  {
+    "trader": "0x66ad766e087a7cc60948cf3f6d9b6c95b1fd6fd6",
+    "addressInfo": {
+      "address": "0x66ad766e087a7cc60948cf3f6d9b6c95b1fd6fd6",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 2.91226960832835,
+    "totalProfit": 9610.941109272846,
+    "totalCost": 3300.1549999999997,
+    "realizedProfit": 9100.422327767294,
+    "realizedProfitRate": 2.7575742132618903,
+    "unrealizedProfit": 510.5187815055527,
+    "unrealizedProfitRate": 0.15469539506645982,
+    "win": 4,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 366.6838888888889
+  },
+  {
+    "trader": "0xe80561f1999324a15f983bf84997105314961156",
+    "addressInfo": {
+      "address": "0xe80561f1999324a15f983bf84997105314961156",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 2.8660480818653116,
+    "totalProfit": 13426.241210587117,
+    "totalCost": 4684.58338,
+    "realizedProfit": 0,
+    "realizedProfitRate": 0,
+    "unrealizedProfit": 13426.241210587117,
+    "unrealizedProfitRate": 2.8660480818653116,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 669.2261971428571
+  },
+  {
+    "trader": "0x46d527c847389650c0b6ed00114c30fbcbcc6ed1",
+    "addressInfo": {
+      "address": "0x46d527c847389650c0b6ed00114c30fbcbcc6ed1",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 2.8001931630654933,
+    "totalProfit": 8594.608938069652,
+    "totalCost": 3069.291451544278,
+    "realizedProfit": 0,
+    "realizedProfitRate": 0,
+    "unrealizedProfit": 8594.608938069652,
+    "unrealizedProfitRate": 2.8001931630654933,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 1023.0971505147594
+  },
+  {
+    "trader": "0xc01004764f9d0f1ca16a9fb3cbfcfeeb255e904d",
+    "addressInfo": {
+      "address": "0xc01004764f9d0f1ca16a9fb3cbfcfeeb255e904d",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 2.74864128838392,
+    "totalProfit": 14037.248046906774,
+    "totalCost": 5106.977074902363,
+    "realizedProfit": 0,
+    "realizedProfitRate": 0,
+    "unrealizedProfit": 14037.248046906774,
+    "unrealizedProfitRate": 2.74864128838392,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 1276.7442687255907
+  },
+  {
+    "trader": "0x72c681d9fce29cbbedcd813bacfd764489a62522",
+    "addressInfo": {
+      "address": "0x72c681d9fce29cbbedcd813bacfd764489a62522",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 2.7331281146333852,
+    "totalProfit": 5907.865562288261,
+    "totalCost": 2161.576521297,
+    "realizedProfit": 0,
+    "realizedProfitRate": 0,
+    "unrealizedProfit": 5907.865562288261,
+    "unrealizedProfitRate": 2.7331281146333852,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 720.525507099
+  },
+  {
+    "trader": "0xcd5a461e95bb4238df6bc1f0595e69129009c4cd",
+    "addressInfo": {
+      "address": "0xcd5a461e95bb4238df6bc1f0595e69129009c4cd",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 2.5102689214420257,
+    "totalProfit": 9646.973092471324,
+    "totalCost": 3843.0038351945227,
+    "realizedProfit": 9463.529371417328,
+    "realizedProfitRate": 2.462534459307483,
+    "unrealizedProfit": 183.44372105399637,
+    "unrealizedProfitRate": 0.04773446213454297,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 1281.0012783981742
+  },
+  {
+    "trader": "0xa4d305b596acde9f343d85afc7749b85bab43780",
+    "addressInfo": {
+      "address": "0xa4d305b596acde9f343d85afc7749b85bab43780",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 2.490493927197404,
+    "totalProfit": 12966.04659213464,
+    "totalCost": 5206.2149,
+    "realizedProfit": 311.1066131927459,
+    "realizedProfitRate": 0.05975677515592872,
+    "unrealizedProfit": 12654.939978941895,
+    "unrealizedProfitRate": 2.4307371520414756,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 1041.24298
+  },
+  {
+    "trader": "0x50ce7d1952787260861270de1a8914cb6e4ade0b",
+    "addressInfo": {
+      "address": "0x50ce7d1952787260861270de1a8914cb6e4ade0b",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 2.4631823387235356,
+    "totalProfit": 12934.427863191682,
+    "totalCost": 5251.1045,
+    "realizedProfit": 4571.227500000005,
+    "realizedProfitRate": 0.8705268577305986,
+    "unrealizedProfit": 8363.200363191676,
+    "unrealizedProfitRate": 1.592655480992937,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 1312.776125
+  },
+  {
+    "trader": "0x06009ff197e1bf716bf91618ebd8d3b619e45321",
+    "addressInfo": {
+      "address": "0x06009ff197e1bf716bf91618ebd8d3b619e45321",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 2.3868606087323725,
+    "totalProfit": 52204.255219938605,
+    "totalCost": 21871.514,
+    "realizedProfit": 52204.255219938605,
+    "realizedProfitRate": 2.3868606087323725,
+    "unrealizedProfit": 0,
+    "unrealizedProfitRate": 0,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 3124.502
+  },
+  {
+    "trader": "0x9b2b950016169bbea64fd32c1115f1f447cdf066",
+    "addressInfo": {
+      "address": "0x9b2b950016169bbea64fd32c1115f1f447cdf066",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 2.353559942215835,
+    "totalProfit": 10033.379821895578,
+    "totalCost": 4263.06534281397,
+    "realizedProfit": 10033.379821895578,
+    "realizedProfitRate": 2.353559942215835,
+    "unrealizedProfit": 0,
+    "unrealizedProfitRate": 0,
+    "win": 4,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 710.5108904689951
+  },
+  {
+    "trader": "0x401f140584fcfbb02ff5ddcd4fa298b7ec0edb5a",
+    "addressInfo": {
+      "address": "0x401f140584fcfbb02ff5ddcd4fa298b7ec0edb5a",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 2.3166829914141047,
+    "totalProfit": 12647.189453068053,
+    "totalCost": 5459.18,
+    "realizedProfit": 0,
+    "realizedProfitRate": 0,
+    "unrealizedProfit": 12647.189453068053,
+    "unrealizedProfitRate": 2.3166829914141047,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 1819.7266666666667
+  },
+  {
+    "trader": "0x361d48e3aa0007500a659607cf65b72c8673531a",
+    "addressInfo": {
+      "address": "0x361d48e3aa0007500a659607cf65b72c8673531a",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 2.2480185286669445,
+    "totalProfit": 24758.52448668974,
+    "totalCost": 11013.487731958923,
+    "realizedProfit": 512.2976277566585,
+    "realizedProfitRate": 0.046515476316378326,
+    "unrealizedProfit": 24246.22685893308,
+    "unrealizedProfitRate": 2.201503052350566,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 2753.371932989731
+  },
+  {
+    "trader": "0x7ede4307271be610b11ce467affa615303390b15",
+    "addressInfo": {
+      "address": "0x7ede4307271be610b11ce467affa615303390b15",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 2.2424459524134517,
+    "totalProfit": 7618.91786025977,
+    "totalCost": 3397.592638547138,
+    "realizedProfit": 6254.043766336151,
+    "realizedProfitRate": 1.8407279599624027,
+    "unrealizedProfit": 1364.8740939236193,
+    "unrealizedProfitRate": 0.40171799245104906,
+    "win": 3,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 1132.5308795157127
+  },
+  {
+    "trader": "0x919fc794d83c27f8a50bc167b64d317cc629342b",
+    "addressInfo": {
+      "address": "0x919fc794d83c27f8a50bc167b64d317cc629342b",
+      "icons": null,
+      "tags": null,
+      "name": null,
+      "level": null
+    },
+    "totalRoi": 2.236287932827243,
+    "totalProfit": 5354.8630488506205,
+    "totalCost": 2394.532014524935,
+    "realizedProfit": 455.3244215177933,
+    "realizedProfitRate": 0.19015173685540712,
+    "unrealizedProfit": 4899.538627332828,
+    "unrealizedProfitRate": 2.046136195971836,
+    "win": 4,
+    "lose": 0,
+    "winRate": 1,
+    "avgBuySize": 478.90640290498703
+  }
+]
