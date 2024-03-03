@@ -50,7 +50,7 @@ export async function GET() {
 
   await bot.api.sendMessage(
     DEVELOPER_USER_ID,
-    `👛 Successfully fetched top ${walletAddresses.length} wallets`
+    `👛 Updated top ${walletAddresses.length} wallets`
   );
 
   return Response.json({ success }, { status: 200 });
