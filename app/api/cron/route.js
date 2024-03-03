@@ -7,14 +7,13 @@ import duration from "dayjs/plugin/duration";
 
 import bot from "../../../bot";
 import MOCK_DATA from "../../../mock-data.json";
+import { getAuthToken } from "../../../helpers/auth";
 
-const AUTH_TOKEN_KEY = "authToken";
-const DEV_MODE = false;
+const DEV_MODE = true;
 const USE_MOCK_DATA = false;
-const SEND_MESSAGE = true;
+const SEND_MESSAGE = false;
 
 const PARAMETERS = {
-  AUTH_TOKEN_KEY,
   DEV_MODE,
   USE_MOCK_DATA,
   SEND_MESSAGE,
@@ -79,106 +78,6 @@ export async function GET() {
 
   return Response.json({ success: true }, { status: 200 });
 }
-
-const getAuthToken = async () => {
-  const kvToken = await getKvToken();
-  if (!kvToken) {
-    return getNewToken();
-  }
-
-  const valid = await checkToken(kvToken);
-  if (!valid) {
-    return getNewToken();
-  }
-
-  return kvToken;
-};
-
-const getKvToken = async () => {
-  const result = await kv.get(AUTH_TOKEN_KEY);
-  if (result) {
-    console.log("🔑 Found token from KV store");
-  } else {
-    console.log("❌ Missing token from KV store");
-  }
-  return result;
-};
-
-const checkToken = async (token) => {
-  console.log("Checking if auth token is valid..");
-  try {
-    const result = await fetch(
-      "https://www.candlestick.io/api/v1/user/user-info",
-      {
-        headers: {
-          "x-authorization": token,
-        },
-        method: "GET",
-      }
-    );
-    const json = await result.json();
-    const valid = json.code === 1;
-
-    if (valid) {
-      console.log("✅ Auth token is valid");
-    } else {
-      console.log("❌ Invalid auth token from KV store");
-    }
-
-    return valid;
-  } catch (error) {
-    console.error(error);
-    console.log("❌ Invalid auth token from KV store");
-    return false;
-  }
-};
-
-const getNewToken = async () => {
-  const token = await getLoginToken();
-  if (token) {
-    await setToken(token);
-  }
-  return token;
-};
-
-const getLoginToken = async () => {
-  console.log("Logging in..");
-
-  const data = {
-    deviceId: process.env.DEVICE_ID,
-    email: process.env.EMAIL,
-    password: process.env.HASHED_PASSWORD,
-  };
-  try {
-    const result = await fetch(LOGIN_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-    const json = await result.json();
-    const token = json.data.token;
-    console.log("✅ Login success");
-    return token;
-  } catch (error) {
-    console.log("Error fetching auth token", error);
-    console.log("❌ Login failed");
-    return null;
-  }
-};
-
-const setToken = async (token) => {
-  try {
-    console.log("Setting token in KV store..");
-    await kv.del(AUTH_TOKEN_KEY);
-    const result = await kv.set(AUTH_TOKEN_KEY, token);
-    console.log("✅ Successfully set token in KV store");
-  } catch (error) {
-    // TODO: Handle error
-    console.error(error);
-  }
-};
 
 const getStealthWallets = async ({ url, authToken }) => {
   try {
