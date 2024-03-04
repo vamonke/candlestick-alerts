@@ -8,14 +8,19 @@ import bot from "../../../bot";
 import MOCK_DATA from "../../../mock-data.json";
 import { getAuthToken } from "../../../helpers/auth";
 
-const DEV_MODE = false;
 const USE_MOCK_DATA = false;
-const SEND_MESSAGE = true;
+const DEV_MODE = process.env.VERCEL_ENV === "development";
+const SEND_MESSAGE = [
+  "production",
+  // toggle below to enable/disable sending messages in dev mode
+  "development",
+  // toggle above to enable/disable sending messages in dev mode
+].includes(process.env.VERCEL_ENV);
 
-const PARAMETERS = {
+const CONFIG = {
   DEV_MODE,
-  USE_MOCK_DATA,
   SEND_MESSAGE,
+  USE_MOCK_DATA,
 };
 
 const ALERTS = [
@@ -49,12 +54,12 @@ const ALERTS = [
   },
 ];
 
-console.log("🚀 Running cron job");
-console.log(`Parameters: ${JSON.stringify(PARAMETERS, null, 2)}`);
-
 dayjs.extend(duration);
 
 export async function GET() {
+  console.log("🚀 Running cron job");
+  console.log(`Config: ${JSON.stringify(CONFIG, null, 2)}`);
+
   noStore();
   const token = await getAuthToken();
 
@@ -512,8 +517,12 @@ const USER_IDS = [
 
 const sendMessage = async (message) => {
   const recipientIds = DEV_MODE ? [DEVELOPER_USER_ID] : USER_IDS;
+  if (DEV_MODE) {
+    console.log("👨‍💻 Running in dev mode", recipientIds);
+  }
   for (const userId of recipientIds) {
     if (!SEND_MESSAGE) {
+      console.log(`Skipping sending message to ${userId}`);
       continue;
     }
     await bot.api.sendMessage(userId, message, {
