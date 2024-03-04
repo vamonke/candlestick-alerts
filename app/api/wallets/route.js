@@ -1,11 +1,16 @@
 import { unstable_noStore as noStore } from "next/cache";
 import { kv } from "@vercel/kv";
+import { Alchemy, Network } from "alchemy-sdk";
 
 import MOCK_WALLETS from "../../../mock-wallets.json";
 import { getAuthToken } from "../../../helpers/auth";
 import { sendError, sendMessage } from "../../../helpers/send";
 import { CONFIG } from "../../../helpers/config";
-import { WALLETS_KEY, walletAlert } from "../../../helpers/wallets";
+import {
+  ADDRESS_ACTIVITY_WEBHOOK_ID,
+  WALLETS_KEY,
+  walletAlert,
+} from "../../../helpers/wallets";
 
 export async function GET() {
   console.log("🚀 Running top wallets cron job");
@@ -101,13 +106,34 @@ const getTopWallets = async ({ authToken }) => {
 
 const setWallets = async (wallets) => {
   try {
+    console.log("Monitoring wallets..");
+    await monitorWallets(wallets);
+    console.log("✅ Successfully set Alchemy Notify webhook");
+
     console.log("Setting wallets in KV store..");
     const result = await kv.set(WALLETS_KEY, wallets);
     console.log("✅ Successfully set wallets in KV store");
+
     return true;
   } catch (error) {
     console.error(error);
     sendError({ message: "Error setting wallets in KV store", error });
     return false;
   }
+};
+
+const monitorWallets = async (wallets) => {
+  // authToken is required to use Notify APIs. Found on the top right corner of
+  // https://dashboard.alchemy.com/notify.
+  const settings = {
+    authToken: process.env.ALCHEMY_AUTH_TOKEN,
+    network: Network.ETH_MAINNET, // Replace with your network.
+  };
+
+  const alchemy = new Alchemy(settings);
+
+  // Updating Address Activity Webhook: replace all addresses
+  await alchemy.notify.updateWebhook(ADDRESS_ACTIVITY_WEBHOOK_ID, {
+    newAddresses: wallets,
+  });
 };

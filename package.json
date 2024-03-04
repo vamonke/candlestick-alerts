@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "@vercel/kv": "^1.0.1",
+    "alchemy-sdk": "^3.1.2",
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.10",
     "grammy": "^1.21.0",

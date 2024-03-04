@@ -18,3 +18,5 @@ export const walletAlert = {
 };
 
 export const WALLETS_KEY = "topWallets";
+
+export const ADDRESS_ACTIVITY_WEBHOOK_ID = "wh_9n5iiooqbvvw2p27";
