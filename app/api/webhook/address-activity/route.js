@@ -1,6 +1,7 @@
 import { kv } from "@vercel/kv";
 import { sendError, sendMessage } from "../../../../helpers/send";
 import { WALLETS_KEY, walletAlert } from "../../../../helpers/wallets";
+import { parseValue } from "../../../../helpers/parse";
 
 export const POST = async (request) => {
   const json = await request.json();
@@ -51,8 +52,8 @@ export const POST = async (request) => {
       const tokenString = `Token: <b>$${asset.toUpperCase()}</b>`;
       const caString = `CA: <code>${address}</code>`;
       // const distinctWalletsString = `Distinct wallets: 1`;
-      const buyerString = `Wallet: ${toAddress.slice(-4)}`;
-      const valueString = `Txn value: ${value}`;
+      const buyerString = `Wallet: <code>${toAddress}</code>`;
+      const valueString = `Txn value: ${parseValue(value)}`;
       const tokenLinkString = `<a href="https://www.candlestick.io/crypto/${address}">View on Candlestick</a>`;
 
       const message = [
