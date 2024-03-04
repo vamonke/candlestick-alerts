@@ -43,11 +43,11 @@ export async function GET() {
   }
 
   const query = walletAlert.query;
-  let message = `👛 Monitoring top ${walletAddresses.length} wallets\n`;
+  let message = `👛 Alert 3: Monitoring new top ${walletAddresses.length} wallets\n`;
   message +=
     `<i>` +
     [
-      `Sort by ROI`,
+      `Sorted by ROI`,
       `Active within 7D`,
       `Total profit ≥ $${query.total_profit}`,
       `Win rate ≥ ${query.win_rate * 100}%`,
