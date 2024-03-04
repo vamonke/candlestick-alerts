@@ -1,29 +1,18 @@
 import { unstable_noStore as noStore } from "next/cache";
-import dayjs from "dayjs";
-import duration from "dayjs/plugin/duration";
-
-import bot from "../../../bot";
-import MOCK_WALLETS from "../../../mock-wallets.json";
-import { getAuthToken } from "../../../helpers/auth";
 import { kv } from "@vercel/kv";
 
-const DEV_MODE = false;
-const USE_MOCK_DATA = false;
-const SEND_MESSAGE = true;
-const WALLETS_KEY = "topWallets";
-
-const PARAMETERS = {
-  DEV_MODE,
-  USE_MOCK_DATA,
-  SEND_MESSAGE,
-};
-
-console.log("🚀 Running top wallets cron job");
-console.log(`Parameters: ${JSON.stringify(PARAMETERS, null, 2)}`);
-
-dayjs.extend(duration);
+import MOCK_WALLETS from "../../../mock-wallets.json";
+import { getAuthToken } from "../../../helpers/auth";
+import { sendError, sendMessage } from "../../../helpers/send";
+import { CONFIG } from "../../../helpers/config";
+import { WALLETS_KEY, walletAlert } from "../../../helpers/wallets";
 
 export async function GET() {
+  console.log("🚀 Running top wallets cron job");
+  console.log(`Parameters: ${JSON.stringify(CONFIG, null, 2)}`);
+
+  console.log(`Alert params: ${JSON.stringify(walletAlert, null, 2)}`);
+
   noStore();
   const authToken = await getAuthToken();
 
@@ -48,10 +37,20 @@ export async function GET() {
     return Response.json({ error }, { status: 500 });
   }
 
-  await bot.api.sendMessage(
-    DEVELOPER_USER_ID,
-    `👛 Updated top ${walletAddresses.length} wallets`
-  );
+  const query = walletAlert.query;
+  let message = `👛 Monitoring top ${walletAddresses.length} wallets\n`;
+  message +=
+    `<i>` +
+    [
+      `Sort by ROI`,
+      `Active within 7D`,
+      `Total profit ≥ $${query.total_profit}`,
+      `Win rate ≥ ${query.win_rate * 100}%`,
+      `Tokens traded ≥ ${query.token_traded}`,
+      `Cost ≥ $${query.total_cost}`,
+    ].join(", ") +
+    `</i>`;
+  await sendMessage(message);
 
   return Response.json({ success }, { status: 200 });
 }
@@ -62,25 +61,27 @@ const getTopWallets = async ({ authToken }) => {
       "https://www.candlestick.io/api/v1/address-explore/top-total-roi";
 
     const url = new URL(endpoint);
+    const query = walletAlert.query;
     const searchParamsObj = {
       current_page: 1,
-      page_size: 50,
-      sort_type: 0,
-      oriented: 1,
-      blockchain_id: 2,
-      active_within: 2, // 7 days
-      timeframe: 3,
-      total_profit: 4000,
-      profitFilterType: "totalProfit",
-      total_cost: 100,
-      first_in: 1, // 7 days
-      token_traded: 3,
-      win_rate: 0.9,
+      page_size: query.page_size,
+      sort_type: query.sort_type,
+      oriented: query.oriented,
+      blockchain_id: query.blockchain_id,
+      active_within: query.active_within,
+      timeframe: query.timeframe,
+      total_profit: query.total_profit,
+      profitFilterType: query.profitFilterType,
+      total_cost: query.total_cost,
+      first_in: query.first_in,
+      token_traded: query.token_traded,
+      win_rate: query.win_rate,
     };
     Object.keys(searchParamsObj).forEach((key) =>
       url.searchParams.append(key, searchParamsObj[key])
     );
 
+    console.log("🔗 Fetching top wallets from:", url);
     const result = await fetch(url, {
       headers: {
         "x-authorization": authToken,
@@ -96,15 +97,6 @@ const getTopWallets = async ({ authToken }) => {
     sendError({ message: "Error fetching top wallets", error });
     return null;
   }
-};
-
-const DEVELOPER_USER_ID = 265435469;
-
-const sendError = async (error) => {
-  await bot.api.sendMessage(
-    DEVELOPER_USER_ID,
-    `Something went wrong\n\n${JSON.stringify(error)}`
-  );
 };
 
 const setWallets = async (wallets) => {
