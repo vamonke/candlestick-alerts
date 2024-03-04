@@ -5,7 +5,7 @@ import { parseValue } from "../../../../helpers/parse";
 
 export const POST = async (request) => {
   const json = await request.json();
-  console.log(`☀️ Received body: ${JSON.stringify(json, null, 2)}`);
+  console.log(`📫 Received body: ${JSON.stringify(json, null, 2)}`);
 
   const activity = json?.event?.activity;
 
@@ -23,6 +23,7 @@ export const POST = async (request) => {
     (a) =>
       topWallets.includes(a.toAddress) &&
       !walletAlert.excludedTokens.includes(a.asset)
+      // a.category === "token"
   );
 
   if (!matchedActivity.length) {
@@ -41,7 +42,7 @@ export const POST = async (request) => {
         toAddress,
         value,
         asset,
-        category,
+        // category,
         rawContract: { address },
       } = a;
       // const message = `<b><i>${alert.name}</i></b>\n\n<code>${toAddress.slice(
