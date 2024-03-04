@@ -54,7 +54,7 @@ export const POST = async (request) => {
       const caString = `CA: <code>${address}</code>`;
       // const distinctWalletsString = `Distinct wallets: 1`;
       const buyerString = `Wallet: <code>${toAddress}</code>`;
-      const valueString = `Txn value: ${parseValue(value)}`;
+      const valueString = `Txn amount: ${parseValue(value)}`;
       const tokenLinkString = `<a href="https://www.candlestick.io/crypto/${address}">View on Candlestick</a>`;
 
       const message = [
