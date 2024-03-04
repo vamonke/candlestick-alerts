@@ -5,7 +5,7 @@ import { Alchemy, Network } from "alchemy-sdk";
 import MOCK_WALLETS from "../../../mock-wallets.json";
 import { getAuthToken } from "../../../helpers/auth";
 import { sendError, sendMessage } from "../../../helpers/send";
-import { CONFIG } from "../../../helpers/config";
+import * as CONFIG from "../../../helpers/config";
 import {
   ADDRESS_ACTIVITY_WEBHOOK_ID,
   WALLETS_KEY,

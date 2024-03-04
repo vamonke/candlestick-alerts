@@ -1,9 +1,12 @@
 import { kv } from "@vercel/kv";
 import { sendError, sendMessage } from "../../../../helpers/send";
 import { WALLETS_KEY, walletAlert } from "../../../../helpers/wallets";
-import { parseValue } from "../../../../helpers/parse";
+import * as CONFIG from "../../../../helpers/config";
 
 export const POST = async (request) => {
+  console.log("🚀 Running address activity webhook");
+  console.log(`Parameters: ${JSON.stringify(CONFIG, null, 2)}`);
+
   const json = await request.json();
   console.log(`📫 Received body: ${JSON.stringify(json, null, 2)}`);
 
@@ -22,8 +25,9 @@ export const POST = async (request) => {
   const matchedActivity = activity.filter(
     (a) =>
       topWallets.includes(a.toAddress) &&
-      !walletAlert.excludedTokens.includes(a.asset)
-    // a.category === "token"
+      a.category === "token" &&
+      !walletAlert.excludedTokens.includes(a.asset) &&
+      !walletAlert.excludedAddresses.includes(a.fromAddress)
   );
 
   if (!matchedActivity.length) {
