@@ -1,27 +1,20 @@
 import { unstable_noStore as noStore } from "next/cache";
 import { markdownTable } from "markdown-table";
-import CryptoJS from "crypto-js";
-import dayjs from "dayjs";
-import duration from "dayjs/plugin/duration";
 
-import bot from "../../../bot";
 import MOCK_DATA from "../../../mock-data.json";
 import { getAuthToken } from "../../../helpers/auth";
+import {
+  getAgeString,
+  parseDate,
+  parsePrice,
+  parseValue,
+  utcToSgt,
+} from "../../../helpers/parse";
+import * as CONFIG from "../../../helpers/config";
+import { sendMessage, sendError } from "../../../helpers/send";
+import { hash, fetchPortfolioAESKey } from "../../../helpers/portfolioAESKey";
 
-const USE_MOCK_DATA = false;
-const DEV_MODE = process.env.VERCEL_ENV === "development";
-const SEND_MESSAGE = [
-  "production",
-  // toggle below to enable/disable sending messages in dev mode
-  "development",
-  // toggle above to enable/disable sending messages in dev mode
-].includes(process.env.VERCEL_ENV);
-
-const CONFIG = {
-  DEV_MODE,
-  SEND_MESSAGE,
-  USE_MOCK_DATA,
-};
+const { USE_MOCK_DATA } = CONFIG;
 
 const ALERTS = [
   {
@@ -53,8 +46,6 @@ const ALERTS = [
     },
   },
 ];
-
-dayjs.extend(duration);
 
 export async function GET() {
   console.log("🚀 Running cron job");
@@ -261,62 +252,6 @@ const evaluateWallets = async ({ alert, matchedTokens, authToken }) => {
   return { matchedTokens: matches };
 };
 
-const parseDate = (utcTimeString) => {
-  const [year, month, day, hour, minute, second] = utcTimeString.split(/[- :]/);
-  return new Date(Date.UTC(year, month - 1, day, hour, minute, second));
-};
-
-const utcToSgt = (utcDate) => {
-  const offset = 8;
-  const sgtDate = new Date(utcDate.getTime() + offset * 60 * 60 * 1000);
-  return sgtDate;
-};
-
-const parsePrice = (number) => {
-  if (number >= 10) {
-    return number.toPrecision(4);
-  }
-
-  if (number >= 1) {
-    return number.toPrecision(4);
-  }
-
-  if (number >= 0.1) {
-    return number.toLocaleString(undefined, {
-      minimumFractionDigits: 4,
-      maximumFractionDigits: 4,
-    });
-  }
-
-  if (number >= 0.01) {
-    return number.toLocaleString(undefined, {
-      minimumFractionDigits: 5,
-      maximumFractionDigits: 5,
-    });
-  }
-
-  // Convert the number to scientific notation first to easily extract parts
-  let scientificNotation = number.toExponential();
-  let [base, exponent] = scientificNotation
-    .split("e")
-    .map((part) => parseFloat(part, 10));
-
-  let zerosNeeded = Math.abs(exponent) - 1; // Subtract 1 to account for the digit before the decimal
-
-  // Construct the custom format
-  let formattedNumber = `0.0(${zerosNeeded})${base
-    .toFixed(3)
-    .replace(".", "")}`;
-  return formattedNumber;
-};
-
-const parseValue = (number) => {
-  return number.toLocaleString(undefined, {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
-};
-
 const craftMessage = ({ alert, matchedTokens }) => {
   const {
     name,
@@ -425,26 +360,6 @@ const craftMatchedTokenString = ({ alert, tokenObj }) => {
   return message;
 };
 
-const getAgeString = (date) => {
-  if (!date) return "-";
-
-  const createdAt = dayjs(date);
-  const duration = dayjs.duration(dayjs().diff(createdAt));
-
-  const days = Math.floor(duration.asDays());
-  const hours = duration.hours();
-  const minutes = duration.minutes();
-
-  let result = ``;
-  if (days > 0) result += `${days} ${days > 1 ? "days" : "day"} `;
-  if (hours > 0) result += `${hours} ${hours > 1 ? "hours" : "hour"} `;
-  if (days === 0 && minutes > 0)
-    result += `${minutes} ${minutes > 1 ? "minutes" : "minute"} `;
-  result += `ago`;
-
-  return result;
-};
-
 const constructTxnsTable = (transactions) => {
   const table = markdownTable(
     [
@@ -504,41 +419,6 @@ const constructWalletsTable = (distinctAddresses) => {
     }
   );
   return `\n📊 <b>Wallet stats</b>\n` + `<pre>` + table + `\n</pre>`;
-};
-
-const DEVELOPER_USER_ID = 265435469;
-const USER_V_ID = 278239097;
-
-const USER_IDS = [
-  // dev
-  DEVELOPER_USER_ID,
-  USER_V_ID,
-];
-
-const sendMessage = async (message) => {
-  const recipientIds = DEV_MODE ? [DEVELOPER_USER_ID] : USER_IDS;
-  if (DEV_MODE) {
-    console.log("👨‍💻 Running in dev mode", recipientIds);
-  }
-  for (const userId of recipientIds) {
-    if (!SEND_MESSAGE) {
-      console.log(`Skipping sending message to ${userId}`);
-      continue;
-    }
-    await bot.api.sendMessage(userId, message, {
-      parse_mode: "HTML",
-      link_preview_options: {
-        is_disabled: true,
-      },
-    });
-  }
-};
-
-const sendError = async (error) => {
-  await bot.api.sendMessage(
-    DEVELOPER_USER_ID,
-    `Something went wrong\n\n${JSON.stringify(error)}`
-  );
 };
 
 const executeAlert = async ({ alert, authToken }) => {
@@ -683,47 +563,6 @@ const addBuyerStats = async ({ matchedTokens, authToken }) => {
     })
   );
 };
-
-const hash = (walletAddress, portfolioAESKey) => {
-  const key = CryptoJS.enc.Utf8.parse(portfolioAESKey);
-  var iv = CryptoJS.enc.Utf8.parse(portfolioAESKey);
-  return CryptoJS.AES.encrypt(walletAddress, key, {
-    iv: iv,
-    mode: CryptoJS.mode.CBC,
-    padding: CryptoJS.pad.Pkcs7,
-  }).toString();
-};
-
-async function fetchPortfolioAESKey() {
-  try {
-    // Fetch the HTML content
-    const response = await fetch("https://www.candlestick.io", {
-      headers: {
-        Accept: "text/html",
-      },
-    });
-    const htmlContent = await response.text();
-
-    // console.log("HTML content:\n" + htmlContent);
-
-    // Regular expression to match the portfolioAESKey
-    var regex = /portfolioAESKey:"([^"]+)"/;
-
-    // Executing the regex on the htmlText
-    var matches = regex.exec(htmlContent);
-
-    // Extracting the portfolioAESKey value
-    if (matches && matches.length > 1) {
-      var portfolioAESKey = matches[1];
-      console.log("PortfolioAESKey:", portfolioAESKey);
-      return portfolioAESKey;
-    } else {
-      console.log("PortfolioAESKey not found");
-    }
-  } catch (error) {
-    console.error("Error fetching the HTML:", error);
-  }
-}
 
 const getWalletPerformance = async ({ walletAddressHash, authToken }) => {
   try {
