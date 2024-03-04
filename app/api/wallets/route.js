@@ -68,12 +68,12 @@ const getTopWallets = async ({ authToken }) => {
       sort_type: 0,
       oriented: 1,
       blockchain_id: 2,
-      active_within: 2,
+      active_within: 2, // 7 days
       timeframe: 3,
       total_profit: 4000,
       profitFilterType: "totalProfit",
       total_cost: 100,
-      first_in: 1,
+      first_in: 1, // 7 days
       token_traded: 3,
       win_rate: 0.9,
     };

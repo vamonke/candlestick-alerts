@@ -1,4 +1,3 @@
-import { kv } from "@vercel/kv";
 import { unstable_noStore as noStore } from "next/cache";
 import { markdownTable } from "markdown-table";
 import CryptoJS from "crypto-js";
@@ -9,9 +8,9 @@ import bot from "../../../bot";
 import MOCK_DATA from "../../../mock-data.json";
 import { getAuthToken } from "../../../helpers/auth";
 
-const DEV_MODE = true;
+const DEV_MODE = false;
 const USE_MOCK_DATA = false;
-const SEND_MESSAGE = false;
+const SEND_MESSAGE = true;
 
 const PARAMETERS = {
   DEV_MODE,
@@ -27,7 +26,7 @@ const ALERTS = [
     walletAgeDays: 1,
     boughtTokenLimit: true, // Tokens bought <= 2
     minsAgo: 5,
-    // minsAgo: 300, // For testing
+    // minsAgo: 10, // For testing
     minDistinctWallets: 3,
     excludedTokens: ["WETH", "weth"],
   },
@@ -38,7 +37,7 @@ const ALERTS = [
     walletAgeDays: 7,
     boughtTokenLimit: false, // Any tokens bought
     minsAgo: 5,
-    // minsAgo: 100, // For testing
+    // minsAgo: 10, // For testing
     minDistinctWallets: 3,
     excludedTokens: ["WETH", "weth"],
     showWalletStats: true,
@@ -52,8 +51,6 @@ const ALERTS = [
 
 console.log("🚀 Running cron job");
 console.log(`Parameters: ${JSON.stringify(PARAMETERS, null, 2)}`);
-
-const LOGIN_URL = "https://www.candlestick.io/api/v2/user/login-email";
 
 dayjs.extend(duration);
 
@@ -70,10 +67,10 @@ export async function GET() {
   console.log(`Alerts to execute: ${ALERTS.length}`);
 
   for (const [index, alert] of ALERTS.entries()) {
-    console.log(`Executing alert #${index + 1}`);
+    console.log(`Executing alert ${index + 1}: ${alert.name}`);
     console.log(`Parameters: ${JSON.stringify(alert, null, 2)}`);
     await executeAlert({ alert, authToken: token });
-    console.log(`Finished executing alert #${index + 1}`);
+    console.log(`Finished executing alert ${index + 1}: ${alert.name}`);
   }
 
   return Response.json({ success: true }, { status: 200 });
@@ -644,11 +641,17 @@ const getTokenInfo = async (tokenAddress) => {
 };
 
 const addBuyerStats = async ({ matchedTokens, authToken }) => {
+  if (matchedTokens.length === 0) {
+    console.log("addBuyerStats: No matched tokens");
+    return;
+  }
+
   const portfolioAESKey = await fetchPortfolioAESKey();
-  console.log("Fetching wallet stats..");
+  console.log(`Fetching wallet stats for ${matchedTokens.length} tokens..`);
   await Promise.all(
     matchedTokens.map(async (tokenObj) => {
       const { distinctAddresses } = tokenObj;
+      console.log(`Fetching ${distinctAddresses.length} wallet stats..`);
       await Promise.all(
         distinctAddresses.map(async (buyer) => {
           const walletAddressHash = hash(buyer.address, portfolioAESKey);
