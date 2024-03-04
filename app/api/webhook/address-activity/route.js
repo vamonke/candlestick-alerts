@@ -23,7 +23,7 @@ export const POST = async (request) => {
     (a) =>
       topWallets.includes(a.toAddress) &&
       !walletAlert.excludedTokens.includes(a.asset)
-      // a.category === "token"
+    // a.category === "token"
   );
 
   if (!matchedActivity.length) {
@@ -54,7 +54,7 @@ export const POST = async (request) => {
       const caString = `CA: <code>${address}</code>`;
       // const distinctWalletsString = `Distinct wallets: 1`;
       const buyerString = `Wallet: <code>${toAddress}</code>`;
-      const valueString = `Txn amount: ${parseValue(value)}`;
+      const valueString = value ? `Txn amount: ${value}` : null;
       const tokenLinkString = `<a href="https://www.candlestick.io/crypto/${address}">View on Candlestick</a>`;
 
       const message = [
