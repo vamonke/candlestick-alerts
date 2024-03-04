@@ -6,7 +6,7 @@
     },
     {
       "path": "/api/wallets",
-      "schedule": "59 21 * * *"
+      "schedule": "00 22 * * *"
     }
   ]
 }
