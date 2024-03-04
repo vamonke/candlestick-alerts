@@ -1,6 +1,6 @@
 export const walletAlert = {
   name: "🟣 Alert 3 - Top Wallets",
-  excludedTokens: ["WETH", "weth", "USDT", "USDC", "DAI", "WBTC"],
+  excludedTokens: ["WETH", "weth", "USDT", "USDC", "DAI", "WBTC", "ETH"],
   query: {
     page_size: 50,
     sort_type: 0, // ROI
