@@ -71,6 +71,7 @@ export const POST = async (request) => {
       const alertNameString = `<b><i>${walletAlert.name}</i></b>`;
       const tokenString = `Token: <b>${tokenName} ($${symbol})</b>`;
       const caString = `CA: <code>${address}</code>`;
+      const walletString = `Wallet: <code>${toAddress}</code>`;
       const ageString = `Token age: ${
         creationDate ? getAgeString(creationDate) : "-"
       }`;
@@ -92,6 +93,7 @@ export const POST = async (request) => {
         alertNameString + "\n",
         tokenString,
         caString,
+        walletString,
         ageString,
         distinctWalletsString,
         totalTxnValueString,
