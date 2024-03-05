@@ -116,7 +116,11 @@ const getTopWalletsKV = async () => {
 
 const dummyAddress = "0xbe3f4b43db5eb49d1f48f53443b9abce45da3b79";
 
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 const getTxnInfo = async (txHash) => {
+  console.log(`Waiting for 5 seconds...`);
+  await wait(5000);
   console.log(`Fetching transaction value for ${txHash}...`);
   const client = new CovalentClient(process.env.COVALENT_API_KEY);
   const resp = await client.TransactionService.getTransaction(
