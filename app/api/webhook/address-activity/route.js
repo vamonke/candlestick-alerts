@@ -1,3 +1,4 @@
+import { unstable_noStore as noStore } from "next/cache";
 import { kv } from "@vercel/kv";
 import { CovalentClient } from "@covalenthq/client-sdk";
 import { sendError, sendMessage } from "../../../../helpers/send";
@@ -8,6 +9,8 @@ import { getAgeString } from "../../../../helpers/parse";
 import { constructTxnsTable2 } from "../../../../helpers/table";
 
 export const POST = async (request) => {
+  noStore();
+
   console.log("🚀 Running address activity webhook");
   console.log(`Parameters: ${JSON.stringify(CONFIG, null, 2)}`);
 
