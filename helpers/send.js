@@ -20,18 +20,28 @@ export const sendMessage = async (message) => {
       console.log(`Skipping sending message to ${userId}`);
       continue;
     }
-    await bot.api.sendMessage(userId, message, {
-      parse_mode: "HTML",
-      link_preview_options: {
-        is_disabled: true,
-      },
-    });
+    try {
+      const result = await bot.api.sendMessage(userId, message, {
+        parse_mode: "HTML",
+        link_preview_options: {
+          is_disabled: true,
+        },
+      });
+      console.log(`Sent message to ${userId}`, result);
+    } catch (error) {
+      console.error(`🚨 Error sending message to ${userId}`, error);
+    }
   }
 };
 
 export const sendError = async (error) => {
-  await bot.api.sendMessage(
-    DEVELOPER_USER_ID,
-    `Something went wrong\n\n${JSON.stringify(error)}`
-  );
+  console.error("🚨 Error:", error);
+  try {
+    const results = await bot.api.sendMessage(
+      DEVELOPER_USER_ID,
+      `Something went wrong\n\n${JSON.stringify(error)}`
+    );
+  } catch (error) {
+    console.error("🚨 Error sending error message", error);
+  }
 };
