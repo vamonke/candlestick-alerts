@@ -27,7 +27,9 @@ export const sendMessage = async (message) => {
           is_disabled: true,
         },
       });
-      console.log(`Sent message to ${userId}`, result);
+      if (!DEV_MODE) {
+        console.log(`💌 Sent message to ${userId}`, result);
+      }
     } catch (error) {
       console.error(`🚨 Error sending message to ${userId}`, error);
     }
@@ -37,7 +39,7 @@ export const sendMessage = async (message) => {
 export const sendError = async (error) => {
   console.error("🚨 Error:", error);
   try {
-    const results = await bot.api.sendMessage(
+    await bot.api.sendMessage(
       DEVELOPER_USER_ID,
       `Something went wrong\n\n${JSON.stringify(error)}`
     );
