@@ -14,6 +14,8 @@ export const utcToSgt = (utcDate) => {
 };
 
 export const parsePrice = (number) => {
+  if (number === null || number === undefined) return "-";
+
   if (number >= 10) {
     return number.toPrecision(4);
   }

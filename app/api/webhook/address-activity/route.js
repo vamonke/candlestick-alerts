@@ -62,7 +62,7 @@ export const POST = async (request) => {
       const txnInfo = await getTxnInfo(hash);
       const txnValue = txnInfo?.value_quote;
       const txnDate = new Date(txnInfo?.block_signed_at);
-      const price = txnValue / value;
+      const price = txnValue && value ? txnValue / value : null;
       const symbol = tokenInfo?.symbol ?? asset.toUpperCase();
 
       const alertNameString = `<b><i>${walletAlert.name}</i></b>`;
@@ -121,7 +121,8 @@ const getTxnInfo = async (txHash) => {
     txHash,
     { noLogs: true, quoteCurrency: "USD" }
   );
-  console.log(`✅ Transaction response:`, resp.data);
+  console.log(`✅ Received transaction response`, resp);
+  console.log(`Transaction response data:`, resp.data);
   return resp.data?.items?.[0];
 };
 
