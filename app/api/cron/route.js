@@ -3,16 +3,12 @@ import { markdownTable } from "markdown-table";
 
 import MOCK_DATA from "../../../mock-data.json";
 import { getAuthToken } from "../../../helpers/auth";
-import {
-  getAgeString,
-  parseDate,
-  parsePrice,
-  parseValue,
-  utcToSgt,
-} from "../../../helpers/parse";
+import { getAgeString, parseDate } from "../../../helpers/parse";
 import * as CONFIG from "../../../helpers/config";
 import { sendMessage, sendError } from "../../../helpers/send";
 import { hash, fetchPortfolioAESKey } from "../../../helpers/portfolioAESKey";
+import { getTokenInfo } from "../../../helpers/etherscan";
+import { constructTxnsTable } from "../../../helpers/table";
 
 const { USE_MOCK_DATA } = CONFIG;
 
@@ -360,34 +356,6 @@ const craftMatchedTokenString = ({ alert, tokenObj }) => {
   return message;
 };
 
-const constructTxnsTable = (transactions) => {
-  const table = markdownTable(
-    [
-      ["Addr", "Src", "Price", "TxnVal", "Time"],
-      ...transactions.map((txn) => [
-        txn.address.slice(-4),
-        txn.fundingSource,
-        parsePrice(txn.buy_price),
-        parseValue(txn.txn_value),
-        utcToSgt(parseDate(txn.time)).toLocaleTimeString("en-SG", {
-          hour12: false, // Use 24-hour time format
-          hour: "2-digit", // 2-digit hour representation
-          minute: "2-digit", // 2-digit minute representation
-          second: "2-digit", // 2-digit second representation (optional)
-        }),
-      ]),
-      ...(transactions.length <= 3 ? [["", "", "", "", ""]] : []),
-    ],
-    {
-      align: ["l", "l", "r", "r", "l"],
-      padding: true,
-      delimiterStart: false,
-      delimiterEnd: false,
-    }
-  );
-  return `📈 <b>Transactions</b>\n` + `<pre>` + table + `</pre>`;
-};
-
 const constructWalletsTable = (distinctAddresses) => {
   const table = markdownTable(
     [
@@ -503,30 +471,6 @@ const getTokensInfo = async ({ matchedTokens }) => {
       }
     })
   );
-};
-
-const getTokenInfo = async (tokenAddress) => {
-  try {
-    const endPoint = `https://api.etherscan.io/api`;
-    const searchParams = new URLSearchParams({
-      module: "account",
-      action: "tokentx",
-      contractaddress: tokenAddress,
-      address: "0x0000000000000000000000000000000000000000",
-      apikey: process.env.ETHERSCAN_API_KEY,
-      sort: "asc",
-      page: 1,
-    });
-    console.log("Fetching token info for:", tokenAddress);
-    const url = `${endPoint}?${searchParams.toString()}`;
-    const response = await fetch(url);
-    const json = await response.json();
-    console.log(`✅ Fetched token info for ${tokenAddress}`);
-    return json?.result?.[0];
-  } catch (error) {
-    console.error("Error fetching token info:", error);
-    return null;
-  }
 };
 
 const addBuyerStats = async ({ matchedTokens, authToken }) => {

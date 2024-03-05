@@ -1,7 +1,11 @@
 import { kv } from "@vercel/kv";
+import { CovalentClient } from "@covalenthq/client-sdk";
 import { sendError, sendMessage } from "../../../../helpers/send";
 import { WALLETS_KEY, walletAlert } from "../../../../helpers/wallets";
 import * as CONFIG from "../../../../helpers/config";
+import { getTokenInfo } from "../../../../helpers/etherscan";
+import { getAgeString } from "../../../../helpers/parse";
+import { constructTxnsTable2 } from "../../../../helpers/table";
 
 export const POST = async (request) => {
   console.log("🚀 Running address activity webhook");
@@ -46,29 +50,50 @@ export const POST = async (request) => {
         toAddress,
         value,
         asset,
+        hash,
         // category,
         rawContract: { address },
       } = a;
-      // const message = `<b><i>${alert.name}</i></b>\n\n<code>${toAddress.slice(
-      //   -4
-      // )}</code> received <b>${value} $${asset}</b>\nCA: <code>${address}</code>`;
+
+      const tokenInfo = await getTokenInfo(address);
+      const tokenName = tokenInfo?.tokenName ?? asset;
+      const creationDate = new Date(tokenInfo?.timeStamp * 1000);
+
+      const txnInfo = await getTxnInfo(hash);
+      const txnValue = txnInfo?.value_quote;
+      const txnDate = new Date(txnInfo?.block_signed_at);
+      const price = txnValue / value;
+      const symbol = tokenInfo?.symbol ?? asset.toUpperCase();
 
       const alertNameString = `<b><i>${walletAlert.name}</i></b>`;
-      const tokenString = `Token: <b>$${asset.toUpperCase()}</b>`;
+      const tokenString = `Token: <b>${tokenName} ($${symbol})</b>`;
       const caString = `CA: <code>${address}</code>`;
-      // const distinctWalletsString = `Distinct wallets: 1`;
-      const buyerString = `Wallet: <code>${toAddress}</code>`;
-      const valueString = value ? `Txn amount: ${value}` : null;
+      const ageString = `Token age: ${
+        creationDate ? getAgeString(creationDate) : "-"
+      }`;
+      const distinctWalletsString = `Distinct wallets: 1`;
+      const totalTxnValueString = `Total txn value: ${
+        txnValue ? `$${txnValue.toLocaleString()}` : "-"
+      }`;
       const tokenLinkString = `<a href="https://www.candlestick.io/crypto/${address}">View on Candlestick</a>`;
+      const transactionsTable = constructTxnsTable2([
+        {
+          address: toAddress,
+          buy_price: price,
+          txn_value: txnValue,
+          date: txnDate,
+        },
+      ]);
 
       const message = [
         alertNameString + "\n",
         tokenString,
         caString,
-        // distinctWalletsString,
-        buyerString,
-        valueString,
-        tokenLinkString,
+        ageString,
+        distinctWalletsString,
+        totalTxnValueString,
+        tokenLinkString + "\n",
+        transactionsTable,
       ]
         .filter(Boolean)
         .join("\n");
@@ -88,37 +113,57 @@ const getTopWalletsKV = async () => {
 
 const dummyAddress = "0xbe3f4b43db5eb49d1f48f53443b9abce45da3b79";
 
+const getTxnInfo = async (txHash) => {
+  console.log(`Fetching transaction value for ${txHash}...`);
+  const client = new CovalentClient(process.env.COVALENT_API_KEY);
+  const resp = await client.TransactionService.getTransaction(
+    "eth-mainnet",
+    txHash,
+    { noLogs: true, quoteCurrency: "USD" }
+  );
+  console.log(`✅ Transaction response:`, resp.data);
+  return resp.data?.items?.[0];
+};
+
 /*
 {
-  "blockNum": "0xdf34a3",
-  "hash": "0x7a4a39da2a3fa1fc2ef88fd1eaea070286ed2aba21e0419dcfb6d5c5d9f02a72",
-  "fromAddress": "0x503828976d22510aad0201ac7ec88293211d23da",
-  "toAddress": "0xbe3f4b43db5eb49d1f48f53443b9abce45da3b79",
-  "value": 293.092129,
-  "erc721TokenId": null,
-  "erc1155Metadata": null,
-  "asset": "USDC",
-  "category": "token",
-  "rawContract": {
-    "rawValue": "0x0000000000000000000000000000000000000000000000000000000011783b21",
-    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "decimals": 6
-  },
-  "typeTraceAddress": null,
-  "log": {
-    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "topics": [
-      "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-      "0x000000000000000000000000503828976d22510aad0201ac7ec88293211d23da",
-      "0x000000000000000000000000be3f4b43db5eb49d1f48f53443b9abce45da3b79"
-    ],
-    "data": "0x0000000000000000000000000000000000000000000000000000000011783b21",
-    "blockNumber": "0xdf34a3",
-    "transactionHash": "0x7a4a39da2a3fa1fc2ef88fd1eaea070286ed2aba21e0419dcfb6d5c5d9f02a72",
-    "transactionIndex": "0x46",
-    "blockHash": "0xa99ec54413bd3db3f9bdb0c1ad3ab1400ee0ecefb47803e17f9d33bc4d0a1e91",
-    "logIndex": "0x6e",
-    "removed": false
+  "webhookId": "wh_9n5iiooqbvvw2p27",
+  "id": "whevt_3fmkvi258ulkt8a0",
+  "createdAt": "2024-03-05T02:51:26.431Z",
+  "type": "ADDRESS_ACTIVITY",
+  "event": {
+    "network": "ETH_MAINNET",
+    "activity": [
+      {
+        "fromAddress": "0x860598a0000e0ea354318e424796366588c73426",
+        "toAddress": "0x9e0f883c83d09c90c06876690acbfa3accbca9f3",
+        "blockNum": "0x12780cf",
+        "hash": "0x4d3369b049f91f062213fbcd4f60f8b9c4a082470c3105945654715567a9c2ba",
+        "value": 4845750.465766103,
+        "asset": "CHAPPY",
+        "category": "token",
+        "rawContract": {
+          "rawValue": "0x000000000000000000000000000000000000000000040220a8bbc7f8611b1650",
+          "address": "0x008faa8bc8157f8d19cd716e8cf1bae0ccad74be",
+          "decimals": 18
+        },
+        "log": {
+          "address": "0x008faa8bc8157f8d19cd716e8cf1bae0ccad74be",
+          "topics": [
+            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+            "0x000000000000000000000000860598a0000e0ea354318e424796366588c73426",
+            "0x0000000000000000000000009e0f883c83d09c90c06876690acbfa3accbca9f3"
+          ],
+          "data": "0x000000000000000000000000000000000000000000040220a8bbc7f8611b1650",
+          "blockNumber": "0x12780cf",
+          "transactionHash": "0x4d3369b049f91f062213fbcd4f60f8b9c4a082470c3105945654715567a9c2ba",
+          "transactionIndex": "0xa",
+          "blockHash": "0x7ac811dc12912225b1f12a13593c4d5b6a01d42cdc25abfd0172170d66eb6f1b",
+          "logIndex": "0x57",
+          "removed": false
+        }
+      }
+    ]
   }
 }
 */
