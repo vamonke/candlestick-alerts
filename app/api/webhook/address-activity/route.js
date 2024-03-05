@@ -8,6 +8,8 @@ import { getTokenInfo } from "../../../../helpers/etherscan";
 import { getAgeString } from "../../../../helpers/parse";
 import { constructTxnsTable2 } from "../../../../helpers/table";
 
+export const maxDuration = 60; // This function can run for a maximum of 5 seconds
+
 export const POST = async (request) => {
   noStore();
 
