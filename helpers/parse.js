@@ -54,6 +54,7 @@ export const parsePrice = (number) => {
 };
 
 export const parseValue = (number) => {
+  if (number === null || number === undefined) return "-";
   return number.toLocaleString(undefined, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
