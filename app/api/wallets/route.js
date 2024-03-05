@@ -48,6 +48,8 @@ export async function GET() {
     `<i>` +
     [
       `Sorted by ROI`,
+      `Token traded in 1M`,
+      `Token first-in in 1M`,
       `Active within 7D`,
       `Total profit ≥ $${query.total_profit}`,
       `Win rate ≥ ${query.win_rate * 100}%`,

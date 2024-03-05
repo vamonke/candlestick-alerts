@@ -3,13 +3,13 @@ export const walletAlert = {
   excludedTokens: ["WETH", "weth", "USDT", "USDC", "DAI", "WBTC", "ETH"],
   excludedAddresses: ["0x0000000000000000000000000000000000000000"],
   query: {
-    page_size: 50,
+    page_size: 100,
     sort_type: 0, // ROI
     oriented: 1, // Descending
     blockchain_id: 2, // Ethereum
     active_within: 2, // Active within 7 days
-    timeframe: 3, // Token traded in 7 days
-    total_profit: 4000, // Total profit ≥ $4000
+    timeframe: 0, // Token traded in 1 month
+    total_profit: 3000, // Total profit ≥ $4000
     profitFilterType: "totalProfit",
     total_cost: 100, // Total cost ≥ $100
     first_in: 1, // Token First-in in {timeframe}
