@@ -31,15 +31,15 @@ const ALERTS = [
     walletAgeDays: 7,
     boughtTokenLimit: false, // Any tokens bought
     minsAgo: 5,
-    // minsAgo: 10, // For testing
-    minDistinctWallets: 3,
+    // minsAgo: 300, // For testing
+    minDistinctWallets: 4,
     excludedTokens: ["WETH", "weth"],
     showWalletStats: true,
-    walletStats: {
-      rule: "any",
-      minWinRate: 0.75,
-      // minRoi: 0.5,
-    },
+    // walletStats: {
+    //   rule: "any",
+    //   minWinRate: 0.75,
+    //   // minRoi: 0.5,
+    // },
   },
 ];
 
@@ -204,7 +204,7 @@ const evaluateTransactions = ({ transactions, alert }) => {
   return { tokensMap, matchedTokens };
 };
 
-const evaluateWallets = async ({ alert, matchedTokens, authToken }) => {
+const evaluateWallets = async ({ alert, matchedTokens }) => {
   const { walletStats } = alert;
 
   if (!walletStats) {
@@ -228,8 +228,6 @@ const evaluateWallets = async ({ alert, matchedTokens, authToken }) => {
 
     return true;
   };
-
-  await addBuyerStats({ matchedTokens, authToken });
 
   console.log("Evaluating wallets..");
 
@@ -396,6 +394,7 @@ const executeAlert = async ({ alert, authToken }) => {
     valueFilter,
     boughtTokenLimit,
     walletStats,
+    showWalletStats,
   } = alert;
 
   let steathMoney = [];
@@ -432,11 +431,14 @@ const executeAlert = async ({ alert, authToken }) => {
     alert,
   });
 
+  if (walletStats || showWalletStats) {
+    await addBuyerStats({ matchedTokens, authToken });
+  }
+
   if (walletStats) {
     const results = await evaluateWallets({
       alert,
       matchedTokens,
-      authToken,
     });
     matchedTokens = results.matchedTokens;
   }
