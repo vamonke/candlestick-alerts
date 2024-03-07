@@ -44,6 +44,15 @@ const ALERTS = [
 ];
 
 export async function GET() {
+  try {
+    return await handler();
+  } catch (error) {
+    sendError(error);
+    return Response.json({ ok: false, error });
+  }
+}
+
+const handler = async () => {
   console.log("🚀 Running cron job");
   console.log(`Config: ${JSON.stringify(CONFIG, null, 2)}`);
 
@@ -61,12 +70,16 @@ export async function GET() {
   for (const [index, alert] of ALERTS.entries()) {
     console.log(`Executing alert ${index + 1}: ${alert.name}`);
     console.log(`Parameters: ${JSON.stringify(alert, null, 2)}`);
-    await executeAlert({ alert, authToken: token });
-    console.log(`Finished executing alert ${index + 1}: ${alert.name}`);
+    try {
+      await executeAlert({ alert, authToken: token });
+      console.log(`Finished executing alert ${index + 1}: ${alert.name}`);
+    } catch (error) {
+      sendError({ message: "Error executing alert", error });
+    }
   }
 
   return Response.json({ success: true }, { status: 200 });
-}
+};
 
 const getStealthWallets = async ({ url, authToken }) => {
   try {

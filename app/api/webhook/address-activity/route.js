@@ -16,6 +16,15 @@ export const maxDuration = 60; // This function can run for a maximum of 5 secon
 const maxContractAgeMins = 5;
 
 export const POST = async (request) => {
+  try {
+    return await handler(request);
+  } catch (error) {
+    sendError(error);
+    return Response.json({ ok: false, error });
+  }
+};
+
+const handler = async (request) => {
   noStore();
 
   console.log("🚀 Running address activity webhook");
