@@ -71,7 +71,6 @@ export const POST = async (request) => {
         // fromAddress,
         toAddress,
         value,
-        asset,
         hash,
         blockNum,
         // category,
@@ -86,11 +85,13 @@ export const POST = async (request) => {
         return;
       }
 
-      const age = getAge(createdAt);
-      const ageMins = age.minutes();
-      if (ageMins > maxContractAgeMins) {
+      const txnTime = await getBlockTimestamp(blockNum);
+      const txnAge = getAge(txnTime);
+      const txnAgeMins = txnAge.minutes();
+
+      if (txnAgeMins > maxContractAgeMins) {
         sendError(
-          `⏰ Skipping activity (hash: ${hash}) due to age ${ageMins} minutes > ${maxContractAgeMins} minutes`
+          `⏰ Skipping activity (hash: ${hash}) due to age ${txnAgeMins} minutes > ${maxContractAgeMins} minutes`
         );
         return;
       }
@@ -104,7 +105,6 @@ export const POST = async (request) => {
       }
 
       const txnInfo = await getTxnInfo(hash);
-      const txnTime = await getBlockTimestamp(blockNum);
 
       const tokenName = contractInfo.name;
       const symbol = contractInfo.symbol;
