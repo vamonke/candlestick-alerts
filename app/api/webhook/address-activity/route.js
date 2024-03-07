@@ -6,10 +6,11 @@ import {
   getContractCreation,
   getContractInfo,
 } from "../../../../helpers/contract";
-import { getAge, getAgeString } from "../../../../helpers/parse";
+import { getAge, getRelativeDate } from "../../../../helpers/parse";
 import { sendError, sendMessage } from "../../../../helpers/send";
 import { constructTxnsTable2 } from "../../../../helpers/table";
 import { WALLETS_KEY, walletAlert } from "../../../../helpers/wallets";
+import { getBlockTimestamp } from "../../../../helpers/block";
 
 export const maxDuration = 60; // This function can run for a maximum of 5 seconds
 const maxContractAgeMins = 5;
@@ -24,6 +25,17 @@ export const POST = async (request) => {
   console.log(`📫 Received body: ${JSON.stringify(json, null, 2)}`);
 
   const activity = json?.event?.activity;
+  const webhookNotifyId = json?.id;
+
+  const exists = await kv.set(webhookNotifyId, true, {
+    get: true,
+    ex: 60 * 60 * 24, // 24 hours in seconds
+  });
+
+  if (exists) {
+    console.log(`🔔 Webhook notification already exists: ${webhookNotifyId}`);
+    return Response.json({ ok: true });
+  }
 
   if (!activity) {
     sendError("⁉️ No activity found from webhook request");
@@ -91,9 +103,11 @@ export const POST = async (request) => {
         return;
       }
 
+      const txnInfo = await getTxnInfo(hash);
+      const txnTime = await getBlockTimestamp(blockNum);
+
       const tokenName = contractInfo.name;
       const symbol = contractInfo.symbol;
-      const txnInfo = await getTxnInfo(hash);
       const txnValue = txnInfo?.value_quote;
       const price = txnValue && value ? txnValue / value : null;
 
@@ -101,7 +115,7 @@ export const POST = async (request) => {
       const tokenString = `Token: <b>${tokenName} ($${symbol})</b>`;
       const caString = `CA: <code>${contractAddress}</code>`;
       const walletString = `Wallet: <code>${toAddress}</code>`;
-      const ageString = `Token age: ${getAgeString(createdAt)}`;
+      const ageString = `Token age: ${getRelativeDate(createdAt)}`;
       const distinctWalletsString = `Distinct wallets: 1`;
       const totalTxnValueString = `Total txn value: ${
         txnValue ? `$${txnValue.toLocaleString()}` : "-"
@@ -112,7 +126,7 @@ export const POST = async (request) => {
           address: toAddress,
           buy_price: price,
           txn_value: txnValue,
-          date: createdAt,
+          time: txnTime,
         },
       ]);
 

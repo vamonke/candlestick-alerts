@@ -2,18 +2,23 @@ import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 dayjs.extend(duration);
 
-export const parseDate = (utcTimeString) => {
+export const parseUtcTimeString = (utcTimeString) => {
   const [year, month, day, hour, minute, second] = utcTimeString.split(/[- :]/);
   return new Date(Date.UTC(year, month - 1, day, hour, minute, second));
 };
 
-export const utcToSgt = (utcDate) => {
-  const offset = 8;
-  const sgtDate = new Date(utcDate.getTime() + offset * 60 * 60 * 1000);
-  return sgtDate;
+export const formatTimestamp = (date) => {
+  if (!date) return "-";
+  return date.toLocaleTimeString("en-US", {
+    timeZone: "Asia/Singapore",
+    hour12: false, // Use 24-hour time format
+    hour: "2-digit", // 2-digit hour representation
+    minute: "2-digit", // 2-digit minute representation
+    second: "2-digit", // 2-digit second representation (optional)
+  });
 };
 
-export const parsePrice = (number) => {
+export const formatPrice = (number) => {
   if (number === null || number === undefined) return "-";
 
   if (number >= 10) {
@@ -53,7 +58,7 @@ export const parsePrice = (number) => {
   return formattedNumber;
 };
 
-export const parseValue = (number) => {
+export const formatValue = (number) => {
   if (number === null || number === undefined) return "-";
   return number.toLocaleString(undefined, {
     minimumFractionDigits: 0,
@@ -61,7 +66,7 @@ export const parseValue = (number) => {
   });
 };
 
-export const getAgeString = (date) => {
+export const getRelativeDate = (date) => {
   if (!date) return "-";
 
   const duration = getAge(date);

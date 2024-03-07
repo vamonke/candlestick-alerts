@@ -3,7 +3,7 @@ import { markdownTable } from "markdown-table";
 
 import MOCK_DATA from "../../../mock-data.json";
 import { getAuthToken } from "../../../helpers/auth";
-import { getAgeString, parseDate } from "../../../helpers/parse";
+import { getRelativeDate, parseDate } from "../../../helpers/parse";
 import * as CONFIG from "../../../helpers/config";
 import { sendMessage, sendError } from "../../../helpers/send";
 import { hash, fetchPortfolioAESKey } from "../../../helpers/portfolioAESKey";
@@ -326,9 +326,7 @@ const craftMatchedTokenString = ({ alert, tokenObj }) => {
     tokenName ?? buy_token_symbol
   } ($${buy_token_symbol.toUpperCase()})</b>`;
   const caString = `CA: <code>${buy_token_address}</code>`;
-  const ageString = `Token age: ${
-    creationDate ? getAgeString(creationDate) : "-"
-  }`;
+  const ageString = `Token age: ${getRelativeDate(creationDate)}`;
   const distinctWalletsString = `Distinct wallets: ${distinctAddressesCount}`;
   const totalTxnValueString = `Total txn value: $${totalTxnValue.toLocaleString()}`;
   const tokenLinkString = `<a href="https://www.candlestick.io/crypto/${buy_token_address}">View on Candlestick</a>`;
