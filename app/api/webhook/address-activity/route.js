@@ -5,7 +5,7 @@ import { sendError, sendMessage } from "../../../../helpers/send";
 import { WALLETS_KEY, walletAlert } from "../../../../helpers/wallets";
 import * as CONFIG from "../../../../helpers/config";
 import { getTokenInfo } from "../../../../helpers/etherscan";
-import { getAgeString } from "../../../../helpers/parse";
+import { getAge, getAgeString } from "../../../../helpers/parse";
 import { constructTxnsTable2 } from "../../../../helpers/table";
 
 export const maxDuration = 60; // This function can run for a maximum of 5 seconds
@@ -56,13 +56,30 @@ export const POST = async (request) => {
         value,
         asset,
         hash,
+        blockNum,
         // category,
         rawContract: { address },
       } = a;
 
+      const blockInfo = await getBlockInfo(blockNum);
+      if (!blockInfo) {
+        sendError(`⁉️ Failed to fetch block info for block ${blockNum}`);
+        return;
+      }
+
+      const timestamp = new Date(parseInt(blockInfo.timestamp, 16) * 1000);
+      const duration = getAge(timestamp);
+      const durationMinutes = duration.minutes();
+
+      if (durationMinutes > 5) {
+        console.log(
+          `⏰ Skipping activity (hash: ${hash}) due to age ${durationMinutes} minutes`
+        );
+        return;
+      }
+
       const tokenInfo = await getTokenInfo(address);
       const tokenName = tokenInfo?.tokenName ?? asset;
-      const creationDate = new Date(tokenInfo?.timeStamp * 1000);
 
       const txnInfo = await getTxnInfo(hash);
       const txnValue = txnInfo?.value_quote;
@@ -75,7 +92,7 @@ export const POST = async (request) => {
       const caString = `CA: <code>${address}</code>`;
       const walletString = `Wallet: <code>${toAddress}</code>`;
       const ageString = `Token age: ${
-        creationDate ? getAgeString(creationDate) : "-"
+        timestamp ? getAgeString(timestamp) : "-"
       }`;
       const distinctWalletsString = `Distinct wallets: 1`;
       const totalTxnValueString = `Total txn value: ${
@@ -135,6 +152,29 @@ const getTxnInfo = async (txHash) => {
   console.log(`✅ Received transaction response`, resp);
   console.log(`Transaction response data:`, resp.data);
   return resp.data?.items?.[0];
+};
+
+const getBlockInfo = async (blockNum) => {
+  console.log(`Fetching block info for ${blockNum}...`);
+
+  const endpoint = "https://api.etherscan.io/api";
+  const url = new URL(endpoint);
+  const params = {
+    module: "proxy",
+    action: "eth_getBlockByNumber",
+    tag: blockNum,
+    boolean: "false",
+    apikey: process.env.ETHERSCAN_API_KEY,
+  };
+  const searchParams = new URLSearchParams(params);
+  url.search = searchParams.toString();
+
+  const response = await fetch(url);
+  const json = await response.json();
+
+  console.log(`✅ Received block response`, json);
+  console.log(`Block response data:`, json.result);
+  return json.result;
 };
 
 /*

@@ -64,8 +64,7 @@ export const parseValue = (number) => {
 export const getAgeString = (date) => {
   if (!date) return "-";
 
-  const createdAt = dayjs(date);
-  const duration = dayjs.duration(dayjs().diff(createdAt));
+  const duration = getAge(date);
 
   const days = Math.floor(duration.asDays());
   const hours = duration.hours();
@@ -79,4 +78,10 @@ export const getAgeString = (date) => {
   result += `ago`;
 
   return result;
+};
+
+export const getAge = (date) => {
+  const createdAt = dayjs(date);
+  const duration = dayjs.duration(dayjs().diff(createdAt));
+  return duration;
 };
