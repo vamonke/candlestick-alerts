@@ -15,6 +15,7 @@
     "markdown-table": "^3.0.3",
     "mobula-sdk": "^1.5.4",
     "next": "latest",
+    "puppeteer": "^22.4.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "web3": "^4.5.0"
