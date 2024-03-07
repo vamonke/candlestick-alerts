@@ -46,7 +46,7 @@ export const constructTxnsTable2 = (transactions) => {
           second: "2-digit", // 2-digit second representation (optional)
         }),
       ]),
-      ...Array(Math.max(0, 4 - transactions.length)).fill(["", "", "", ""]), // Add empty rows to fill up to 4 rows
+      // ...Array(Math.max(0, 4 - transactions.length)).fill(["", "", "", ""]), // Add empty rows to fill up to 4 rows
     ],
     {
       align: ["l", "r", "r", "l"],

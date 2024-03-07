@@ -1,13 +1,15 @@
-import { unstable_noStore as noStore } from "next/cache";
-import { kv } from "@vercel/kv";
 import { CovalentClient } from "@covalenthq/client-sdk";
-import * as crypto from "crypto";
-import { sendError, sendMessage } from "../../../../helpers/send";
-import { WALLETS_KEY, walletAlert } from "../../../../helpers/wallets";
+import { kv } from "@vercel/kv";
+import { unstable_noStore as noStore } from "next/cache";
 import * as CONFIG from "../../../../helpers/config";
-import { getTokenInfo } from "../../../../helpers/etherscan";
+import {
+  getContractCreation,
+  getContractInfo,
+} from "../../../../helpers/contract";
 import { getAge, getAgeString } from "../../../../helpers/parse";
+import { sendError, sendMessage } from "../../../../helpers/send";
 import { constructTxnsTable2 } from "../../../../helpers/table";
+import { WALLETS_KEY, walletAlert } from "../../../../helpers/wallets";
 
 export const maxDuration = 60; // This function can run for a maximum of 5 seconds
 
@@ -26,6 +28,7 @@ export const POST = async (request) => {
     sendError("⁉️ No activity found from webhook request");
     return Response.json({ ok: false, error: "No activity found" });
   }
+  console.log(`📈 Activity count: ${activity.length}`);
 
   console.log(`Fetching top wallets...`);
   const topWallets = await getTopWalletsKV();
@@ -59,57 +62,56 @@ export const POST = async (request) => {
         hash,
         blockNum,
         // category,
-        rawContract: { address },
+        rawContract: { address: contractAddress },
       } = a;
 
-      const blockInfo = await getBlockInfo(blockNum);
-      if (!blockInfo) {
-        sendError(`⁉️ Failed to fetch block info for block ${blockNum}`);
-        return;
-      }
-
-      const timestamp = new Date(parseInt(blockInfo.timestamp, 16) * 1000);
-      const duration = getAge(timestamp);
-      const durationMinutes = duration.minutes();
-
-      if (durationMinutes > 5) {
+      const createdAt = await getContractCreation(contractAddress);
+      if (!createdAt) {
         sendError(
-          `⏰ Skipping activity (hash: ${hash}) due to age ${durationMinutes} minutes`
+          `⁉️ Failed to fetch contract creation date for address ${contractAddress}`
         );
         return;
       }
 
-      const tokenInfo = await getTokenInfo(address);
-      if (!tokenInfo) {
-        sendError(`⁉️ Failed to fetch token info for address ${address}`);
+      const age = getAge(createdAt);
+      const ageMinutes = age.minutes();
+      if (ageMinutes > 50) {
+        sendError(
+          `⏰ Skipping activity (hash: ${hash}) due to age ${ageMinutes} minutes`
+        );
         return;
       }
 
-      const tokenName = tokenInfo.tokenName;
+      const contractInfo = await getContractInfo(contractAddress);
+      if (!contractInfo) {
+        sendError(
+          `⁉️ Failed to fetch token info for address ${contractAddress}`
+        );
+        return;
+      }
+
+      const tokenName = contractInfo.name;
+      const symbol = contractInfo.symbol;
       const txnInfo = await getTxnInfo(hash);
       const txnValue = txnInfo?.value_quote;
-      const txnDate = new Date(txnInfo?.block_signed_at);
       const price = txnValue && value ? txnValue / value : null;
-      const symbol = tokenInfo?.symbol ?? asset.toUpperCase();
 
       const alertNameString = `<b><i>${walletAlert.name}</i></b>`;
       const tokenString = `Token: <b>${tokenName} ($${symbol})</b>`;
-      const caString = `CA: <code>${address}</code>`;
+      const caString = `CA: <code>${contractAddress}</code>`;
       const walletString = `Wallet: <code>${toAddress}</code>`;
-      const ageString = `Token age: ${
-        timestamp ? getAgeString(timestamp) : "-"
-      }`;
+      const ageString = `Token age: ${getAgeString(createdAt)}`;
       const distinctWalletsString = `Distinct wallets: 1`;
       const totalTxnValueString = `Total txn value: ${
         txnValue ? `$${txnValue.toLocaleString()}` : "-"
       }`;
-      const tokenLinkString = `<a href="https://www.candlestick.io/crypto/${address}">View on Candlestick</a>`;
+      const tokenLinkString = `<a href="https://www.candlestick.io/crypto/${contractAddress}">View on Candlestick</a>`;
       const transactionsTable = constructTxnsTable2([
         {
           address: toAddress,
           buy_price: price,
           txn_value: txnValue,
-          date: txnDate,
+          date: createdAt,
         },
       ]);
 
@@ -157,29 +159,6 @@ const getTxnInfo = async (txHash) => {
   console.log(`✅ Received transaction response`, resp);
   console.log(`Transaction response data:`, resp.data);
   return resp.data?.items?.[0];
-};
-
-const getBlockInfo = async (blockNum) => {
-  console.log(`Fetching block info for ${blockNum}...`);
-
-  const endpoint = "https://api.etherscan.io/api";
-  const url = new URL(endpoint);
-  const params = {
-    module: "proxy",
-    action: "eth_getBlockByNumber",
-    tag: blockNum,
-    boolean: "false",
-    apikey: process.env.ETHERSCAN_API_KEY,
-  };
-  const searchParams = new URLSearchParams(params);
-  url.search = searchParams.toString();
-
-  const response = await fetch(url);
-  const json = await response.json();
-
-  console.log(`✅ Received block response`, json);
-  console.log(`Block response data:`, json.result);
-  return json.result;
 };
 
 /*

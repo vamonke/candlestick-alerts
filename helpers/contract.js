@@ -1,3 +1,4 @@
+import { FMT_BYTES, FMT_NUMBER } from "web3";
 import web3 from "./web3";
 
 export const getContractCreation = async (contractAddress) => {
@@ -28,7 +29,10 @@ export const getContractCreation = async (contractAddress) => {
     // console.log(`✅ Received transaction receipt`, txnReceipt);
 
     // Get the block containing the contract creation transaction
-    const block = await web3.eth.getBlock(txnReceipt.blockNumber);
+    const block = await web3.eth.getBlock(txnReceipt.blockNumber, false, {
+      number: FMT_NUMBER.NUMBER,
+      bytes: FMT_BYTES.HEX,
+    });
     if (!block) {
       console.log("Block not found");
       return;
@@ -36,7 +40,7 @@ export const getContractCreation = async (contractAddress) => {
     // console.log(`✅ Received block`, block);
 
     // Convert timestamp from seconds to a readable format
-    const timestamp = new Date(Number(block.timestamp) * 1000);
+    const timestamp = new Date(block.timestamp * 1000);
     console.log(`Contract was created at: ${timestamp}`);
     return timestamp;
   } catch (error) {
@@ -46,28 +50,33 @@ export const getContractCreation = async (contractAddress) => {
 };
 
 export const getContractInfo = async (contractAddress) => {
-  const tokenAbi = [
-    // name
-    {
-      constant: true,
-      inputs: [],
-      name: "name",
-      outputs: [{ name: "", type: "string" }],
-      type: "function",
-    },
-    // symbol
-    {
-      constant: true,
-      inputs: [],
-      name: "symbol",
-      outputs: [{ name: "", type: "string" }],
-      type: "function",
-    },
-  ];
+  try {
+    const tokenAbi = [
+      // name
+      {
+        constant: true,
+        inputs: [],
+        name: "name",
+        outputs: [{ name: "", type: "string" }],
+        type: "function",
+      },
+      // symbol
+      {
+        constant: true,
+        inputs: [],
+        name: "symbol",
+        outputs: [{ name: "", type: "string" }],
+        type: "function",
+      },
+    ];
 
-  const contract = new web3.eth.Contract(tokenAbi, contractAddress);
-  const name = await contract.methods.name().call();
-  const symbol = await contract.methods.symbol().call();
+    const contract = new web3.eth.Contract(tokenAbi, contractAddress);
+    const name = await contract.methods.name().call();
+    const symbol = await contract.methods.symbol().call();
 
-  return { name, symbol };
+    return { name, symbol };
+  } catch (error) {
+    console.error("Error fetching token info:", error);
+    return null;
+  }
 };
