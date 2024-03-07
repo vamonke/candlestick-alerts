@@ -3,15 +3,21 @@ import {
   getContractCreation,
 } from "../../../../helpers/contract";
 
-export async function GET() {
-  const ca = "0x87fd01183ba0235e1568995884a78f61081267ef";
+export async function GET(request) {
+  const searchParams = new URL(request.url).searchParams;
+  const ca = searchParams.get("ca");
+
+  if (!ca) {
+    return new Response("Missing ca", { status: 400 });
+  }
+
   const createdAt = await getContractCreation(ca);
-  // const info = await getContractInfo(ca);
+  const info = await getContractInfo(ca);
 
   return new Response(
     JSON.stringify({
       createdAt,
-      // info,
+      info,
     })
   );
 }
