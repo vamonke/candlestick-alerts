@@ -13,12 +13,20 @@ import {
 } from "../../../helpers/wallets";
 
 export async function GET() {
+  noStore();
+  try {
+    return await handler();
+  } catch (error) {
+    sendError(error);
+    return Response.json({ ok: false, error });
+  }
+}
+
+const handler = async () => {
   console.log("🚀 Running top wallets cron job");
   console.log(`Parameters: ${JSON.stringify(CONFIG, null, 2)}`);
 
   console.log(`Alert params: ${JSON.stringify(walletAlert, null, 2)}`);
-
-  noStore();
   const authToken = await getAuthToken();
 
   if (!authToken) {
@@ -60,7 +68,7 @@ export async function GET() {
   await sendMessage(message);
 
   return Response.json({ success }, { status: 200 });
-}
+};
 
 const getTopWallets = async ({ authToken }) => {
   try {
