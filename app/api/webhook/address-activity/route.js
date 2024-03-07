@@ -12,6 +12,7 @@ import { constructTxnsTable2 } from "../../../../helpers/table";
 import { WALLETS_KEY, walletAlert } from "../../../../helpers/wallets";
 
 export const maxDuration = 60; // This function can run for a maximum of 5 seconds
+const maxContractAgeMins = 5;
 
 export const POST = async (request) => {
   noStore();
@@ -74,10 +75,10 @@ export const POST = async (request) => {
       }
 
       const age = getAge(createdAt);
-      const ageMinutes = age.minutes();
-      if (ageMinutes > 50) {
+      const ageMins = age.minutes();
+      if (ageMins > maxContractAgeMins) {
         sendError(
-          `⏰ Skipping activity (hash: ${hash}) due to age ${ageMinutes} minutes`
+          `⏰ Skipping activity (hash: ${hash}) due to age ${ageMins} minutes > ${maxContractAgeMins} minutes`
         );
         return;
       }

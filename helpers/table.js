@@ -1,5 +1,5 @@
 import { markdownTable } from "markdown-table";
-import { parseDate, parsePrice, parseValue, utcToSgt } from "./parse";
+import { parseDate, parsePrice, parseValue } from "./parse";
 
 export const constructTxnsTable = (transactions) => {
   const table = markdownTable(
@@ -18,7 +18,7 @@ export const constructTxnsTable = (transactions) => {
           second: "2-digit", // 2-digit second representation (optional)
         }),
       ]),
-      ...(transactions.length <= 3 ? [["", "", "", "", ""]] : []),
+      ...Array(Math.max(0, 2 - transactions.length)).fill(["", "", "", "", ""]), // Add empty rows to fill up to 2 rows
     ],
     {
       align: ["l", "l", "r", "r", "l"],
@@ -46,7 +46,7 @@ export const constructTxnsTable2 = (transactions) => {
           second: "2-digit", // 2-digit second representation (optional)
         }),
       ]),
-      // ...Array(Math.max(0, 4 - transactions.length)).fill(["", "", "", ""]), // Add empty rows to fill up to 4 rows
+      // ...Array(Math.max(0, 2 - transactions.length)).fill(["", "", "", ""]), // Add empty rows to fill up to 2 rows
     ],
     {
       align: ["l", "r", "r", "l"],
