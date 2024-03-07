@@ -44,6 +44,7 @@ const ALERTS = [
 ];
 
 export async function GET() {
+  noStore();
   try {
     return await handler();
   } catch (error) {
@@ -55,8 +56,6 @@ export async function GET() {
 const handler = async () => {
   console.log("🚀 Running cron job");
   console.log(`Config: ${JSON.stringify(CONFIG, null, 2)}`);
-
-  noStore();
   const token = await getAuthToken();
 
   if (!token) {
