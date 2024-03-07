@@ -16,7 +16,8 @@
     "mobula-sdk": "^1.5.4",
     "next": "latest",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "web3": "^4.5.0"
   },
   "engines": {
     "node": ">=18"
