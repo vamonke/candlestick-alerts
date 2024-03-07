@@ -3,7 +3,7 @@ import { markdownTable } from "markdown-table";
 
 import MOCK_DATA from "../../../mock-data.json";
 import { getAuthToken } from "../../../helpers/auth";
-import { getRelativeDate, parseDate } from "../../../helpers/parse";
+import { getRelativeDate, parseUtcTimeString } from "../../../helpers/parse";
 import * as CONFIG from "../../../helpers/config";
 import { sendMessage, sendError } from "../../../helpers/send";
 import { hash, fetchPortfolioAESKey } from "../../../helpers/portfolioAESKey";
@@ -122,7 +122,7 @@ const evaluateTransactions = ({ transactions, alert }) => {
 
   let currentTime = new Date();
   if (USE_MOCK_DATA) {
-    currentTime = parseDate(transactions[0].time);
+    currentTime = parseUtcTimeString(transactions[0].time);
   }
   const startTime = new Date(currentTime.getTime() - minsAgo * 60 * 1000);
 
@@ -133,7 +133,7 @@ const evaluateTransactions = ({ transactions, alert }) => {
   const tokensMap = {};
   transactions
     .filter((txn) => {
-      const time = parseDate(txn.time);
+      const time = parseUtcTimeString(txn.time);
       return time > startTime;
     })
     .forEach((txn) => {
