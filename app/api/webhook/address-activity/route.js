@@ -95,7 +95,7 @@ const handler = async (request) => {
 
       const txnTime = await getBlockTimestamp(blockNum);
       const txnAge = getAge(txnTime);
-      const txnAgeMins = txnAge.minutes();
+      const txnAgeMins = txnAge.asMinutes();
       console.log(`Transaction age: ${txnAgeMins} minutes`);
 
       if (txnAgeMins > maxTxnAgeMins) {
