@@ -10,7 +10,7 @@ export const constructTxnsTable = (transactions) => {
         txn.fundingSource,
         parsePrice(txn.buy_price),
         parseValue(txn.txn_value),
-        utcToSgt(parseDate(txn.time)).toLocaleTimeString("en-US", {
+        parseDate(txn.time).toLocaleTimeString("en-US", {
           timeZone: "Asia/Singapore",
           hour12: false, // Use 24-hour time format
           hour: "2-digit", // 2-digit hour representation
