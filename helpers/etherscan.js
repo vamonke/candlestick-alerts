@@ -14,7 +14,7 @@ export const getTokenInfo = async (tokenAddress) => {
     const url = `${endPoint}?${searchParams.toString()}`;
     const response = await fetch(url);
     const json = await response.json();
-    console.log(`✅ Fetched token info for ${tokenAddress}`);
+    console.log(`✅ Fetched token info for ${tokenAddress}`, json);
     return json?.result?.[0];
   } catch (error) {
     console.error("Error fetching token info:", error);

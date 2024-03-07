@@ -1,6 +1,7 @@
 import { unstable_noStore as noStore } from "next/cache";
 import { kv } from "@vercel/kv";
 import { CovalentClient } from "@covalenthq/client-sdk";
+import * as crypto from "crypto";
 import { sendError, sendMessage } from "../../../../helpers/send";
 import { WALLETS_KEY, walletAlert } from "../../../../helpers/wallets";
 import * as CONFIG from "../../../../helpers/config";
@@ -72,15 +73,19 @@ export const POST = async (request) => {
       const durationMinutes = duration.minutes();
 
       if (durationMinutes > 5) {
-        console.log(
+        sendError(
           `⏰ Skipping activity (hash: ${hash}) due to age ${durationMinutes} minutes`
         );
         return;
       }
 
       const tokenInfo = await getTokenInfo(address);
-      const tokenName = tokenInfo?.tokenName ?? asset;
+      if (!tokenInfo) {
+        sendError(`⁉️ Failed to fetch token info for address ${address}`);
+        return;
+      }
 
+      const tokenName = tokenInfo.tokenName;
       const txnInfo = await getTxnInfo(hash);
       const txnValue = txnInfo?.value_quote;
       const txnDate = new Date(txnInfo?.block_signed_at);
