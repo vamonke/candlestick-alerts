@@ -41,7 +41,13 @@ export const sendError = async (error) => {
   try {
     await bot.api.sendMessage(
       DEVELOPER_USER_ID,
-      `Error:\n<pre>${JSON.stringify(error)}</pre>`
+      `Error:\n<pre>${JSON.stringify(error)}</pre>`,
+      {
+        parse_mode: "HTML",
+        link_preview_options: {
+          is_disabled: true,
+        },
+      }
     );
   } catch (error) {
     console.error("🚨 Error sending error message", error);
