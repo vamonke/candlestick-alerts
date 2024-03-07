@@ -12,6 +12,8 @@ import { constructTxnsTable } from "../../../helpers/table";
 
 const { USE_MOCK_DATA } = CONFIG;
 
+export const maxDuration = 60; // This function can run for a maximum of 60 seconds
+
 const ALERTS = [
   {
     name: "🔴 Alert 1 - Stealth Wallets (1D, 1 token)",

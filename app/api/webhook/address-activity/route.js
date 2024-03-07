@@ -12,7 +12,7 @@ import { constructTxnsTable2 } from "../../../../helpers/table";
 import { WALLETS_KEY, walletAlert } from "../../../../helpers/wallets";
 import { getBlockTimestamp } from "../../../../helpers/block";
 
-export const maxDuration = 60; // This function can run for a maximum of 5 seconds
+export const maxDuration = 60; // This function can run for a maximum of 60 seconds
 const maxContractAgeMins = 5;
 
 export const POST = async (request) => {
