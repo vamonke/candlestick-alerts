@@ -1,5 +1,5 @@
-import { sendError } from "next/dist/server/api-utils";
 import puppeteer from "puppeteer";
+import { sendError } from "./send";
 
 const CANDLESTICK_DOMAIN = "https://candlestick.io";
 const regex = /^0x[a-fA-F0-9]{40}$/g;

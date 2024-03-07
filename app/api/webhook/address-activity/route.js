@@ -13,7 +13,7 @@ import { WALLETS_KEY, walletAlert } from "../../../../helpers/wallets";
 import { getBlockTimestamp } from "../../../../helpers/block";
 
 export const maxDuration = 60; // This function can run for a maximum of 60 seconds
-const maxContractAgeMins = 5;
+const maxTxnAgeMins = 5;
 
 export const POST = async (request) => {
   noStore();
@@ -96,10 +96,11 @@ const handler = async (request) => {
       const txnTime = await getBlockTimestamp(blockNum);
       const txnAge = getAge(txnTime);
       const txnAgeMins = txnAge.minutes();
+      console.log(`Transaction age: ${txnAgeMins} minutes`);
 
-      if (txnAgeMins > maxContractAgeMins) {
+      if (txnAgeMins > maxTxnAgeMins) {
         sendError(
-          `⏰ Skipping activity (hash: ${hash}) due to age ${txnAgeMins} minutes > ${maxContractAgeMins} minutes`
+          `⏰ Skipping activity (hash: ${hash}) due to age ${txnAgeMins} minutes > ${maxTxnAgeMins} minutes`
         );
         return;
       }
