@@ -21,17 +21,12 @@ export const sendMessage = async (message) => {
       continue;
     }
     try {
-      const result = await bot.api.sendMessage(userId, message, {
-        parse_mode: "HTML",
-        link_preview_options: {
-          is_disabled: true,
-        },
-      });
+      const result = await safeSend(userId, message);
       if (!DEV_MODE) {
         console.log(`💌 Sent message to ${userId}`, result);
       }
     } catch (error) {
-      console.error(`🚨 Error sending message to ${userId}`, error);
+      console.error(`📛 Failed to send message to ${userId}`, error);
     }
   }
 };
@@ -39,17 +34,45 @@ export const sendMessage = async (message) => {
 export const sendError = async (error) => {
   console.error("🚨 Error:", error);
   try {
-    await bot.api.sendMessage(
+    await safeSend(
       DEVELOPER_USER_ID,
-      `Error:\n<pre>${JSON.stringify(error)}</pre>`,
-      {
+      `Error:\n<pre>${JSON.stringify(error)}</pre>`
+    );
+  } catch (error) {
+    console.error("📛 Failed to send error message", error);
+  }
+};
+
+const MAX_RETRIES = 3;
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const safeSend = async (userId, message) => {
+  let retries = 0;
+  let sendError;
+  while (retries < MAX_RETRIES) {
+    try {
+      await bot.api.sendMessage(userId, message, {
         parse_mode: "HTML",
         link_preview_options: {
           is_disabled: true,
         },
-      }
-    );
-  } catch (error) {
-    console.error("🚨 Error sending error message", error);
+      });
+      break;
+    } catch (error) {
+      sendError = error;
+      retries++;
+      console.warn(
+        `🚨 Failed to send message to ${userId}`,
+        `Attempt:`,
+        retries,
+        `Error:`,
+        error
+      );
+      wait(1000 * retries);
+    }
+  }
+  if (retries > MAX_RETRIES) {
+    throw sendError;
   }
 };
