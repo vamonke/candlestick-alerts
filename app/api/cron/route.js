@@ -1,14 +1,17 @@
-import { unstable_noStore as noStore } from "next/cache";
 import { markdownTable } from "markdown-table";
+import { unstable_noStore as noStore } from "next/cache";
 
-import MOCK_DATA from "../../../mock-data.json";
 import { getAuthToken } from "../../../helpers/auth";
-import { getRelativeDate, parseUtcTimeString } from "../../../helpers/parse";
 import * as CONFIG from "../../../helpers/config";
-import { sendMessage, sendError } from "../../../helpers/send";
-import { hash, fetchPortfolioAESKey } from "../../../helpers/portfolioAESKey";
-import { getTokenInfo } from "../../../helpers/etherscan";
+import {
+  getContractCreation,
+  getContractInfo,
+} from "../../../helpers/contract";
+import { getRelativeDate, parseUtcTimeString } from "../../../helpers/parse";
+import { fetchPortfolioAESKey, hash } from "../../../helpers/portfolioAESKey";
+import { sendError, sendMessage } from "../../../helpers/send";
 import { constructTxnsTable } from "../../../helpers/table";
+import MOCK_DATA from "../../../mock-data.json";
 
 const { USE_MOCK_DATA } = CONFIG;
 
@@ -33,7 +36,7 @@ const ALERTS = [
     walletAgeDays: 7,
     boughtTokenLimit: false, // Any tokens bought
     minsAgo: 5,
-    // minsAgo: 300, // For testing
+    // minsAgo: 100, // For testing
     minDistinctWallets: 4,
     excludedTokens: ["WETH", "weth"],
     showWalletStats: true,
@@ -460,7 +463,7 @@ const executeAlert = async ({ alert, authToken }) => {
     return Response.json({ matchedTokens }, { status: 200 });
   }
 
-  await getTokensInfo({ matchedTokens });
+  await attachTokensInfo({ matchedTokens });
 
   const message = craftMessage({ alert, matchedTokens });
   console.log("\n\nMessage:\n" + message);
@@ -468,20 +471,17 @@ const executeAlert = async ({ alert, authToken }) => {
   await sendMessage(message);
 };
 
-const getTokensInfo = async ({ matchedTokens }) => {
+const attachTokensInfo = async ({ matchedTokens }) => {
   await Promise.all(
     matchedTokens.map(async (tokenObj) => {
-      const { buy_token_address } = tokenObj;
-      const tokenInfo = await getTokenInfo(buy_token_address);
-      if (!tokenInfo) {
-        return;
+      const contractAddress = tokenObj.buy_token_address;
+      const timestamp = await getContractCreation(contractAddress);
+      if (timestamp) {
+        tokenObj.creationDate = timestamp;
       }
-      const { tokenName, timeStamp } = tokenInfo;
-      if (timeStamp) {
-        tokenObj.creationDate = new Date(timeStamp * 1000);
-      }
-      if (tokenName) {
-        tokenObj.tokenName = tokenName;
+      const contractInfo = await getContractInfo(contractAddress);
+      if (contractInfo?.name) {
+        tokenObj.tokenName = contractInfo.name;
       }
     })
   );
