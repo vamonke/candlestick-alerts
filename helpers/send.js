@@ -52,13 +52,13 @@ const safeSend = async (userId, message) => {
   let sendError;
   while (retries < MAX_RETRIES) {
     try {
-      await bot.api.sendMessage(userId, message, {
+      const result = await bot.api.sendMessage(userId, message, {
         parse_mode: "HTML",
         link_preview_options: {
           is_disabled: true,
         },
       });
-      break;
+      return result;
     } catch (error) {
       sendError = error;
       retries++;
@@ -69,7 +69,7 @@ const safeSend = async (userId, message) => {
         `Error:`,
         error
       );
-      wait(1000 * retries);
+      await wait(1000 * retries);
     }
   }
   if (retries > MAX_RETRIES) {
