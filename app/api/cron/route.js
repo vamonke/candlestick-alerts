@@ -535,11 +535,13 @@ const getWalletPerformance = async ({ walletAddressHash, authToken }) => {
       first_in: 1,
     });
     const url = `${baseUrl}?${params}`;
+    console.log("🔗 Fetching wallet performance:", url);
     const result = await fetch(url, {
       headers: { "x-authorization": authToken },
     });
     const json = await result.json();
     const data = json.data;
+    console.log("Received wallet performance:", data);
     return data;
   } catch (error) {
     console.error("Error fetching wallet performance:", error);
