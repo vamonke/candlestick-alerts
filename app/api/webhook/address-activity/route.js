@@ -61,7 +61,8 @@ const handler = async (request) => {
       topWallets.includes(a.toAddress) &&
       a.category === "token" &&
       !walletAlert.excludedTokens.includes(a.asset) &&
-      !walletAlert.excludedAddresses.includes(a.fromAddress)
+      !walletAlert.excludedAddresses.includes(a.fromAddress) &&
+      !/reward|claim|\.com/i.test(a.asset)
   );
 
   if (!matchedActivity.length) {
