@@ -12,6 +12,7 @@ import { fetchPortfolioAESKey, hash } from "../../../helpers/portfolioAESKey";
 import { sendError, sendMessage } from "../../../helpers/send";
 import { constructTxnsTable } from "../../../helpers/table";
 import MOCK_DATA from "../../../mock-data.json";
+import { getCandleStickUrl } from "../../../helpers/candlestick";
 
 const { USE_MOCK_DATA } = CONFIG;
 
@@ -28,6 +29,7 @@ const ALERTS = [
     // minsAgo: 10, // For testing
     minDistinctWallets: 3,
     excludedTokens: ["WETH", "weth"],
+    showWalletLinks: true,
   },
   {
     name: "🟠 Alert 2 - Stealth Wallets (7D, any token)",
@@ -45,6 +47,7 @@ const ALERTS = [
     //   minWinRate: 0.75,
     //   // minRoi: 0.5,
     // },
+    showWalletLinks: true,
   },
 ];
 
@@ -62,6 +65,7 @@ const handler = async () => {
   console.log("🚀 Running cron job");
   console.log(`Config: ${JSON.stringify(CONFIG, null, 2)}`);
   const token = await getAuthToken();
+  const portfolioAESKey = await fetchPortfolioAESKey();
 
   if (!token) {
     const error = "⁉️ Missing token";
@@ -75,7 +79,7 @@ const handler = async () => {
     console.log(`Executing alert ${index + 1}: ${alert.name}`);
     console.log(`Parameters: ${JSON.stringify(alert, null, 2)}`);
     try {
-      await executeAlert({ alert, authToken: token });
+      await executeAlert({ alert, authToken: token, portfolioAESKey });
       console.log(`Finished executing alert ${index + 1}: ${alert.name}`);
     } catch (error) {
       sendError({ message: "Error executing alert", error });
@@ -327,7 +331,7 @@ const craftMessage = ({ alert, matchedTokens }) => {
 };
 
 const craftMatchedTokenString = ({ alert, tokenObj }) => {
-  const { showWalletStats } = alert;
+  const { showWalletStats, showWalletLinks } = alert;
   const {
     buy_token_symbol,
     distinctAddressesCount,
@@ -346,11 +350,15 @@ const craftMatchedTokenString = ({ alert, tokenObj }) => {
   const ageString = `Token age: ${getRelativeDate(creationDate)}`;
   const distinctWalletsString = `Distinct wallets: ${distinctAddressesCount}`;
   const totalTxnValueString = `Total txn value: $${totalTxnValue.toLocaleString()}`;
-  const tokenLinkString = `<a href="https://www.candlestick.io/crypto/${buy_token_address}">View on Candlestick</a>`;
+  const tokenLinkString = `<a href="https://www.candlestick.io/crypto/${buy_token_address}">View ${buy_token_symbol} on Candlestick</a>`;
   const transactionsTable = constructTxnsTable(transactions);
 
   const walletsTable = showWalletStats
     ? constructWalletsTable(distinctAddresses)
+    : null;
+
+  const walletLinks = showWalletLinks
+    ? constructWalletLinks({ distinctAddresses })
     : null;
 
   const message = [
@@ -362,6 +370,7 @@ const craftMatchedTokenString = ({ alert, tokenObj }) => {
     tokenLinkString + "\n",
     transactionsTable,
     walletsTable,
+    walletLinks,
   ]
     .filter(Boolean)
     .join("\n");
@@ -402,7 +411,16 @@ const constructWalletsTable = (distinctAddresses) => {
   return `\n📊 <b>Wallet stats</b>\n` + `<pre>` + table + `\n</pre>`;
 };
 
-const executeAlert = async ({ alert, authToken }) => {
+const constructWalletLinks = ({ distinctAddresses }) => {
+  const links = distinctAddresses.map((wallet) => {
+    const addr = wallet.address.slice(-4);
+    const url = wallet.link;
+    return `<a href="${url}">${addr}</a>`;
+  });
+  return `View wallets: ${links.join(", ")}`;
+};
+
+const executeAlert = async ({ alert, authToken, portfolioAESKey }) => {
   const {
     pageSize,
     walletAgeDays,
@@ -410,6 +428,7 @@ const executeAlert = async ({ alert, authToken }) => {
     boughtTokenLimit,
     walletStats,
     showWalletStats,
+    showWalletLinks,
   } = alert;
 
   let steathMoney = [];
@@ -447,7 +466,7 @@ const executeAlert = async ({ alert, authToken }) => {
   });
 
   if (walletStats || showWalletStats) {
-    await addBuyerStats({ matchedTokens, authToken });
+    await addBuyerStats({ matchedTokens, authToken, portfolioAESKey });
   }
 
   if (walletStats) {
@@ -464,6 +483,14 @@ const executeAlert = async ({ alert, authToken }) => {
   }
 
   await attachTokensInfo({ matchedTokens });
+
+  if (showWalletLinks) {
+    matchedTokens.forEach((tokenObj) => {
+      tokenObj.distinctAddresses.forEach((wallet) => {
+        wallet.link = getCandleStickUrl(wallet.address, portfolioAESKey);
+      });
+    });
+  }
 
   const message = craftMessage({ alert, matchedTokens });
   console.log("\n\nMessage:\n" + message);
@@ -487,13 +514,12 @@ const attachTokensInfo = async ({ matchedTokens }) => {
   );
 };
 
-const addBuyerStats = async ({ matchedTokens, authToken }) => {
+const addBuyerStats = async ({ matchedTokens, authToken, portfolioAESKey }) => {
   if (matchedTokens.length === 0) {
     console.log("addBuyerStats: No matched tokens");
     return;
   }
 
-  const portfolioAESKey = await fetchPortfolioAESKey();
   console.log(`Fetching wallet stats for ${matchedTokens.length} tokens..`);
   await Promise.all(
     matchedTokens.map(async (tokenObj) => {

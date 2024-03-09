@@ -1,3 +1,4 @@
+/* eslint-disable no-redeclare */
 import crypto from "crypto-js";
 
 var a = [],

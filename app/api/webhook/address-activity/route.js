@@ -130,7 +130,7 @@ const handler = async (request) => {
       const totalTxnValueString = `Total txn value: ${
         txnValue ? `$${txnValue.toLocaleString()}` : "-"
       }`;
-      const tokenLinkString = `<a href="https://www.candlestick.io/crypto/${contractAddress}">View on Candlestick</a>`;
+      const tokenLinkString = `<a href="https://www.candlestick.io/crypto/${contractAddress}">View ${symbol} on Candlestick</a>`;
       const transactionsTable = constructTxnsTable2([
         {
           address: toAddress,
