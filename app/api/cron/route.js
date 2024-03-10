@@ -408,7 +408,7 @@ const constructWalletsTable = (distinctAddresses) => {
       delimiterEnd: false,
     }
   );
-  return `\n📊 <b>Wallet stats</b>\n` + `<pre>` + table + `\n</pre>`;
+  return `\n📊 <b>Wallet stats</b>\n` + `<pre>` + table + `</pre>`;
 };
 
 const constructWalletLinks = ({ distinctAddresses }) => {
