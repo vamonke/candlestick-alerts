@@ -353,7 +353,7 @@ const craftMatchedTokenString = ({ alert, tokenObj }) => {
   const ageString = `Token age: ${getRelativeDate(creationDate)}`;
   const distinctWalletsString = `Distinct wallets: ${distinctAddressesCount}`;
   const totalTxnValueString = `Total txn value: $${totalTxnValue.toLocaleString()}`;
-  const tokenLinkString = `<a href="https://www.candlestick.io/crypto/${buy_token_address}">View ${buy_token_symbol} on Candlestick</a>`;
+  const tokenLinkString = `<a href="https://www.candlestick.io/crypto/${buy_token_address}">View ${buy_token_symbol} on candlestick.io</a>`;
   const transactionsTable = constructTxnsTable(transactions);
 
   const walletsTable = showWalletStats

@@ -57,5 +57,5 @@ export const constructWalletLinks = (addresses) => {
     const url = wallet.link;
     return `<a href="${url}">${addr}</a>`;
   });
-  return `View wallets: ${links.join(", ")}`;
+  return `View wallets: ${links.join(" | ")}`;
 };
