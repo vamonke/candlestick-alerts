@@ -10,7 +10,10 @@ import {
 import { getRelativeDate, parseUtcTimeString } from "../../../helpers/parse";
 import { fetchPortfolioAESKey, hash } from "../../../helpers/portfolioAESKey";
 import { sendError, sendMessage } from "../../../helpers/send";
-import { constructTxnsTable } from "../../../helpers/table";
+import {
+  constructTxnsTable,
+  constructWalletLinks,
+} from "../../../helpers/table";
 import MOCK_DATA from "../../../mock-data.json";
 import { getCandleStickUrl } from "../../../helpers/candlestick";
 
@@ -358,7 +361,7 @@ const craftMatchedTokenString = ({ alert, tokenObj }) => {
     : null;
 
   const walletLinks = showWalletLinks
-    ? constructWalletLinks({ distinctAddresses })
+    ? constructWalletLinks(distinctAddresses)
     : null;
 
   const message = [
@@ -409,15 +412,6 @@ const constructWalletsTable = (distinctAddresses) => {
     }
   );
   return `\n📊 <b>Wallet stats</b>\n` + `<pre>` + table + `</pre>`;
-};
-
-const constructWalletLinks = ({ distinctAddresses }) => {
-  const links = distinctAddresses.map((wallet) => {
-    const addr = wallet.address.slice(-4);
-    const url = wallet.link;
-    return `<a href="${url}">${addr}</a>`;
-  });
-  return `View wallets: ${links.join(", ")}`;
 };
 
 const executeAlert = async ({ alert, authToken, portfolioAESKey }) => {

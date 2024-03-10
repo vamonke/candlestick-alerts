@@ -1,16 +1,21 @@
 import { CovalentClient } from "@covalenthq/client-sdk";
 import { kv } from "@vercel/kv";
 import { unstable_noStore as noStore } from "next/cache";
+import { getBlockTimestamp } from "../../../../helpers/block";
+import { getCandleStickUrl } from "../../../../helpers/candlestick";
 import * as CONFIG from "../../../../helpers/config";
 import {
   getContractCreation,
   getContractInfo,
 } from "../../../../helpers/contract";
 import { getAge, getRelativeDate } from "../../../../helpers/parse";
+import { fetchPortfolioAESKey } from "../../../../helpers/portfolioAESKey";
 import { sendError, sendMessage } from "../../../../helpers/send";
-import { constructTxnsTable2 } from "../../../../helpers/table";
+import {
+  constructTxnsTable2,
+  constructWalletLinks,
+} from "../../../../helpers/table";
 import { WALLETS_KEY, walletAlert } from "../../../../helpers/wallets";
-import { getBlockTimestamp } from "../../../../helpers/block";
 
 export const maxDuration = 60; // This function can run for a maximum of 60 seconds
 const maxTxnAgeMins = 5;
@@ -99,7 +104,7 @@ const handler = async (request) => {
       const txnAgeMins = txnAge.asMinutes();
       console.log(`Transaction age: ${txnAgeMins} minutes`);
 
-      if (txnAgeMins > maxTxnAgeMins) {
+      if (txnAgeMins > maxTxnAgeMins && !CONFIG.DEV_MODE) {
         sendError(
           `⏰ Skipping activity (hash: ${hash}) due to age ${txnAgeMins} minutes > ${maxTxnAgeMins} minutes`
         );
@@ -113,6 +118,9 @@ const handler = async (request) => {
         );
         return;
       }
+
+      const portfolioAESKey = await fetchPortfolioAESKey();
+      const walletLink = getCandleStickUrl(toAddress, portfolioAESKey);
 
       const txnInfo = await getTxnInfo(hash);
 
@@ -139,6 +147,9 @@ const handler = async (request) => {
           time: txnTime,
         },
       ]);
+      const walletLinks = constructWalletLinks([
+        { address: toAddress, link: walletLink },
+      ]);
 
       const message = [
         alertNameString + "\n",
@@ -150,6 +161,7 @@ const handler = async (request) => {
         totalTxnValueString,
         tokenLinkString + "\n",
         transactionsTable,
+        walletLinks,
       ]
         .filter(Boolean)
         .join("\n");

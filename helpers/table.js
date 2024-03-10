@@ -50,3 +50,12 @@ export const constructTxnsTable2 = (transactions) => {
   );
   return `📈 <b>Transactions</b>\n` + `<pre>` + table + `</pre>`;
 };
+
+export const constructWalletLinks = (addresses) => {
+  const links = addresses.map((wallet) => {
+    const addr = wallet.address.slice(-4);
+    const url = wallet.link;
+    return `<a href="${url}">${addr}</a>`;
+  });
+  return `View wallets: ${links.join(", ")}`;
+};
