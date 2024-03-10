@@ -154,7 +154,7 @@ const handler = async (request) => {
         .filter(Boolean)
         .join("\n");
 
-      console.log(message);
+      console.log("📩 Sending message", message);
       sendMessage(message);
     })
   );
