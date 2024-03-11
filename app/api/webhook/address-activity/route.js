@@ -20,6 +20,7 @@ import {
   constructWalletsTable,
 } from "../../../../helpers/table";
 import { WALLETS_KEY, walletAlert } from "../../../../helpers/wallets";
+import { getAuthToken } from "../../../../helpers/auth";
 
 export const maxDuration = 60; // This function can run for a maximum of 60 seconds
 const maxTxnAgeMins = 5;
@@ -140,6 +141,8 @@ const handler = async (request) => {
         link: walletLink,
       };
 
+      const authToken = await getAuthToken();
+
       if (showWalletStats) {
         await addBuyerStats({
           tokens: [
@@ -147,6 +150,7 @@ const handler = async (request) => {
               distinctAddresses: [walletObj],
             },
           ],
+          authToken,
           portfolioAESKey,
         });
       }

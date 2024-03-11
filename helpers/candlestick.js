@@ -1,5 +1,4 @@
 import aes from "./aes";
-import { getAuthToken } from "./auth";
 import { hashWallet } from "./portfolioAESKey";
 
 export const getCandleStickUrl = (address, portfolioAESKey) => {
@@ -16,7 +15,7 @@ export const getCandleStickUrl = (address, portfolioAESKey) => {
   return url;
 };
 
-export const addBuyerStats = async ({ tokens, portfolioAESKey }) => {
+export const addBuyerStats = async ({ tokens, authToken, portfolioAESKey }) => {
   if (tokens.length === 0) {
     console.log("addBuyerStats: No tokens provided");
     return;
@@ -30,6 +29,7 @@ export const addBuyerStats = async ({ tokens, portfolioAESKey }) => {
         distinctAddresses.map(async (buyer) => {
           const walletAddressHash = hashWallet(buyer.address, portfolioAESKey);
           const walletPerformance = await getWalletPerformance({
+            authToken,
             walletAddressHash,
           });
 
@@ -48,9 +48,11 @@ export const addBuyerStats = async ({ tokens, portfolioAESKey }) => {
   );
 };
 
-export const getWalletPerformance = async ({ walletAddressHash }) => {
+export const getWalletPerformance = async ({
+  authToken,
+  walletAddressHash,
+}) => {
   try {
-    const authToken = await getAuthToken();
     const baseUrl =
       "https://www.candlestick.io/api/v1/trading-performance/trading-performance-table";
     const params = new URLSearchParams({

@@ -429,7 +429,7 @@ const executeAlert = async ({ alert, authToken, portfolioAESKey }) => {
   });
 
   if (walletStats || showWalletStats) {
-    await addBuyerStats({ tokens: matchedTokens, portfolioAESKey });
+    await addBuyerStats({ tokens: matchedTokens, authToken, portfolioAESKey });
   }
 
   if (walletStats) {
