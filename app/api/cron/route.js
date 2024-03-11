@@ -102,6 +102,7 @@ const getStealthWallets = async ({ url, authToken }) => {
       },
       method: "GET",
     });
+    // TODO: Handle failed response
     const json = await result.json();
     console.log(
       "✅ Fetched stealth wallets -",
