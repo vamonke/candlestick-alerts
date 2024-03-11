@@ -104,7 +104,7 @@ export const constructWalletsTable = (distinctAddresses) => {
   );
   const remainderText = showRemaining(length, rowCount);
   return (
-    `\n📊 <b>Wallet stats</b>\n` + `<pre>` + table + remainderText + `</pre>`
+    `\n📊 <b>Wallet stats - Past 1M</b> \n` + `<pre>` + table + remainderText + `</pre>`
   );
 };
 

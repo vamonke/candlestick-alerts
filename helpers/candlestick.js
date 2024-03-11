@@ -10,7 +10,7 @@ export const getCandleStickUrl = (address, portfolioAESKey) => {
   const encrypted = aes.encrypt(address.toLowerCase(), portfolioAESKey);
   const urlEncoded = encodeURIComponent(encrypted.toString());
 
-  const url = `https://www.candlestick.io/traderscan/trading-performance/?active_in=last_1_month&WA=${urlEncoded}`;
+  const url = `https://www.candlestick.io/traderscan/trading-performance/?active_in=last_1_month&first_in=1&WA=${urlEncoded}`;
 
   return url;
 };
@@ -34,7 +34,7 @@ export const addBuyerStats = async ({ tokens, authToken, portfolioAESKey }) => {
           });
 
           const winRate = walletPerformance?.stat?.est_win_Rate;
-          const roi = walletPerformance?.stat?.est_profit_ratio;
+          const roi = walletPerformance?.stat?.est_total_profit_ratio;
           const coinTraded = walletPerformance?.stat?.coin_traded;
 
           buyer.winRate = winRate;
