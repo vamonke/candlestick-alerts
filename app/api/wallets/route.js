@@ -2,7 +2,6 @@ import { unstable_noStore as noStore } from "next/cache";
 import { kv } from "@vercel/kv";
 import { Alchemy, Network } from "alchemy-sdk";
 
-import MOCK_WALLETS from "../../../mock-wallets.json";
 import { getAuthToken } from "../../../helpers/auth";
 import { sendError, sendMessage } from "../../../helpers/send";
 import * as CONFIG from "../../../helpers/config";
@@ -21,6 +20,8 @@ export async function GET() {
     return Response.json({ ok: false, error });
   }
 }
+
+const { CANDLESTICK_PROXY } = CONFIG;
 
 const handler = async () => {
   console.log("🚀 Running top wallets cron job");
@@ -72,8 +73,7 @@ const handler = async () => {
 
 const getTopWallets = async ({ authToken }) => {
   try {
-    const endpoint =
-      "https://www.candlestick.io/api/v1/address-explore/top-total-roi";
+    const endpoint = `${CANDLESTICK_PROXY}/api/v1/address-explore/top-total-roi`;
 
     const url = new URL(endpoint);
     const query = walletAlert.query;

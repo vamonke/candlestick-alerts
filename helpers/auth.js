@@ -1,5 +1,5 @@
 import { kv } from "@vercel/kv";
-
+import { CANDLESTICK_PROXY } from "./config";
 const AUTH_TOKEN_KEY = "authToken";
 const LOGIN_URL = "https://www.candlestick.io/api/v2/user/login-email";
 
@@ -30,15 +30,12 @@ const getKvToken = async () => {
 const checkToken = async (token) => {
   console.log("Checking if auth token is valid..");
   try {
-    const result = await fetch(
-      "https://www.candlestick.io/api/v1/user/user-info",
-      {
-        headers: {
-          "x-authorization": token,
-        },
-        method: "GET",
-      }
-    );
+    const result = await fetch(`${CANDLESTICK_PROXY}/api/v1/user/user-info`, {
+      headers: {
+        "x-authorization": token,
+      },
+      method: "GET",
+    });
     const json = await result.json();
     const valid = json.code === 1;
 

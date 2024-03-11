@@ -17,7 +17,7 @@ import {
 } from "../../../helpers/table";
 import MOCK_DATA from "../../../mock-data.json";
 
-const { USE_MOCK_DATA } = CONFIG;
+const { USE_MOCK_DATA, CANDLESTICK_PROXY } = CONFIG;
 
 export const maxDuration = 60; // This function can run for a maximum of 60 seconds
 
@@ -398,8 +398,7 @@ const executeAlert = async ({ alert, authToken, portfolioAESKey }) => {
   if (USE_MOCK_DATA) {
     steathMoney = MOCK_DATA;
   } else {
-    const baseUrl =
-      "https://www.candlestick.io/api/v1/stealth-money/degen-explorer-by-stealth-money";
+    const baseUrl = `${CANDLESTICK_PROXY}/api/v1/stealth-money/degen-explorer-by-stealth-money`;
 
     const urlParams = new URLSearchParams({
       current_page: 1,

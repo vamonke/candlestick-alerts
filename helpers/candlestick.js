@@ -1,4 +1,5 @@
 import aes from "./aes";
+import { CANDLESTICK_PROXY } from "./config";
 import { hashWallet } from "./portfolioAESKey";
 
 export const getCandleStickUrl = (address, portfolioAESKey) => {
@@ -9,9 +10,7 @@ export const getCandleStickUrl = (address, portfolioAESKey) => {
 
   const encrypted = aes.encrypt(address.toLowerCase(), portfolioAESKey);
   const urlEncoded = encodeURIComponent(encrypted.toString());
-
   const url = `https://www.candlestick.io/traderscan/trading-performance/?active_in=last_1_month&first_in=1&WA=${urlEncoded}`;
-
   return url;
 };
 
@@ -54,7 +53,7 @@ export const getWalletPerformance = async ({
 }) => {
   try {
     const baseUrl =
-      "https://www.candlestick.io/api/v1/trading-performance/trading-performance-table";
+      `${CANDLESTICK_PROXY}/api/v1/trading-performance/trading-performance-table`;
     const params = new URLSearchParams({
       current_page: 1,
       page_size: 15,
