@@ -29,7 +29,7 @@ const ALERTS = [
     walletAgeDays: 1,
     boughtTokenLimit: true, // Tokens bought <= 2
     minsAgo: 5,
-    // minsAgo: 10, // For testing
+    // minsAgo: 300, // For testing
     minDistinctWallets: 3,
     excludedTokens: ["WETH", "weth"],
     showWalletLinks: true,
