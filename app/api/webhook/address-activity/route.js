@@ -1,4 +1,3 @@
-import { CovalentClient } from "@covalenthq/client-sdk";
 import { kv } from "@vercel/kv";
 import { unstable_noStore as noStore } from "next/cache";
 import { getBlockTimestamp } from "../../../../helpers/block";
@@ -21,6 +20,7 @@ import {
 } from "../../../../helpers/table";
 import { WALLETS_KEY, walletAlert } from "../../../../helpers/wallets";
 import { getAuthToken } from "../../../../helpers/auth";
+import { getMarketData } from "../../../../helpers/mobula";
 
 export const maxDuration = 60; // This function can run for a maximum of 60 seconds
 const maxTxnAgeMins = 5;
@@ -98,7 +98,7 @@ const handler = async (request) => {
       const {
         // fromAddress,
         toAddress: walletAddress,
-        value,
+        value: amount,
         hash,
         blockNum,
         // category,
@@ -154,12 +154,12 @@ const handler = async (request) => {
           portfolioAESKey,
         });
       }
-      const txnInfo = await getTxnInfo(hash);
 
       const tokenName = contractInfo.name;
       const symbol = contractInfo.symbol;
-      const txnValue = txnInfo?.value_quote;
-      const price = txnValue && value ? txnValue / value : null;
+      const marketData = await getMarketData(contractAddress);
+      const price = marketData?.price;
+      const txnValue = price ? amount * price : null;
 
       const alertNameString = `<b><i>${alertName}</i></b>`;
       const tokenString = `Token: <b>${tokenName} ($${symbol})</b>`;
@@ -215,20 +215,20 @@ const getTopWalletsKV = async () => {
   return [...walletAddresses];
 };
 
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+// const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const getTxnInfo = async (txHash) => {
-  console.log(`Fetching transaction value for ${txHash}...`);
-  const client = new CovalentClient(process.env.COVALENT_API_KEY);
-  const resp = await client.TransactionService.getTransaction(
-    "eth-mainnet",
-    txHash,
-    { noLogs: true, quoteCurrency: "USD" }
-  );
-  console.log(`✅ Received transaction response`, resp);
-  console.log(`Transaction response data:`, resp.data);
-  return resp.data?.items?.[0];
-};
+// const getTxnInfo = async (txHash) => {
+//   console.log(`Fetching transaction value for ${txHash}...`);
+//   const client = new CovalentClient(process.env.COVALENT_API_KEY);
+//   const resp = await client.TransactionService.getTransaction(
+//     "eth-mainnet",
+//     txHash,
+//     { noLogs: true, quoteCurrency: "USD" }
+//   );
+//   console.log(`✅ Received transaction response`, resp);
+//   console.log(`Transaction response data:`, resp.data);
+//   return resp.data?.items?.[0];
+// };
 
 /*
 {
