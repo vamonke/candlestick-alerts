@@ -13,6 +13,6 @@ export const CANDLESTICK_PROXY = DEV_MODE
   ? USE_LOCAL_API
     ? "http://localhost:3001"
     : "https://206.189.153.199"
-  : "https://www.candlestick.io";
+  : "https://206.189.153.199";
 
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0"; // ignore self-signed cert error // TODO: Fix this
