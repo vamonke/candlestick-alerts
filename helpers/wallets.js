@@ -16,6 +16,8 @@ export const walletAlert = {
     token_traded: 3, // Tokens traded ≥ 3
     win_rate: 0.9, // Win rate ≥ 90%
   },
+  showWalletLinks: true,
+  showWalletStats: true,
 };
 
 export const WALLETS_KEY = "topWallets";

@@ -1,17 +1,14 @@
 import { unstable_noStore as noStore } from "next/cache";
 
 import { getAuthToken } from "../../../helpers/auth";
-import {
-  getCandleStickUrl,
-  getWalletPerformance,
-} from "../../../helpers/candlestick";
+import { addBuyerStats, getCandleStickUrl } from "../../../helpers/candlestick";
 import * as CONFIG from "../../../helpers/config";
 import {
   getContractCreation,
   getContractInfo,
 } from "../../../helpers/contract";
 import { getRelativeDate, parseUtcTimeString } from "../../../helpers/parse";
-import { fetchPortfolioAESKey, hash } from "../../../helpers/portfolioAESKey";
+import { fetchPortfolioAESKey } from "../../../helpers/portfolioAESKey";
 import { sendError, sendMessage } from "../../../helpers/send";
 import {
   constructTxnsTable,
@@ -431,7 +428,7 @@ const executeAlert = async ({ alert, authToken, portfolioAESKey }) => {
   });
 
   if (walletStats || showWalletStats) {
-    await addBuyerStats({ matchedTokens, authToken, portfolioAESKey });
+    await addBuyerStats({ tokens: matchedTokens, portfolioAESKey });
   }
 
   if (walletStats) {
@@ -475,40 +472,6 @@ const attachTokensInfo = async ({ matchedTokens }) => {
       if (contractInfo?.name) {
         tokenObj.tokenName = contractInfo.name;
       }
-    })
-  );
-};
-
-const addBuyerStats = async ({ matchedTokens, authToken, portfolioAESKey }) => {
-  if (matchedTokens.length === 0) {
-    console.log("addBuyerStats: No matched tokens");
-    return;
-  }
-
-  console.log(`Fetching wallet stats for ${matchedTokens.length} tokens..`);
-  await Promise.all(
-    matchedTokens.map(async (tokenObj) => {
-      const { distinctAddresses } = tokenObj;
-      console.log(`Fetching ${distinctAddresses.length} wallet stats..`);
-      await Promise.all(
-        distinctAddresses.map(async (buyer) => {
-          const walletAddressHash = hash(buyer.address, portfolioAESKey);
-          const walletPerformance = await getWalletPerformance({
-            walletAddressHash,
-            authToken,
-          });
-
-          const winRate = walletPerformance?.stat?.est_win_Rate;
-          const roi = walletPerformance?.stat?.est_profit_ratio;
-          const coinTraded = walletPerformance?.stat?.coin_traded;
-
-          buyer.winRate = winRate;
-          buyer.roi = roi;
-          buyer.coinTraded = coinTraded;
-
-          console.log("📊 Wallet stats:", buyer);
-        })
-      );
     })
   );
 };

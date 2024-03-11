@@ -59,7 +59,7 @@ export const constructTxnsTable2 = (transactions) => {
 };
 
 const WALLET_TABLE_HEADERS = ["Addr", "Win Rate", "ROI", "Tokens"];
-const WALLET_TABLE_MIN_ROWS = 2;
+const WALLET_TABLE_MIN_ROWS = 1;
 export const constructWalletsTable = (distinctAddresses) => {
   const table = markdownTable(
     [

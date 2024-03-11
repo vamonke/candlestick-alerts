@@ -1,6 +1,6 @@
 import CryptoJS from "crypto-js";
 
-export const hash = (walletAddress, portfolioAESKey) => {
+export const hashWallet = (walletAddress, portfolioAESKey) => {
   const key = CryptoJS.enc.Utf8.parse(portfolioAESKey);
   var iv = CryptoJS.enc.Utf8.parse(portfolioAESKey);
   return CryptoJS.AES.encrypt(walletAddress, key, {

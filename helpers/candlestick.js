@@ -1,4 +1,6 @@
 import aes from "./aes";
+import { getAuthToken } from "./auth";
+import { hashWallet } from "./portfolioAESKey";
 
 export const getCandleStickUrl = (address, portfolioAESKey) => {
   if (!address) {
@@ -14,11 +16,41 @@ export const getCandleStickUrl = (address, portfolioAESKey) => {
   return url;
 };
 
-export const getWalletPerformance = async ({
-  walletAddressHash,
-  authToken,
-}) => {
+export const addBuyerStats = async ({ tokens, portfolioAESKey }) => {
+  if (tokens.length === 0) {
+    console.log("addBuyerStats: No tokens provided");
+    return;
+  }
+
+  console.log(`Fetching wallet stats for ${tokens.length} tokens..`);
+  await Promise.all(
+    tokens.map(async ({ distinctAddresses }) => {
+      console.log(`Fetching ${distinctAddresses.length} wallet stats..`);
+      await Promise.all(
+        distinctAddresses.map(async (buyer) => {
+          const walletAddressHash = hashWallet(buyer.address, portfolioAESKey);
+          const walletPerformance = await getWalletPerformance({
+            walletAddressHash,
+          });
+
+          const winRate = walletPerformance?.stat?.est_win_Rate;
+          const roi = walletPerformance?.stat?.est_profit_ratio;
+          const coinTraded = walletPerformance?.stat?.coin_traded;
+
+          buyer.winRate = winRate;
+          buyer.roi = roi;
+          buyer.coinTraded = coinTraded;
+
+          console.log("📊 Wallet stats:", buyer);
+        })
+      );
+    })
+  );
+};
+
+export const getWalletPerformance = async ({ walletAddressHash }) => {
   try {
+    const authToken = await getAuthToken();
     const baseUrl =
       "https://www.candlestick.io/api/v1/trading-performance/trading-performance-table";
     const params = new URLSearchParams({

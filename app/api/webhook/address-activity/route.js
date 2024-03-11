@@ -2,7 +2,10 @@ import { CovalentClient } from "@covalenthq/client-sdk";
 import { kv } from "@vercel/kv";
 import { unstable_noStore as noStore } from "next/cache";
 import { getBlockTimestamp } from "../../../../helpers/block";
-import { getCandleStickUrl } from "../../../../helpers/candlestick";
+import {
+  addBuyerStats,
+  getCandleStickUrl,
+} from "../../../../helpers/candlestick";
 import * as CONFIG from "../../../../helpers/config";
 import {
   getContractCreation,
@@ -14,6 +17,7 @@ import { sendError, sendMessage } from "../../../../helpers/send";
 import {
   constructTxnsTable2,
   constructWalletLinks,
+  constructWalletsTable,
 } from "../../../../helpers/table";
 import { WALLETS_KEY, walletAlert } from "../../../../helpers/wallets";
 
@@ -33,6 +37,7 @@ export const POST = async (request) => {
 const handler = async (request) => {
   console.log("🚀 Running address activity webhook");
   console.log(`Parameters: ${JSON.stringify(CONFIG, null, 2)}`);
+  const { DEV_MODE } = CONFIG;
 
   const json = await request.json();
   console.log(`📫 Received body: ${JSON.stringify(json, null, 2)}`);
@@ -42,10 +47,10 @@ const handler = async (request) => {
 
   const exists = await kv.set(webhookNotifyId, true, {
     get: true,
-    ex: 60 * 60 * 24, // 24 hours in seconds
+    ex: 60 * 60 * 24, // Expire in 24 hours
   });
 
-  if (exists) {
+  if (exists && !DEV_MODE) {
     console.log(`🔔 Webhook notification already exists: ${webhookNotifyId}`);
     return Response.json({ ok: true });
   }
@@ -60,30 +65,38 @@ const handler = async (request) => {
   const topWallets = await getTopWalletsKV();
   console.log(`✅ Top wallets: ${JSON.stringify(topWallets, null, 2)}`);
 
+  const {
+    excludedTokens,
+    excludedAddresses,
+    showWalletStats,
+    showWalletLinks,
+    name: alertName,
+  } = walletAlert;
+
   console.log(`Filtering activity...`);
-  const matchedActivity = activity.filter(
+  const matchedActivities = activity.filter(
     (a) =>
-      topWallets.includes(a.toAddress) &&
+      (DEV_MODE || topWallets.includes(a.toAddress)) &&
       a.category === "token" &&
-      !walletAlert.excludedTokens.includes(a.asset) &&
-      !walletAlert.excludedAddresses.includes(a.fromAddress) &&
+      !excludedTokens.includes(a.asset) &&
+      !excludedAddresses.includes(a.fromAddress) &&
       !/reward|claim|\.com/i.test(a.asset)
   );
 
-  if (!matchedActivity.length) {
+  if (!matchedActivities.length) {
     console.log("🥱 No matched activity found");
     return Response.json({ ok: true });
   }
 
   console.log(
-    `🤓 Matched activity: ${JSON.stringify(matchedActivity, null, 2)}`
+    `🤓 Matched activity: ${JSON.stringify(matchedActivities, null, 2)}`
   );
 
   await Promise.all(
-    matchedActivity.map(async (a) => {
+    matchedActivities.map(async (a) => {
       const {
         // fromAddress,
-        toAddress,
+        toAddress: walletAddress,
         value,
         hash,
         blockNum,
@@ -104,7 +117,7 @@ const handler = async (request) => {
       const txnAgeMins = txnAge.asMinutes();
       console.log(`Transaction age: ${txnAgeMins} minutes`);
 
-      if (txnAgeMins > maxTxnAgeMins && !CONFIG.DEV_MODE) {
+      if (txnAgeMins > maxTxnAgeMins && !DEV_MODE) {
         sendError(
           `⏰ Skipping activity (hash: ${hash}) due to age ${txnAgeMins} minutes > ${maxTxnAgeMins} minutes`
         );
@@ -120,8 +133,23 @@ const handler = async (request) => {
       }
 
       const portfolioAESKey = await fetchPortfolioAESKey();
-      const walletLink = getCandleStickUrl(toAddress, portfolioAESKey);
+      const walletLink = getCandleStickUrl(walletAddress, portfolioAESKey);
 
+      const walletObj = {
+        address: walletAddress,
+        link: walletLink,
+      };
+
+      if (showWalletStats) {
+        await addBuyerStats({
+          tokens: [
+            {
+              distinctAddresses: [walletObj],
+            },
+          ],
+          portfolioAESKey,
+        });
+      }
       const txnInfo = await getTxnInfo(hash);
 
       const tokenName = contractInfo.name;
@@ -129,10 +157,10 @@ const handler = async (request) => {
       const txnValue = txnInfo?.value_quote;
       const price = txnValue && value ? txnValue / value : null;
 
-      const alertNameString = `<b><i>${walletAlert.name}</i></b>`;
+      const alertNameString = `<b><i>${alertName}</i></b>`;
       const tokenString = `Token: <b>${tokenName} ($${symbol})</b>`;
       const caString = `CA: <code>${contractAddress}</code>`;
-      const walletString = `Wallet: <code>${toAddress}</code>`;
+      const walletString = `Wallet: <code>${walletAddress}</code>`;
       const ageString = `Token age: ${getRelativeDate(createdAt)}`;
       const distinctWalletsString = `Distinct wallets: 1`;
       const totalTxnValueString = `Total txn value: ${
@@ -141,15 +169,18 @@ const handler = async (request) => {
       const tokenLinkString = `<a href="https://www.candlestick.io/crypto/${contractAddress}">View ${symbol} on Candlestick</a>`;
       const transactionsTable = constructTxnsTable2([
         {
-          address: toAddress,
+          address: walletAddress,
           buy_price: price,
           txn_value: txnValue,
           time: txnTime,
         },
       ]);
-      const walletLinks = constructWalletLinks([
-        { address: toAddress, link: walletLink },
-      ]);
+      const walletsTable = showWalletStats
+        ? constructWalletsTable([walletObj])
+        : null;
+      const walletLinks = showWalletLinks
+        ? constructWalletLinks([walletObj])
+        : null;
 
       const message = [
         alertNameString + "\n",
@@ -161,6 +192,7 @@ const handler = async (request) => {
         totalTxnValueString,
         tokenLinkString + "\n",
         transactionsTable,
+        walletsTable,
         walletLinks,
       ]
         .filter(Boolean)
@@ -176,16 +208,12 @@ const handler = async (request) => {
 
 const getTopWalletsKV = async () => {
   const walletAddresses = await kv.get(WALLETS_KEY);
-  return [...walletAddresses, dummyAddress];
+  return [...walletAddresses];
 };
-
-const dummyAddress = "0xbe3f4b43db5eb49d1f48f53443b9abce45da3b79";
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const getTxnInfo = async (txHash) => {
-  console.log(`Waiting for 5 seconds...`);
-  await wait(5 * 1000);
   console.log(`Fetching transaction value for ${txHash}...`);
   const client = new CovalentClient(process.env.COVALENT_API_KEY);
   const resp = await client.TransactionService.getTransaction(
