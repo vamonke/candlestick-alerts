@@ -1,7 +1,10 @@
-import { markdownTable } from "markdown-table";
 import { unstable_noStore as noStore } from "next/cache";
 
 import { getAuthToken } from "../../../helpers/auth";
+import {
+  getCandleStickUrl,
+  getWalletPerformance,
+} from "../../../helpers/candlestick";
 import * as CONFIG from "../../../helpers/config";
 import {
   getContractCreation,
@@ -13,9 +16,9 @@ import { sendError, sendMessage } from "../../../helpers/send";
 import {
   constructTxnsTable,
   constructWalletLinks,
+  constructWalletsTable,
 } from "../../../helpers/table";
 import MOCK_DATA from "../../../mock-data.json";
-import { getCandleStickUrl } from "../../../helpers/candlestick";
 
 const { USE_MOCK_DATA } = CONFIG;
 
@@ -33,6 +36,7 @@ const ALERTS = [
     minDistinctWallets: 3,
     excludedTokens: ["WETH", "weth"],
     showWalletLinks: true,
+    showWalletStats: true,
   },
   {
     name: "🟠 Alert 2 - Stealth Wallets (7D, any token)",
@@ -381,39 +385,6 @@ const craftMatchedTokenString = ({ alert, tokenObj }) => {
   return message;
 };
 
-const constructWalletsTable = (distinctAddresses) => {
-  const table = markdownTable(
-    [
-      ["Addr", "Win Rate", "ROI", "Tokens"],
-      ...distinctAddresses.map((wallet) => {
-        const addr = wallet.address.slice(-4);
-        const winRate = isNaN(wallet.winRate)
-          ? "-"
-          : (wallet.winRate * 100).toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            }) + "%";
-        const roi = isNaN(wallet.roi)
-          ? "-"
-          : (wallet.roi * 100).toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            }) + "%";
-        const coinTraded = isNaN(wallet.coinTraded) ? "-" : wallet.coinTraded;
-        return [addr, winRate, roi, coinTraded];
-      }),
-      ...(distinctAddresses.length <= 3 ? [["", "", "", ""]] : []),
-    ],
-    {
-      align: ["l", "r", "r", "r"],
-      padding: true,
-      delimiterStart: false,
-      delimiterEnd: false,
-    }
-  );
-  return `\n📊 <b>Wallet stats</b>\n` + `<pre>` + table + `</pre>`;
-};
-
 const executeAlert = async ({ alert, authToken, portfolioAESKey }) => {
   const {
     pageSize,
@@ -540,31 +511,4 @@ const addBuyerStats = async ({ matchedTokens, authToken, portfolioAESKey }) => {
       );
     })
   );
-};
-
-const getWalletPerformance = async ({ walletAddressHash, authToken }) => {
-  try {
-    const baseUrl =
-      "https://www.candlestick.io/api/v1/trading-performance/trading-performance-table";
-    const params = new URLSearchParams({
-      current_page: 1,
-      page_size: 15,
-      blockchain_id: 2,
-      wallet_address: walletAddressHash,
-      active_in: 0,
-      first_in: 1,
-    });
-    const url = `${baseUrl}?${params}`;
-    console.log("🔗 Fetching wallet performance:", url);
-    const result = await fetch(url, {
-      headers: { "x-authorization": authToken },
-    });
-    const json = await result.json();
-    const data = json.data;
-    console.log("Received wallet performance:", data);
-    return data;
-  } catch (error) {
-    console.error("Error fetching wallet performance:", error);
-    return null;
-  }
 };
