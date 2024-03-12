@@ -60,7 +60,7 @@ const getNewToken = async () => {
   return token;
 };
 
-const BASE_URL = "https://www.candlestick.io";
+const BASE_URL = "https://www.candlestick.io"; // Note: Login API not proxied through CANDLESTICK_PROXY
 const LOGIN_URL = `${BASE_URL}/api/v2/user/login-email`;
 const getLoginToken = async () => {
   const data = {

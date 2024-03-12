@@ -9,8 +9,8 @@ export const SEND_MESSAGE = [
 
 // const USE_LOCAL_API = true;
 const USE_LOCAL_API = false;
-// const PROXY_URL = "https://206.189.153.199";
-const PROXY_URL = "https://candlestick.io";
+const PROXY_URL = "https://206.189.153.199";
+// const PROXY_URL = "https://candlestick.io";
 export const CANDLESTICK_PROXY = DEV_MODE
   ? USE_LOCAL_API
     ? "http://localhost:3001"
