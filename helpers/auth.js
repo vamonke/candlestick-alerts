@@ -1,6 +1,7 @@
 import { kv } from "@vercel/kv";
 import { CANDLESTICK_PROXY } from "./config";
 const AUTH_TOKEN_KEY = "authToken";
+const REFRESH_TOKEN_KEY = "refreshToken";
 
 export const getAuthToken = async () => {
   const kvToken = await getKvToken();
@@ -54,16 +55,16 @@ const checkToken = async (token) => {
 };
 
 const getNewToken = async () => {
-  const token = await getLoginToken();
-  if (token) {
-    await setToken(token);
+  const tokens = await getLoginTokens();
+  if (tokens) {
+    await setTokens(tokens);
   }
-  return token;
+  return tokens.authToken;
 };
 
 const BASE_URL = "https://www.candlestick.io"; // Note: Login API not proxied through CANDLESTICK_PROXY
 const LOGIN_URL = `${BASE_URL}/api/v2/user/login-email`;
-const getLoginToken = async () => {
+const getLoginTokens = async () => {
   const data = {
     deviceId: process.env.DEVICE_ID,
     email: process.env.EMAIL,
@@ -83,9 +84,10 @@ const getLoginToken = async () => {
       console.log("❌ Login failed", json);
       return null;
     }
-    const token = json.data.token;
+    const authToken = json.data.token;
+    const refreshToken = json.data.refresh;
     console.log("✅ Login success");
-    return token;
+    return { authToken, refreshToken };
   } catch (error) {
     console.log("Error fetching auth token", error);
     console.log("❌ Login failed");
@@ -93,12 +95,17 @@ const getLoginToken = async () => {
   }
 };
 
-const setToken = async (token) => {
+const setTokens = async ({ authToken, refresh }) => {
   try {
-    console.log("Setting token in KV store..");
+    console.log("Setting tokens in KV store..");
+
     await kv.del(AUTH_TOKEN_KEY);
-    const result = await kv.set(AUTH_TOKEN_KEY, token);
-    console.log("✅ Successfully set token in KV store");
+    await kv.del(REFRESH_TOKEN_KEY);
+
+    await kv.set(AUTH_TOKEN_KEY, authToken);
+    await kv.set(REFRESH_TOKEN_KEY, refresh);
+
+    console.log("✅ Successfully set tokens in KV store");
   } catch (error) {
     // TODO: Handle error
     console.error(error);
