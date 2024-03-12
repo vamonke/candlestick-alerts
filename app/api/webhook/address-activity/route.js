@@ -23,6 +23,8 @@ import { WALLETS_KEY, walletAlert } from "../../../../helpers/wallets";
 import { getAuthToken } from "../../../../helpers/auth";
 import { getMarketData } from "../../../../helpers/mobula";
 
+const { DEV_MODE } = CONFIG;
+
 export const maxDuration = 60; // This function can run for a maximum of 60 seconds
 const maxTxnAgeMins = 5;
 
@@ -39,7 +41,6 @@ export const POST = async (request) => {
 const handler = async (request) => {
   console.log("🚀 Running address activity webhook");
   console.log(`Parameters: ${JSON.stringify(CONFIG, null, 2)}`);
-  const { DEV_MODE } = CONFIG;
 
   const json = await request.json();
   console.log(`📫 Received body: ${JSON.stringify(json, null, 2)}`);
@@ -222,7 +223,7 @@ const getTopWalletsKV = async () => {
   return [...walletAddresses];
 };
 
-// const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const getTxnInfo = async ({
   contractAddress,
@@ -241,6 +242,10 @@ const getTxnInfo = async ({
     portfolioAESKey,
     authToken,
   });
+
+  if (!DEV_MODE) {
+    await wait(30 * 1000);
+  }
 
   if (walletAction) {
     tokenPrice = walletAction.tokenPrice;
