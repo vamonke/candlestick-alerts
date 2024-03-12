@@ -1,7 +1,7 @@
 import { kv } from "@vercel/kv";
 import { CANDLESTICK_PROXY } from "./config";
 const AUTH_TOKEN_KEY = "authToken";
-const LOGIN_URL = "https://www.candlestick.io/api/v2/user/login-email";
+const LOGIN_URL = `${CANDLESTICK_PROXY}/api/v2/user/login-email`;
 
 export const getAuthToken = async () => {
   const kvToken = await getKvToken();

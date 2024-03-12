@@ -1,4 +1,5 @@
 import CryptoJS from "crypto-js";
+import { CANDLESTICK_PROXY } from "./config";
 
 export const hashWallet = (walletAddress, portfolioAESKey) => {
   const key = CryptoJS.enc.Utf8.parse(portfolioAESKey);
@@ -13,7 +14,7 @@ export const hashWallet = (walletAddress, portfolioAESKey) => {
 export async function fetchPortfolioAESKey() {
   try {
     // Fetch the HTML content
-    const response = await fetch("https://www.candlestick.io", {
+    const response = await fetch(CANDLESTICK_PROXY, {
       headers: {
         Accept: "text/html",
       },
