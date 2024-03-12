@@ -103,6 +103,7 @@ const handler = async (request) => {
         value: amount,
         hash: txHash,
         blockNum,
+        asset,
         // category,
         rawContract: { address: contractAddress },
       } = a;
@@ -131,7 +132,6 @@ const handler = async (request) => {
         sendError(
           `⁉️ Failed to fetch token info for address ${contractAddress}`
         );
-        return;
       }
 
       const portfolioAESKey = await fetchPortfolioAESKey();
@@ -157,7 +157,7 @@ const handler = async (request) => {
       }
 
       const tokenName = contractInfo.name;
-      const symbol = contractInfo.symbol;
+      const symbol = contractInfo.symbol ?? asset
 
       const { tokenPrice, txnValue } = await getTxnInfo({
         contractAddress,
