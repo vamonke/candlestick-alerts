@@ -4,20 +4,25 @@ const AUTH_TOKEN_KEY = "authToken";
 const REFRESH_TOKEN_KEY = "refreshToken";
 
 export const getAuthToken = async () => {
-  const kvToken = await getKvToken();
-  if (!kvToken) {
+  const kvAuthToken = await getKvAuthToken();
+  if (!kvAuthToken) {
     return getNewToken();
   }
 
-  const valid = await checkToken(kvToken);
-  if (!valid) {
-    return getNewToken();
+  const valid = await checkToken(kvAuthToken);
+  if (valid) {
+    return kvAuthToken;
   }
 
-  return kvToken;
+  const newToken = await refreshKvToken();
+  if (newToken) {
+    return newToken;
+  }
+
+  return getNewToken();
 };
 
-const getKvToken = async () => {
+const getKvAuthToken = async () => {
   const result = await kv.get(AUTH_TOKEN_KEY);
   if (result) {
     console.log("🔑 Found token from KV store");
@@ -55,16 +60,32 @@ const checkToken = async (token) => {
 };
 
 const getNewToken = async () => {
-  const tokens = await getLoginTokens();
+  const tokens = await login();
   if (tokens) {
     await setTokens(tokens);
   }
   return tokens.authToken;
 };
 
+const refreshKvToken = async () => {
+  console.log("Getting refresh token from KV store..");
+  const refreshToken = await await kv.get(REFRESH_TOKEN_KEY);
+  if (!refreshToken) {
+    return null;
+  }
+
+  const newToken = await refresh(refreshToken);
+  if (newToken) {
+    await kv.set(AUTH_TOKEN_KEY, newToken);
+    return newToken;
+  }
+
+  return null;
+};
+
 const BASE_URL = "https://www.candlestick.io"; // Note: Login API not proxied through CANDLESTICK_PROXY
 const LOGIN_URL = `${BASE_URL}/api/v2/user/login-email`;
-const getLoginTokens = async () => {
+const login = async () => {
   const data = {
     deviceId: process.env.DEVICE_ID,
     email: process.env.EMAIL,
@@ -95,15 +116,19 @@ const getLoginTokens = async () => {
   }
 };
 
-const setTokens = async ({ authToken, refresh }) => {
+const setTokens = async ({ authToken, refreshToken }) => {
   try {
     console.log("Setting tokens in KV store..");
 
-    await kv.del(AUTH_TOKEN_KEY);
-    await kv.del(REFRESH_TOKEN_KEY);
+    if (authToken) {
+      await kv.del(AUTH_TOKEN_KEY);
+      await kv.set(AUTH_TOKEN_KEY, authToken);
+    }
 
-    await kv.set(AUTH_TOKEN_KEY, authToken);
-    await kv.set(REFRESH_TOKEN_KEY, refresh);
+    if (refreshToken) {
+      await kv.del(REFRESH_TOKEN_KEY);
+      await kv.set(REFRESH_TOKEN_KEY, refreshToken);
+    }
 
     console.log("✅ Successfully set tokens in KV store");
   } catch (error) {
@@ -111,3 +136,38 @@ const setTokens = async ({ authToken, refresh }) => {
     console.error(error);
   }
 };
+
+export const refresh = async (refreshToken) => {
+  console.log("Refreshing auth token..");
+  try {
+    const url = `https://www.candlestick.io/api/v2/user/refresh-token`;
+    const response = await fetch(url, {
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ refresh: refreshToken }),
+      method: "PUT",
+    });
+    const json = await response.json();
+    if (json.code !== 1) {
+      console.log("❌ Failed to refresh token", json);
+      return null;
+    }
+    const token = json.data.token;
+    console.log("✅ Successfully refreshed token");
+    return token;
+  } catch (error) {
+    console.error(error);
+    console.log("❌ Failed to refresh token");
+    return null;
+  }
+};
+//   {
+//     "code": 1,
+//     "message": null,
+//     "data": {
+//         "token": "eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiJmYjM0ODM3MS1mZmI1LTQ0OTQtYWI4Ni04MjU3ODZmYjAwMTciLCJyZWZyZXNoVG9rZW5JZCI6MTE4NDEyLCJ1c2VySWQiOjE5MzYwLCJleHAiOjE3MDg0Mzg0MDgsImlhdCI6MTcwODQzODEwOH0.EMoO3YbXwxydhx9FW6zZT0ZJrfJwl61dgE-wzFHVNVvmDncno1XLLgLqX_59XH21uP9R5LNenhcOUmrPF97pGg"
+//     },
+//     "extra": null
+// }

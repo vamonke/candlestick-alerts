@@ -117,26 +117,6 @@ const getStealthWallets = async ({ url, authToken }) => {
   }
 };
 
-// const refreshToken = (refreshToken) => {
-//   fetch("https://www.candlestick.io/api/v2/user/refresh-token", {
-//     headers: {
-//       accept: "application/json",
-//       "content-type": "application/json",
-//     },
-//     body: JSON.stringify({ refresh: refreshToken }),
-//     method: "PUT",
-//   });
-//   // returns
-//   //   {
-//   //     "code": 1,
-//   //     "message": null,
-//   //     "data": {
-//   //         "token": "eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiJmYjM0ODM3MS1mZmI1LTQ0OTQtYWI4Ni04MjU3ODZmYjAwMTciLCJyZWZyZXNoVG9rZW5JZCI6MTE4NDEyLCJ1c2VySWQiOjE5MzYwLCJleHAiOjE3MDg0Mzg0MDgsImlhdCI6MTcwODQzODEwOH0.EMoO3YbXwxydhx9FW6zZT0ZJrfJwl61dgE-wzFHVNVvmDncno1XLLgLqX_59XH21uP9R5LNenhcOUmrPF97pGg"
-//   //     },
-//   //     "extra": null
-//   // }
-// };
-
 const evaluateTransactions = ({ transactions, alert }) => {
   const {
     minsAgo,
