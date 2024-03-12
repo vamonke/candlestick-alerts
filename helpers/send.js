@@ -11,6 +11,7 @@ const USER_IDS = [
 ];
 
 export const sendMessage = async (message) => {
+  // const recipientIds = USER_IDS;
   const recipientIds = DEV_MODE ? [DEVELOPER_USER_ID] : USER_IDS;
   if (DEV_MODE) {
     console.log("👨‍💻 Running in dev mode", recipientIds);

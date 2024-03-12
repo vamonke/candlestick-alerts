@@ -11,9 +11,7 @@ export const getContractCreation = async (contractAddress) => {
       apikey: process.env.ETHERSCAN_API_KEY,
     });
     url.search = searchParams.toString();
-    console.log(
-      `🔗 Fetching contract creation date for address ${contractAddress}`
-    );
+    console.log(`🔗 Fetching contract creation date:`, url);
     const response = await fetch(url);
     const json = await response.json();
     console.log(`✅ Received token creation response`, json);
