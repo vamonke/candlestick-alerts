@@ -83,7 +83,7 @@ const handler = async (request) => {
       a.category === "token" &&
       !excludedTokens.includes(a.asset) &&
       !excludedAddresses.includes(a.fromAddress) &&
-      !/reward|claim|\.com/i.test(a.asset)
+      !/reward|claim|\.com|https/i.test(a.asset)
   );
 
   if (!matchedActivities.length) {
