@@ -9,11 +9,12 @@ export const SEND_MESSAGE = [
 
 // const USE_LOCAL_API = true;
 const USE_LOCAL_API = false;
+// const PROXY_URL = "https://206.189.153.199";
+const PROXY_URL = "https://candlestick.io";
 export const CANDLESTICK_PROXY = DEV_MODE
   ? USE_LOCAL_API
     ? "http://localhost:3001"
-    : "https://206.189.153.199"
-  : // : "https://206.189.153.199";
-    "https://candlestick.io";
+    : PROXY_URL
+  : PROXY_URL;
 
-// process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0"; // ignore self-signed cert error // TODO: Fix this
+process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0"; // ignore self-signed cert error // TODO: Fix this

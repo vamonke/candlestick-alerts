@@ -30,3 +30,6 @@ yarn-error.log*
 .env.production.local
 .vercel
 .env*.local
+
+# Dev
+app/api/test/auth/route.js

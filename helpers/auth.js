@@ -1,7 +1,6 @@
 import { kv } from "@vercel/kv";
 import { CANDLESTICK_PROXY } from "./config";
 const AUTH_TOKEN_KEY = "authToken";
-const LOGIN_URL = `${CANDLESTICK_PROXY}/api/v2/user/login-email`;
 
 export const getAuthToken = async () => {
   const kvToken = await getKvToken();
@@ -61,14 +60,15 @@ const getNewToken = async () => {
   return token;
 };
 
+const BASE_URL = "https://www.candlestick.io";
+const LOGIN_URL = `${BASE_URL}/api/v2/user/login-email`;
 const getLoginToken = async () => {
-  console.log("Logging in..");
-
   const data = {
     deviceId: process.env.DEVICE_ID,
     email: process.env.EMAIL,
     password: process.env.HASHED_PASSWORD,
   };
+  console.log("Logging in via", LOGIN_URL);
   try {
     const result = await fetch(LOGIN_URL, {
       method: "POST",
@@ -78,6 +78,10 @@ const getLoginToken = async () => {
       body: JSON.stringify(data),
     });
     const json = await result.json();
+    if (json.code !== 1) {
+      console.log("❌ Login failed", json);
+      return null;
+    }
     const token = json.data.token;
     console.log("✅ Login success");
     return token;
