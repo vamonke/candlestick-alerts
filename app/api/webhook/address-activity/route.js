@@ -242,17 +242,13 @@ const getTxnInfo = async ({
     authToken,
   });
 
-  if (!DEV_MODE) {
-    await wait(30 * 1000);
-  }
-
   if (walletAction) {
     tokenPrice = walletAction.tokenPrice;
     txnValue = walletAction.txnValue;
   } else {
-    // const marketData = await getMarketData(contractAddress);
-    // tokenPrice = marketData?.price;
-    // txnValue = tokenPrice ? amount * tokenPrice : null;
+    const marketData = await getMarketData(contractAddress);
+    tokenPrice = marketData?.price;
+    txnValue = tokenPrice ? amount * tokenPrice : null;
   }
 
   return { tokenPrice, txnValue };
