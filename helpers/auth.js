@@ -29,7 +29,8 @@ const getKvToken = async () => {
 const checkToken = async (token) => {
   console.log("Checking if auth token is valid..");
   try {
-    const result = await fetch(`${CANDLESTICK_PROXY}/api/v1/user/user-info`, {
+    const url = `${CANDLESTICK_PROXY}/api/v1/user/user-info`;
+    const result = await fetch(url, {
       headers: {
         "x-authorization": token,
       },
@@ -41,13 +42,13 @@ const checkToken = async (token) => {
     if (valid) {
       console.log("✅ Auth token is valid");
     } else {
-      console.log("❌ Invalid auth token from KV store");
+      console.log("❌ Invalid auth token from KV store", json);
     }
 
     return valid;
   } catch (error) {
     console.error(error);
-    console.log("❌ Invalid auth token from KV store");
+    console.log("❌ Failed to validate auth token from KV store");
     return false;
   }
 };
