@@ -45,7 +45,7 @@ export const getContractCreation = async (contractAddress) => {
     console.log(`Contract was created at: ${timestamp}`);
     return timestamp;
   } catch (error) {
-    console.error("Error fetching token info:", error);
+    console.error("Error fetching contract creation:", error);
     return null;
   }
 };
@@ -77,7 +77,7 @@ export const getContractInfo = async (contractAddress) => {
 
     return { name, symbol };
   } catch (error) {
-    console.error("Error fetching token info:", error);
+    console.error("Error fetching contract info:", error);
     return null;
   }
 };
