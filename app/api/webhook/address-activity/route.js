@@ -4,6 +4,7 @@ import { getBlockTimestamp } from "../../../../helpers/block";
 import {
   addBuyerStats,
   getCandleStickUrl,
+  getWalletAction,
 } from "../../../../helpers/candlestick";
 import * as CONFIG from "../../../../helpers/config";
 import {
@@ -99,7 +100,7 @@ const handler = async (request) => {
         // fromAddress,
         toAddress: walletAddress,
         value: amount,
-        hash,
+        hash: txHash,
         blockNum,
         // category,
         rawContract: { address: contractAddress },
@@ -120,7 +121,7 @@ const handler = async (request) => {
 
       if (txnAgeMins > maxTxnAgeMins && !DEV_MODE) {
         sendError(
-          `⏰ Skipping activity (hash: ${hash}) due to age ${txnAgeMins} minutes > ${maxTxnAgeMins} minutes`
+          `⏰ Skipping activity (hash: ${txHash}) due to age ${txnAgeMins} minutes > ${maxTxnAgeMins} minutes`
         );
         return;
       }
@@ -157,9 +158,15 @@ const handler = async (request) => {
 
       const tokenName = contractInfo.name;
       const symbol = contractInfo.symbol;
-      const marketData = await getMarketData(contractAddress);
-      const price = marketData?.price;
-      const txnValue = price ? amount * price : null;
+
+      const { tokenPrice, txnValue } = await getTxnInfo({
+        contractAddress,
+        walletAddress,
+        txHash,
+        amount,
+        portfolioAESKey,
+        authToken,
+      });
 
       const alertNameString = `<b><i>${alertName}</i></b>`;
       const tokenString = `Token: <b>${tokenName} ($${symbol})</b>`;
@@ -174,7 +181,7 @@ const handler = async (request) => {
       const transactionsTable = constructTxnsTable2([
         {
           address: walletAddress,
-          buy_price: price,
+          buy_price: tokenPrice,
           txn_value: txnValue,
           time: txnTime,
         },
@@ -217,18 +224,35 @@ const getTopWalletsKV = async () => {
 
 // const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// const getTxnInfo = async (txHash) => {
-//   console.log(`Fetching transaction value for ${txHash}...`);
-//   const client = new CovalentClient(process.env.COVALENT_API_KEY);
-//   const resp = await client.TransactionService.getTransaction(
-//     "eth-mainnet",
-//     txHash,
-//     { noLogs: true, quoteCurrency: "USD" }
-//   );
-//   console.log(`✅ Received transaction response`, resp);
-//   console.log(`Transaction response data:`, resp.data);
-//   return resp.data?.items?.[0];
-// };
+const getTxnInfo = async ({
+  contractAddress,
+  walletAddress,
+  txHash,
+  amount,
+  portfolioAESKey,
+  authToken,
+}) => {
+  let tokenPrice, txnValue;
+
+  const walletAction = await getWalletAction({
+    tokenAddress: contractAddress,
+    walletAddress,
+    txHash: txHash,
+    portfolioAESKey,
+    authToken,
+  });
+
+  if (walletAction) {
+    tokenPrice = walletAction.tokenPrice;
+    txnValue = walletAction.txnValue;
+  } else {
+    // const marketData = await getMarketData(contractAddress);
+    // tokenPrice = marketData?.price;
+    // txnValue = tokenPrice ? amount * tokenPrice : null;
+  }
+
+  return { tokenPrice, txnValue };
+};
 
 /*
 {
