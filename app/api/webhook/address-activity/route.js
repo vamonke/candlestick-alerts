@@ -112,7 +112,6 @@ const handler = async (request) => {
         sendError(
           `⁉️ Failed to fetch contract creation date for address ${contractAddress}`
         );
-        return;
       }
 
       const txnTime = await getBlockTimestamp(blockNum);

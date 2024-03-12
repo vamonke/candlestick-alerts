@@ -11,9 +11,12 @@ export const getContractCreation = async (contractAddress) => {
       apikey: process.env.ETHERSCAN_API_KEY,
     });
     url.search = searchParams.toString();
+    console.log(
+      `🔗 Fetching contract creation date for address ${contractAddress}`
+    );
     const response = await fetch(url);
     const json = await response.json();
-    // console.log(`✅ Received token creation response`, json);
+    console.log(`✅ Received token creation response`, json);
 
     const txHash = json?.result?.[0]?.txHash;
     if (!txHash) {
@@ -26,7 +29,7 @@ export const getContractCreation = async (contractAddress) => {
       console.log("Transaction receipt not found");
       return;
     }
-    // console.log(`✅ Received transaction receipt`, txnReceipt);
+    console.log(`✅ Received transaction receipt`, txnReceipt);
 
     // Get the block containing the contract creation transaction
     const block = await web3.eth.getBlock(txnReceipt.blockNumber, false, {
@@ -37,7 +40,7 @@ export const getContractCreation = async (contractAddress) => {
       console.log("Block not found");
       return;
     }
-    // console.log(`✅ Received block`, block);
+    console.log(`✅ Received block`, block);
 
     // Convert timestamp from seconds to a readable format
     const timestamp = new Date(block.timestamp * 1000);
