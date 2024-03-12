@@ -16,4 +16,4 @@ export const CANDLESTICK_PROXY = DEV_MODE
   : // : "https://206.189.153.199";
     "https://candlestick.io";
 
-process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0"; // ignore self-signed cert error // TODO: Fix this
+// process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0"; // ignore self-signed cert error // TODO: Fix this
