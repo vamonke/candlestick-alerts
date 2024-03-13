@@ -2,8 +2,9 @@ export const walletAlert = {
   name: "🟣 Alert 3 - Top Wallets",
   excludedTokens: ["WETH", "weth", "USDT", "USDC", "DAI", "WBTC", "ETH"],
   excludedAddresses: ["0x0000000000000000000000000000000000000000"],
+  count: 150,
   query: {
-    page_size: 100,
+    page_size: 50, // Should be a factor of count
     sort_type: 0, // ROI
     oriented: 1, // Descending
     blockchain_id: 2, // Ethereum

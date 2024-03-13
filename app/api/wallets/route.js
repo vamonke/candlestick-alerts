@@ -44,16 +44,16 @@ const handler = async () => {
     return Response.json({ error }, { status: 500 });
   }
 
-  const success = await setWallets(walletAddresses);
-  if (!success) {
-    const error = "⁉️ Error setting top wallets";
-    sendError(error);
-    return Response.json({ error }, { status: 500 });
-  }
+  // const success = await setWallets(walletAddresses);
+  // if (!success) {
+  //   const error = "⁉️ Error setting top wallets";
+  //   sendError(error);
+  //   return Response.json({ error }, { status: 500 });
+  // }
 
   const query = walletAlert.query;
-  let message = `👛 Alert 3: Monitoring new top ${walletAddresses.length} wallets\n`;
-  message +=
+  const title = `<i><b>👛 Alert 3: Monitoring new top ${walletAddresses.length} wallets</b></i>`;
+  const alertParams =
     `<i>` +
     [
       `Sorted by ROI`,
@@ -66,47 +66,57 @@ const handler = async () => {
       `Cost ≥ $${query.total_cost}`,
     ].join(", ") +
     `</i>`;
+  const message = [title, alertParams].join("\n");
   await sendMessage(message);
 
-  return Response.json({ success }, { status: 200 });
+  return Response.json({ success: true }, { status: 200 });
 };
 
 const getTopWallets = async ({ authToken }) => {
   try {
+    console.log("Fetching top wallets..");
+    const { count, query } = walletAlert;
+    const { page_size } = query;
     const endpoint = `${CANDLESTICK_PROXY}/api/v1/address-explore/top-total-roi`;
+    const totalPages = Math.ceil(count / page_size);
+    const fetchPromises = [];
 
-    const url = new URL(endpoint);
-    const query = walletAlert.query;
-    const searchParamsObj = {
-      current_page: 1,
-      page_size: query.page_size,
-      sort_type: query.sort_type,
-      oriented: query.oriented,
-      blockchain_id: query.blockchain_id,
-      active_within: query.active_within,
-      timeframe: query.timeframe,
-      total_profit: query.total_profit,
-      profitFilterType: query.profitFilterType,
-      total_cost: query.total_cost,
-      first_in: query.first_in,
-      token_traded: query.token_traded,
-      win_rate: query.win_rate,
-    };
-    Object.keys(searchParamsObj).forEach((key) =>
-      url.searchParams.append(key, searchParamsObj[key])
-    );
+    for (let page = 1; page <= totalPages; page++) {
+      const request = async () => {
+        const url = new URL(endpoint);
+        const searchParams = new URLSearchParams({
+          current_page: page,
+          ...query,
+        });
+        url.search = searchParams.toString();
+        console.log(`🔗 Fetching page ${page} top wallets from:`, url.href);
+        const response = await fetch(url, {
+          headers: {
+            "x-authorization": authToken,
+            "Content-Type": "application/json",
+          },
+        });
+        const json = await response.json();
+        const addresses = json.data.chart.map(
+          (wallet) => wallet.addressInfo.address
+        );
+        const start = page_size * (page - 1) + 1;
+        const end = addresses.length + page_size * (page - 1);
+        console.log(
+          `✅ Fetched ${addresses.length} wallets, page ${page}, ${start} - ${end}`
+        );
+        return addresses;
+      };
+      fetchPromises.push(request());
+    }
 
-    console.log("🔗 Fetching top wallets from:", url);
-    const result = await fetch(url, {
-      headers: {
-        "x-authorization": authToken,
-        "Content-Type": "application/json",
-      },
-      method: "GET",
-    });
-    const json = await result.json();
-    console.log("✅ Fetched top wallets -", json.data.chart.length, "wallets");
-    return json?.data?.chart?.map((wallet) => wallet.addressInfo.address);
+    const responses = await Promise.all(fetchPromises);
+    const wallets = responses.flat();
+    const distinctWallets = [...new Set(wallets)];
+
+    console.log(`✅ Fetched top ${distinctWallets.length} wallets`);
+
+    return distinctWallets;
   } catch (error) {
     sendError({ message: "Error fetching top wallets", error });
     return null;
