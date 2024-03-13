@@ -17,4 +17,3 @@ export const CANDLESTICK_PROXY = DEV_MODE
     : PROXY_URL
   : PROXY_URL;
 
-process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0"; // ignore self-signed cert error // TODO: Fix this
