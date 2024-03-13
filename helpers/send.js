@@ -2,12 +2,13 @@ import bot from "../bot";
 import { DEV_MODE, SEND_MESSAGE } from "./config.js";
 
 const DEVELOPER_USER_ID = 265435469;
-const USER_V_ID = 278239097;
+const V2_USER_ID = 278239097;
+const CHANNEL_ID = "@candlestick_alerts";
 
 const USER_IDS = [
-  // dev
-  DEVELOPER_USER_ID,
-  USER_V_ID,
+  DEVELOPER_USER_ID, // Developer
+  V2_USER_ID, // User V2
+  CHANNEL_ID, // Telegram channel
 ];
 
 export const sendMessage = async (message) => {
@@ -48,7 +49,7 @@ const MAX_RETRIES = 3;
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const safeSend = async (userId, message) => {
+export const safeSend = async (userId, message) => {
   let retries = 0;
   let sendError;
   while (retries < MAX_RETRIES) {
