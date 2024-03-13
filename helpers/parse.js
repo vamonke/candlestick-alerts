@@ -19,7 +19,7 @@ export const formatTimestamp = (date) => {
 };
 
 export const formatPrice = (number) => {
-  if (number === null || number === undefined) return "-";
+  if (number === null || number === undefined || number === 0) return "-";
 
   if (number >= 10) {
     return number.toPrecision(4);
