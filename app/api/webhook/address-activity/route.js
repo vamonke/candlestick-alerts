@@ -55,6 +55,7 @@ const handler = async (request) => {
 
   if (exists && !DEV_MODE) {
     console.log(`🔔 Webhook notification already exists: ${webhookNotifyId}`);
+    sendError(`🔔 Webhook notification already exists: ${webhookNotifyId}`);
     return Response.json({ ok: true });
   }
 
@@ -124,7 +125,7 @@ const handler = async (request) => {
         sendError(
           `⏰ Skipping activity (hash: ${txHash}) due to age ${txnAgeMins} minutes > ${maxTxnAgeMins} minutes`
         );
-        return;
+        return Response.json({ ok: true });
       }
 
       const contractInfo = await getContractInfo(contractAddress);
@@ -157,7 +158,14 @@ const handler = async (request) => {
       }
 
       const tokenName = contractInfo.name;
-      const symbol = contractInfo.symbol ?? asset
+      const symbol = contractInfo.symbol ?? asset;
+
+      if (tokenName && /reward|claim|\.com|https/i.test(tokenName)) {
+        sendError(
+          `⚠️ Skipping activity (hash: ${txHash}) due to token name "${tokenName}"`
+        );
+        return Response.json({ ok: true });
+      }
 
       const { tokenPrice, txnValue } = await getTxnInfo({
         contractAddress,
