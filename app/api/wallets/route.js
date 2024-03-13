@@ -44,12 +44,12 @@ const handler = async () => {
     return Response.json({ error }, { status: 500 });
   }
 
-  // const success = await setWallets(walletAddresses);
-  // if (!success) {
-  //   const error = "⁉️ Error setting top wallets";
-  //   sendError(error);
-  //   return Response.json({ error }, { status: 500 });
-  // }
+  const success = await setWallets(walletAddresses);
+  if (!success) {
+    const error = "⁉️ Error setting top wallets";
+    sendError(error);
+    return Response.json({ error }, { status: 500 });
+  }
 
   const query = walletAlert.query;
   const title = `<i><b>👛 Alert 3: Monitoring new top ${walletAddresses.length} wallets</b></i>`;
