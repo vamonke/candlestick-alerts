@@ -108,7 +108,6 @@ const getTopWallets = async ({ authToken }) => {
     console.log("✅ Fetched top wallets -", json.data.chart.length, "wallets");
     return json?.data?.chart?.map((wallet) => wallet.addressInfo.address);
   } catch (error) {
-    console.error("Error fetching top wallets", error);
     sendError({ message: "Error fetching top wallets", error });
     return null;
   }
@@ -126,7 +125,6 @@ const setWallets = async (wallets) => {
 
     return true;
   } catch (error) {
-    console.error(error);
     sendError({ message: "Error setting wallets in KV store", error });
     return false;
   }

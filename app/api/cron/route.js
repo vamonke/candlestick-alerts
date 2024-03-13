@@ -112,7 +112,6 @@ const getStealthWallets = async ({ url, authToken }) => {
     return json;
   } catch (error) {
     sendError({ message: "Error fetching stealth wallets", error });
-    console.log("Error fetching stealth wallets", error);
     return null;
   }
 };

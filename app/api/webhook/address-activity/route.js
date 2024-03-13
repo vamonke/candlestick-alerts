@@ -54,7 +54,6 @@ const handler = async (request) => {
   });
 
   if (exists && !DEV_MODE) {
-    console.log(`🔔 Webhook notification already exists: ${webhookNotifyId}`);
     sendError(`🔔 Webhook notification already exists: ${webhookNotifyId}`);
     return Response.json({ ok: true });
   }
@@ -111,9 +110,8 @@ const handler = async (request) => {
 
       const createdAt = await getContractCreation(contractAddress);
       if (!createdAt) {
-        sendError(
-          `⁉️ Failed to fetch contract creation date for address ${contractAddress}`
-        );
+        const error = `⁉️ Failed to fetch contract creation date for address ${contractAddress}`;
+        sendError(error);
       }
 
       const txnTime = await getBlockTimestamp(blockNum);
@@ -122,17 +120,15 @@ const handler = async (request) => {
       console.log(`Transaction age: ${txnAgeMins} minutes`);
 
       if (txnAgeMins > maxTxnAgeMins && !DEV_MODE) {
-        sendError(
-          `⏰ Skipping activity (hash: ${txHash}) due to age ${txnAgeMins} minutes > ${maxTxnAgeMins} minutes`
-        );
+        const error = `⏰ Skipping activity (hash: ${txHash}) due to age ${txnAgeMins} minutes > ${maxTxnAgeMins} minutes`;
+        sendError(error);
         return Response.json({ ok: true });
       }
 
       const contractInfo = await getContractInfo(contractAddress);
       if (!contractInfo) {
-        sendError(
-          `⁉️ Failed to fetch token info for address ${contractAddress}`
-        );
+        const error = `⁉️ Failed to fetch token info for address ${contractAddress}`;
+        sendError(error);
       }
 
       const portfolioAESKey = await fetchPortfolioAESKey();
@@ -161,9 +157,8 @@ const handler = async (request) => {
       const symbol = contractInfo.symbol ?? asset;
 
       if (tokenName && /reward|claim|\.com|https/i.test(tokenName)) {
-        sendError(
-          `⚠️ Skipping activity (hash: ${txHash}) due to token name "${tokenName}"`
-        );
+        const error = `⚠️ Skipping activity (hash: ${txHash}) due to token name "${tokenName}"`;
+        sendError(error);
         return Response.json({ ok: true });
       }
 
