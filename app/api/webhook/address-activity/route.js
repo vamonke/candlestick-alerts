@@ -1,5 +1,6 @@
 import { kv } from "@vercel/kv";
 import { unstable_noStore as noStore } from "next/cache";
+import { getAuthToken } from "../../../../helpers/auth";
 import { getBlockTimestamp } from "../../../../helpers/block";
 import {
   addBuyerStats,
@@ -11,7 +12,13 @@ import {
   getContractCreation,
   getContractInfo,
 } from "../../../../helpers/contract";
-import { getAge, getRelativeDate } from "../../../../helpers/parse";
+import { checkHoneypot } from "../../../../helpers/honeypot";
+import { getMarketData } from "../../../../helpers/mobula";
+import {
+  formatHoneypot,
+  getAge,
+  getRelativeDate,
+} from "../../../../helpers/parse";
 import { fetchPortfolioAESKey } from "../../../../helpers/portfolioAESKey";
 import { sendError, sendMessage } from "../../../../helpers/send";
 import {
@@ -20,8 +27,6 @@ import {
   constructWalletsTable,
 } from "../../../../helpers/table";
 import { WALLETS_KEY, walletAlert } from "../../../../helpers/wallets";
-import { getAuthToken } from "../../../../helpers/auth";
-import { getMarketData } from "../../../../helpers/mobula";
 
 const { DEV_MODE } = CONFIG;
 
@@ -153,6 +158,8 @@ const handler = async (request) => {
         });
       }
 
+      const honeypot = await checkHoneypot(contractAddress);
+
       const tokenName = contractInfo.name;
       const symbol = contractInfo.symbol ?? asset;
 
@@ -176,11 +183,16 @@ const handler = async (request) => {
       const caString = `CA: <code>${contractAddress}</code>`;
       const walletString = `Wallet: <code>${walletAddress}</code>`;
       const ageString = `Token age: ${getRelativeDate(createdAt)}`;
+      const honeypotUrl = `https://honeypot.is/ethereum?address=${contractAddress}`;
+      const honeypotString = `Honeypot: <a href="${honeypotUrl}">${formatHoneypot(
+        honeypot?.IsHoneypot
+      )}</a>`;
       const distinctWalletsString = `Distinct wallets: 1`;
       const totalTxnValueString = `Total txn value: ${
         txnValue ? `$${txnValue.toLocaleString()}` : "-"
       }`;
-      const tokenLinkString = `<a href="https://www.candlestick.io/crypto/${contractAddress}">View ${symbol} on Candlestick</a>`;
+      const tokenUrl = `https://www.candlestick.io/crypto/${contractAddress}`;
+      const tokenLinkString = `<a href="${tokenUrl}">View ${symbol} on Candlestick</a>`;
       const transactionsTable = constructTxnsTable2([
         {
           address: walletAddress,
@@ -202,6 +214,7 @@ const handler = async (request) => {
         caString,
         walletString,
         ageString,
+        honeypotString,
         distinctWalletsString,
         totalTxnValueString,
         tokenLinkString + "\n",
