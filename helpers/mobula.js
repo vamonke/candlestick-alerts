@@ -18,7 +18,7 @@ export const getMarketData = async (contractAddress) => {
     console.log("✅ Received market data:", json.data);
     return json.data;
   } catch (error) {
-    sendError("Error fetching market data", error);
+    sendError({ msg: "Error fetching market data", error });
     return null;
   }
 };

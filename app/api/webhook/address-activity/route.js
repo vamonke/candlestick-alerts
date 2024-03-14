@@ -21,6 +21,7 @@ import {
 } from "../../../../helpers/parse";
 import { fetchPortfolioAESKey } from "../../../../helpers/portfolioAESKey";
 import { sendError, sendMessage } from "../../../../helpers/send";
+import { insertTokens } from "../../../../helpers/supabase";
 import {
   constructTxnsTable2,
   constructWalletLinks,
@@ -98,6 +99,10 @@ const handler = async (request) => {
 
   console.log(
     `🤓 Matched activity: ${JSON.stringify(matchedActivities, null, 2)}`
+  );
+
+  await insertTokens(
+    matchedActivities.map((a) => ({ address: a.rawContract.address }))
   );
 
   await Promise.all(

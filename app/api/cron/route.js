@@ -7,6 +7,7 @@ import {
   getContractCreation,
   getContractInfo,
 } from "../../../helpers/contract";
+import { checkHoneypot } from "../../../helpers/honeypot";
 import {
   formatHoneypot,
   getRelativeDate,
@@ -14,13 +15,13 @@ import {
 } from "../../../helpers/parse";
 import { fetchPortfolioAESKey } from "../../../helpers/portfolioAESKey";
 import { sendError, sendMessage } from "../../../helpers/send";
+import { insertTokens } from "../../../helpers/supabase";
 import {
   constructTxnsTable,
   constructWalletLinks,
   constructWalletsTable,
 } from "../../../helpers/table";
 import MOCK_DATA from "../../../mock-data.json";
-import { checkHoneypot } from "../../../helpers/honeypot";
 
 const { USE_MOCK_DATA, CANDLESTICK_PROXY } = CONFIG;
 
@@ -213,6 +214,27 @@ const evaluateTransactions = ({ transactions, alert }) => {
 
   return { tokensMap, matchedTokens };
 };
+
+/**
+ Sample token object:
+  {
+    "buy_token_symbol": "WETH",
+    "buy_token_address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+    "addressSet": Set(2) { "0x1", "0x2" },
+    "transactions": [
+      {
+        "address": "0x1",
+        "time": "2021-09-10T10:00:00Z",
+        "txn_value": 100
+      },
+      {
+        "address": "0x2",
+        "time": "2021-09-10T10:00:00Z",
+        "txn_value": 100
+      }
+    ]
+  }
+*/
 
 const evaluateWallets = async ({ alert, matchedTokens }) => {
   const { walletStats } = alert;
@@ -435,6 +457,9 @@ const executeAlert = async ({ alert, authToken, portfolioAESKey }) => {
     return Response.json({ matchedTokens }, { status: 200 });
   }
 
+  await insertTokens(
+    matchedTokens.map((token) => ({ address: token.buy_token_address }))
+  );
   await attachTokensInfo({ matchedTokens });
 
   if (showWalletLinks) {
