@@ -7,7 +7,11 @@ import {
   getContractCreation,
   getContractInfo,
 } from "../../../helpers/contract";
-import { getRelativeDate, parseUtcTimeString } from "../../../helpers/parse";
+import {
+  formatHoneypot,
+  getRelativeDate,
+  parseUtcTimeString,
+} from "../../../helpers/parse";
 import { fetchPortfolioAESKey } from "../../../helpers/portfolioAESKey";
 import { sendError, sendMessage } from "../../../helpers/send";
 import {
@@ -16,6 +20,7 @@ import {
   constructWalletsTable,
 } from "../../../helpers/table";
 import MOCK_DATA from "../../../mock-data.json";
+import { checkHoneypot } from "../../../helpers/honeypot";
 
 const { USE_MOCK_DATA, CANDLESTICK_PROXY } = CONFIG;
 
@@ -325,16 +330,22 @@ const craftMatchedTokenString = ({ alert, tokenObj }) => {
     distinctAddresses,
     tokenName,
     creationDate,
+    honeypot,
   } = tokenObj;
 
-  const tokenString = `Token: <b>${
-    tokenName ?? buy_token_symbol
-  } ($${buy_token_symbol.toUpperCase()})</b>`;
+  const tokenNameString = tokenName ?? buy_token_symbol;
+  const tokenSymbolString = buy_token_symbol.toUpperCase();
+  const tokenString = `Token: <b>${tokenNameString} ($${tokenSymbolString})</b>`;
   const caString = `CA: <code>${buy_token_address}</code>`;
   const ageString = `Token age: ${getRelativeDate(creationDate)}`;
+  const honeypotUrl = `https://honeypot.is/ethereum?address=${buy_token_address}`;
+  const honeypotString = `Honeypot: <a href="${honeypotUrl}">${formatHoneypot(
+    honeypot?.IsHoneypot
+  )}</a>`;
   const distinctWalletsString = `Distinct wallets: ${distinctAddressesCount}`;
   const totalTxnValueString = `Total txn value: $${totalTxnValue.toLocaleString()}`;
-  const tokenLinkString = `<a href="https://www.candlestick.io/crypto/${buy_token_address}">View ${buy_token_symbol} on candlestick.io</a>`;
+  const tokenUrl = `https://www.candlestick.io/crypto/${buy_token_address}`;
+  const tokenLinkString = `<a href="${tokenUrl}">View ${buy_token_symbol} on candlestick.io</a>`;
   const transactionsTable = constructTxnsTable(transactions);
 
   const walletsTable = showWalletStats
@@ -349,6 +360,7 @@ const craftMatchedTokenString = ({ alert, tokenObj }) => {
     tokenString,
     caString,
     ageString,
+    honeypotString,
     distinctWalletsString,
     totalTxnValueString,
     tokenLinkString + "\n",
@@ -444,12 +456,19 @@ const attachTokensInfo = async ({ matchedTokens }) => {
     matchedTokens.map(async (tokenObj) => {
       const contractAddress = tokenObj.buy_token_address;
       const timestamp = await getContractCreation(contractAddress);
+
       if (timestamp) {
         tokenObj.creationDate = timestamp;
       }
+
       const contractInfo = await getContractInfo(contractAddress);
       if (contractInfo?.name) {
         tokenObj.tokenName = contractInfo.name;
+      }
+
+      const honeypot = await checkHoneypot(contractAddress);
+      if (honeypot) {
+        tokenObj.honeypot = honeypot;
       }
     })
   );

@@ -90,3 +90,9 @@ export const getAge = (date) => {
   const duration = dayjs.duration(dayjs().diff(createdAt));
   return duration;
 };
+
+export const formatHoneypot = (result) => {
+  if (result === false) return "No";
+  if (result === true) return "<b>⚠️ YES</b>";
+  return "Unknown";
+};
