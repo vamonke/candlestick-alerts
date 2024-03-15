@@ -458,7 +458,11 @@ const executeAlert = async ({ alert, authToken, portfolioAESKey }) => {
   }
 
   await insertTokens(
-    matchedTokens.map((token) => ({ address: token.buy_token_address }))
+    matchedTokens.map((token) => ({
+      address: token.buy_token_address,
+      name: token.tokenName,
+      symbol: token.buy_token_symbol,
+    }))
   );
   await attachTokensInfo({ matchedTokens });
 

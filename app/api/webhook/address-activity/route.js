@@ -101,10 +101,6 @@ const handler = async (request) => {
     `🤓 Matched activity: ${JSON.stringify(matchedActivities, null, 2)}`
   );
 
-  await insertTokens(
-    matchedActivities.map((a) => ({ address: a.rawContract.address }))
-  );
-
   await Promise.all(
     matchedActivities.map(async (a) => {
       const {
@@ -173,6 +169,14 @@ const handler = async (request) => {
         sendError(error);
         return Response.json({ ok: true });
       }
+
+      await insertTokens(
+        matchedActivities.map((a) => ({
+          address: contractAddress,
+          name: tokenName,
+          symbol: symbol,
+        }))
+      );
 
       const { tokenPrice, txnValue } = await getTxnInfo({
         contractAddress,
