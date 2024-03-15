@@ -1,18 +1,10 @@
-import { createClient } from "@/helpers/supabase/server";
-import { cookies } from "next/headers";
 import { Box, Table, Text } from "@radix-ui/themes";
+import { getDayToken } from "app/actions";
 import dayjs from "dayjs";
 
 export default async function TokenList(props) {
   const { date } = props;
-
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
-  const { data: tokens } = await supabase
-    .from("tokens")
-    .select()
-    .gte("created_at", date.startOf("day").toISOString())
-    .lte("created_at", date.endOf("day").toISOString());
+  const tokens = await getDayToken(date);
 
   return (
     <Box>
@@ -27,10 +19,12 @@ export default async function TokenList(props) {
         </Table.Header>
 
         <Table.Body>
-          {tokens?.map(({ address, created_at }) => (
+          {tokens?.map(({ name, symbol, address, created_at }) => (
             <Table.Row key={address}>
               <Table.RowHeaderCell>
-                <Box>Name $NAME</Box>
+                <Box>
+                  {name} ${symbol}
+                </Box>
                 <Text size="1">{address}</Text>
               </Table.RowHeaderCell>
               <Table.Cell>{dayjs(created_at).format("hh:mm A")}</Table.Cell>
