@@ -8,18 +8,20 @@ export const getTokens = async (date) => {
     .from("tokens")
     .select()
     .gte("created_at", date.startOf("day").toISOString())
-    .lte("created_at", date.endOf("day").toISOString());
+    .lte("created_at", date.endOf("day").toISOString())
+    .order("created_at", { ascending: false });
   return tokens;
 };
 
 export async function getDayToken(date) {
   const tokens = await getTokens(date);
 
-  const results = [];
-  for (const token of tokens) {
-    const summary = await getSummary(token);
-    results.push(summary);
-  }
+  // const results = [];
+  // for (const token of tokens) {
+  //   const summary = await getSummary(token);
+  //   results.push(summary);
+  // }
+  const results = await Promise.all(tokens.map(getSummary));
 
   return results;
 }

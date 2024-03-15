@@ -4,32 +4,29 @@ import { checkHoneypot } from "@/helpers/honeypot";
 import { parseUtcTimeString } from "@/helpers/parse";
 import dayjs from "dayjs";
 
-export const getSummary = async ({ address, created_at }) => {
+export const getSummary = async ({ address, created_at, name, symbol }) => {
   const row: {
     address: string;
     created_at: string;
-    name?: void | string;
-    symbol?: void | string;
+    name: string;
+    symbol: string;
     priceChart?: { time: Date; price: Number }[];
     honeypot?: void | object;
   } = {
     address,
     created_at,
+    name,
+    symbol,
   };
 
   const createdAt = dayjs(created_at);
   const fiveMinBeforeCreation = createdAt.subtract(5, "minute");
   const oneHourAfterCreation = createdAt.add(1, "hour");
 
-  const [priceChart, contractInfo, honeypot] = await Promise.all([
+  const [priceChart, honeypot] = await Promise.all([
     getPriceChart(address),
-    // [],
-    getContractInfo(address),
     checkHoneypot(address),
   ]);
-
-  row.name = contractInfo?.name as void | string;
-  row.symbol = contractInfo?.symbol as void | string;
 
   row.priceChart = priceChart
     ?.map(({ time, price }) => ({
