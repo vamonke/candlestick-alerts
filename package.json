@@ -10,6 +10,7 @@
     "@supabase/supabase-js": "^2.39.8",
     "@vercel/kv": "^1.0.1",
     "alchemy-sdk": "^3.1.2",
+    "asciichart": "^1.5.25",
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.10",
     "grammy": "^1.21.0",

@@ -138,3 +138,19 @@ export const getWalletAction = async ({
   const txnValue = action?.txn_value;
   return { tokenPrice, txnValue };
 };
+
+export const getPriceChart = async (contractAddress) => {
+  const url = new URL("https://www.candlestick.io/api/v1/overview/price-chart");
+  const searchParams = new URLSearchParams({
+    token_identifier: contractAddress,
+    days: 1,
+    resolution: 5,
+  });
+  url.search = searchParams.toString();
+  console.log(`🔗 Fetching token prices:`, url);
+  const response = await fetch(url);
+  const json = await response.json();
+  console.log(`✅ Received token prices`, json);
+  const priceChart = json?.data?.chart;
+  return priceChart;
+};
