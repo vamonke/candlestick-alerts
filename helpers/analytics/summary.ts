@@ -11,7 +11,9 @@ export const getSummary = async ({ address, created_at, name, symbol }) => {
     name: string;
     symbol: string;
     priceChart?: { time: Date; price: Number }[];
-    honeypot?: void | object;
+    honeypot?: void | {
+      IsHoneypot: boolean;
+    };
   } = {
     address,
     created_at,
@@ -23,9 +25,10 @@ export const getSummary = async ({ address, created_at, name, symbol }) => {
   const fiveMinBeforeCreation = createdAt.subtract(5, "minute");
   const oneHourAfterCreation = createdAt.add(1, "hour");
 
-  const [priceChart, honeypot] = await Promise.all([
+  const [priceChart, honeypot, contractInfo] = await Promise.all([
     getPriceChart(address),
     checkHoneypot(address),
+    name ? null : getContractInfo(address),
   ]);
 
   row.priceChart = priceChart
@@ -40,6 +43,9 @@ export const getSummary = async ({ address, created_at, name, symbol }) => {
     });
 
   row.honeypot = honeypot;
+
+  if (contractInfo?.name) row.name = (contractInfo.name as unknown) as string;
+  if (contractInfo?.symbol) row.symbol = (contractInfo.symbol as unknown) as string;
 
   return row;
 };

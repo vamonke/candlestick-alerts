@@ -3,14 +3,15 @@ import DateSelector from "./ui/DateSelector";
 import TokenList from "./ui/TokenList";
 import dayjs from "dayjs";
 
-// export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default function Page({ searchParams }) {
   const dateParam = searchParams?.date;
   const date = dayjs(dateParam).isValid() ? dayjs(dateParam) : dayjs();
   return (
     <Box>
-      <Container py="6">
+      <Container py="6" size="4">
         <Heading
           size="8"
           mb="2"
