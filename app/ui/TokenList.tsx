@@ -38,6 +38,11 @@ export default async function TokenList(props) {
               <Table.Cell>%50</Table.Cell>
             </Table.Row>
           ))}
+          {tokens?.length === 0 && (
+            <Table.Row>
+              <Table.Cell colSpan={4}>No tokens found</Table.Cell>
+            </Table.Row>
+          )}
         </Table.Body>
       </Table.Root>
     </Box>

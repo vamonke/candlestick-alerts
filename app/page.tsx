@@ -1,8 +1,9 @@
 import { Box, Container, Heading } from "@radix-ui/themes";
 import DateSelector from "./ui/DateSelector";
 import TokenList from "./ui/TokenList";
-import { useSearchParams } from "next/navigation";
 import dayjs from "dayjs";
+
+export const dynamic = "force-dynamic";
 
 export default function Page({ searchParams }) {
   const dateParam = searchParams?.date;

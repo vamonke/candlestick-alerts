@@ -27,12 +27,44 @@ export default function DateSelector() {
     replace(`${pathname}?${params.toString()}`);
   };
 
+  const isToday = date.isSame(dayjs(), "day");
+
   return (
     <Box>
-      <Flex align="center" gap={"2"}>
-        <Text>{date.format("ddd, D MMMM YYYY")}</Text>
-        <Button onClick={() => setDate(date.subtract(1, "day"))}>{"<"}</Button>
-        <Button onClick={() => setDate(date.add(1, "day"))}>{">"}</Button>
+      <Flex align="center" gap={"3"}>
+        <Flex align="center" gap={"1"}>
+          <Button
+            color="plum"
+            radius="full"
+            variant="soft"
+            onClick={() => setDate(date.subtract(1, "day"))}
+          >
+            {"<"}
+          </Button>
+          <Box style={{ width: 120, textAlign: "center" }}>
+            {isToday ? "Today" : date.format("ddd, D MMM")}
+          </Box>
+          <Button
+            color="plum"
+            radius="full"
+            variant="soft"
+            onClick={() => setDate(date.add(1, "day"))}
+          >
+            {">"}
+          </Button>
+          {!isToday && (
+            <Button
+              ml="3"
+              size="3"
+              color="plum"
+              radius="full"
+              variant="ghost"
+              onClick={() => setDate(dayjs())}
+            >
+              Today
+            </Button>
+          )}
+        </Flex>
       </Flex>
     </Box>
   );
