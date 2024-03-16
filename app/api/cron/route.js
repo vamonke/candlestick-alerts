@@ -363,10 +363,7 @@ const craftMatchedTokenString = ({ alert, tokenObj }) => {
   const tokenString = `Token: <b>${tokenNameString} ($${tokenSymbolString})</b>`;
   const caString = `CA: <code>${buy_token_address}</code>`;
   const ageString = `Token age: ${getRelativeDate(creationDate)}`;
-  const honeypotUrl = `https://honeypot.is/ethereum?address=${buy_token_address}`;
-  const honeypotString = `Honeypot: <a href="${honeypotUrl}">${formatHoneypot(
-    honeypot?.IsHoneypot
-  )}</a>`;
+  const honeypotString = formatHoneypot(honeypot, buy_token_address);
   const taxString = formatTaxString(honeypot);
   const ownershipString = `Ownership: ${getOwnership(tokenSecurity)}`;
   const distinctWalletsString = `Distinct wallets: ${distinctAddressesCount}`;

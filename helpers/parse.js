@@ -93,10 +93,29 @@ export const getAge = (date) => {
   return duration;
 };
 
-export const formatHoneypot = (result) => {
-  if (result === false) return "No";
-  if (result === true) return "<b>⚠️ YES</b>";
-  return "Unknown";
+export const formatHoneypot = (honeypot, tokenAddress) => {
+  const IsHoneypot = honeypot?.IsHoneypot;
+  const openSource = honeypot?.contractCode?.openSource;
+
+  if (!openSource) {
+    return `Contract: CLOSED SOURCE ❗️\n Honeypot: <a href="${honeypotUrl}">UNKNOWN</a>`;
+  }
+
+  let result = `Honeypot: `;
+  const honeypotUrl = `https://honeypot.is/ethereum?address=${tokenAddress}`;
+
+  if (IsHoneypot === false) {
+    result += `<a href="${honeypotUrl}">No</a>`;
+    return result;
+  }
+
+  if (IsHoneypot === true) {
+    result += `<a href="${honeypotUrl}">⚠️ YES</a>`;
+    return result;
+  }
+
+  result += `<a href="${honeypotUrl}">UNKNOWN</a>`;
+  return result;
 };
 
 export const formatTaxString = (tax) => {

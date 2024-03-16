@@ -20,7 +20,7 @@ export const getTokenSecurity = async (addresses) => {
 export const getOwnership = (tokenSecurity) => {
   if (!tokenSecurity) return "Unknown";
   const ownerAddress = tokenSecurity?.owner_address;
-  return ownerAddress === RENOUNCED_OWNER ? "Renounced" : "⚠️ Not renounced";
+  return ownerAddress === RENOUNCED_OWNER ? "Renounced" : "Not renounced";
 };
 
 /*
