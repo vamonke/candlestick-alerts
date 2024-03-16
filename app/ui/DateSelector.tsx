@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Button, Flex, Text } from "@radix-ui/themes";
+import { Box, Button, Flex } from "@radix-ui/themes";
 import dayjs from "dayjs";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
