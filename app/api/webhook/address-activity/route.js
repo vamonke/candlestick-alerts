@@ -170,6 +170,12 @@ const handler = async (request) => {
         return Response.json({ ok: true });
       }
 
+      if (symbol && /reward|claim|\.com|https/i.test(symbol)) {
+        const error = `⚠️ Skipping activity (hash: ${txHash}) due to token symbol "${symbol}"`;
+        sendError(error);
+        return Response.json({ ok: true });
+      }
+
       await insertTokens(
         matchedActivities.map((a) => ({
           address: contractAddress,
