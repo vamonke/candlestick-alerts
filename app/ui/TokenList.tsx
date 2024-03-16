@@ -14,7 +14,7 @@ export default async function TokenList(props) {
         <Table.Header>
           <Table.Row>
             <Table.ColumnHeaderCell>Token</Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>Alert time</Table.ColumnHeaderCell>
+            <Table.ColumnHeaderCell width="100px">Alert time</Table.ColumnHeaderCell>
             <Table.ColumnHeaderCell width="60%">
               Price from alert time
             </Table.ColumnHeaderCell>

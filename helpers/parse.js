@@ -76,10 +76,12 @@ export const getRelativeDate = (date) => {
   const minutes = duration.minutes();
 
   let result = ``;
-  if (days > 0) result += `${days} ${days > 1 ? "days" : "day"} `;
-  if (hours > 0) result += `${hours} ${hours > 1 ? "hours" : "hour"} `;
-  if (days === 0 && minutes > 0)
-    result += `${minutes} ${minutes > 1 ? "minutes" : "minute"} `;
+  if (days > 0) {
+    result += `${days}d`;
+  } else {
+    if (hours > 0) result += `${hours}h `;
+    if (minutes > 0) result += `${minutes}m`;
+  }
   result += `ago`;
 
   return result;

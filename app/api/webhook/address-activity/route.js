@@ -236,7 +236,7 @@ const handler = async (request) => {
         ageString,
         honeypotString,
         ownershipString + "\n",
-        taxString,
+        taxString + "\n",
         distinctWalletsString,
         totalTxnValueString,
         tokenLinkString + "\n",
