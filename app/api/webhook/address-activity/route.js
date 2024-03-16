@@ -116,8 +116,8 @@ const handler = async (request) => {
         rawContract: { address: contractAddress },
       } = a;
 
-      const createdAt = await getContractCreation(contractAddress);
-      if (!createdAt) {
+      const contractCreation = await getContractCreation(contractAddress);
+      if (!contractCreation) {
         const error = `⁉️ Failed to fetch contract creation date for address ${contractAddress}`;
         sendError(error);
       }
@@ -181,6 +181,7 @@ const handler = async (request) => {
           address: contractAddress,
           name: tokenName,
           symbol: symbol,
+          contract_creation: contractCreation,
         }))
       );
 
@@ -200,7 +201,7 @@ const handler = async (request) => {
       const tokenString = `Token: <b>${tokenName} ($${symbol})</b>`;
       const caString = `CA: <code>${contractAddress}</code>`;
       const walletString = `Wallet: <code>${walletAddress}</code>`;
-      const ageString = `Token age: ${getRelativeDate(createdAt)}`;
+      const ageString = `Token age: ${getRelativeDate(contractCreation)}`;
       const honeypotString = formatHoneypot(honeypot, contractAddress);
       const taxString = formatTaxString(honeypot);
       const ownershipString = `Ownership: ${getOwnership(tokenSecurity)}`;

@@ -461,15 +461,16 @@ const executeAlert = async ({ alert, authToken, portfolioAESKey }) => {
     return Response.json({ matchedTokens }, { status: 200 });
   }
 
+  await attachTokensInfo({ matchedTokens });
+
   await insertTokens(
     matchedTokens.map((token) => ({
       address: token.buy_token_address,
       name: token.tokenName,
       symbol: token.buy_token_symbol,
+      contract_creation: token.creationDate,
     }))
   );
-
-  await attachTokensInfo({ matchedTokens });
 
   if (showWalletLinks) {
     matchedTokens.forEach((tokenObj) => {
