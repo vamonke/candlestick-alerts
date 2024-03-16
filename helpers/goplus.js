@@ -2,6 +2,7 @@ import { GoPlus, ErrorCode } from "@goplus/sdk-node";
 import { sendError } from "./send";
 
 const chainId = 1; // Ethereum
+const RENOUNCED_OWNER = "0x0000000000000000000000000000000000000000";
 
 export const getTokenSecurity = async (addresses) => {
   const response = await GoPlus.tokenSecurity(chainId, addresses);
@@ -14,6 +15,12 @@ export const getTokenSecurity = async (addresses) => {
 
   const result = response?.result?.[addresses];
   return result;
+};
+
+export const getOwnership = (tokenSecurity) => {
+  if (!tokenSecurity) return "Unknown";
+  const ownerAddress = tokenSecurity?.owner_address;
+  return ownerAddress === RENOUNCED_OWNER ? "Renounced" : "⚠️ Not renounced";
 };
 
 /*

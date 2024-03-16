@@ -29,6 +29,7 @@ import {
   constructWalletsTable,
 } from "../../../../helpers/table";
 import { WALLETS_KEY, walletAlert } from "../../../../helpers/wallets";
+import { getOwnership, getTokenSecurity } from "@/helpers/goplus";
 
 const { DEV_MODE } = CONFIG;
 
@@ -160,8 +161,6 @@ const handler = async (request) => {
         });
       }
 
-      const honeypot = await checkHoneypot(contractAddress);
-
       const tokenName = contractInfo.name;
       const symbol = contractInfo.symbol ?? asset;
 
@@ -185,7 +184,7 @@ const handler = async (request) => {
         }))
       );
 
-      const { tokenPrice, txnValue } = await getTxnInfo({
+      const txnInfo = await getTxnInfo({
         contractAddress,
         walletAddress,
         txHash,
@@ -193,6 +192,9 @@ const handler = async (request) => {
         portfolioAESKey,
         authToken,
       });
+      const { tokenPrice, txnValue } = txnInfo;
+      const honeypot = await checkHoneypot(contractAddress);
+      const tokenSecurity = await getTokenSecurity(contractAddress);
 
       const alertNameString = `<b><i>${alertName}</i></b>`;
       const tokenString = `Token: <b>${tokenName} ($${symbol})</b>`;
@@ -204,6 +206,7 @@ const handler = async (request) => {
         honeypot?.IsHoneypot
       )}</a>`;
       const taxString = formatTaxString(honeypot);
+      const ownershipString = `Ownership: ${getOwnership(tokenSecurity)}`;
       const distinctWalletsString = `Distinct wallets: 1`;
       const totalTxnValueString = `Total txn value: ${
         txnValue ? `$${txnValue.toLocaleString()}` : "-"
@@ -232,6 +235,7 @@ const handler = async (request) => {
         walletString,
         ageString,
         honeypotString,
+        ownershipString + "\n",
         taxString,
         distinctWalletsString,
         totalTxnValueString,

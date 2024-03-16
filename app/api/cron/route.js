@@ -23,6 +23,7 @@ import {
   constructWalletsTable,
 } from "../../../helpers/table";
 import MOCK_DATA from "../../../mock/mock-data.json";
+import { getOwnership, getTokenSecurity } from "@/helpers/goplus";
 
 const { USE_MOCK_DATA, CANDLESTICK_PROXY } = CONFIG;
 
@@ -354,6 +355,7 @@ const craftMatchedTokenString = ({ alert, tokenObj }) => {
     tokenName,
     creationDate,
     honeypot,
+    tokenSecurity,
   } = tokenObj;
 
   const tokenNameString = tokenName ?? buy_token_symbol;
@@ -366,6 +368,7 @@ const craftMatchedTokenString = ({ alert, tokenObj }) => {
     honeypot?.IsHoneypot
   )}</a>`;
   const taxString = formatTaxString(honeypot);
+  const ownershipString = `Ownership: ${getOwnership(tokenSecurity)}`;
   const distinctWalletsString = `Distinct wallets: ${distinctAddressesCount}`;
   const totalTxnValueString = `Total txn value: $${totalTxnValue.toLocaleString()}`;
   const tokenUrl = `https://www.candlestick.io/crypto/${buy_token_address}`;
@@ -385,7 +388,8 @@ const craftMatchedTokenString = ({ alert, tokenObj }) => {
     caString,
     ageString,
     honeypotString,
-    taxString,
+    ownershipString,
+    taxString + "\n",
     distinctWalletsString,
     totalTxnValueString,
     tokenLinkString + "\n",
@@ -502,6 +506,11 @@ const attachTokensInfo = async ({ matchedTokens }) => {
       const honeypot = await checkHoneypot(contractAddress);
       if (honeypot) {
         tokenObj.honeypot = honeypot;
+      }
+
+      const tokenSecurity = await getTokenSecurity(contractAddress);
+      if (tokenSecurity) {
+        tokenObj.tokenSecurity = tokenSecurity;
       }
     })
   );
