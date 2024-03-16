@@ -16,6 +16,7 @@ import { checkHoneypot } from "../../../../helpers/honeypot";
 import { getMarketData } from "../../../../helpers/mobula";
 import {
   formatHoneypot,
+  formatTaxString,
   getAge,
   getRelativeDate,
 } from "../../../../helpers/parse";
@@ -202,6 +203,7 @@ const handler = async (request) => {
       const honeypotString = `Honeypot: <a href="${honeypotUrl}">${formatHoneypot(
         honeypot?.IsHoneypot
       )}</a>`;
+      const taxString = formatTaxString(honeypot);
       const distinctWalletsString = `Distinct wallets: 1`;
       const totalTxnValueString = `Total txn value: ${
         txnValue ? `$${txnValue.toLocaleString()}` : "-"
@@ -230,6 +232,7 @@ const handler = async (request) => {
         walletString,
         ageString,
         honeypotString,
+        taxString,
         distinctWalletsString,
         totalTxnValueString,
         tokenLinkString + "\n",

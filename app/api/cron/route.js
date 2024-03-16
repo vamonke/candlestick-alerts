@@ -10,6 +10,7 @@ import {
 import { checkHoneypot } from "../../../helpers/honeypot";
 import {
   formatHoneypot,
+  formatTaxString,
   getRelativeDate,
   parseUtcTimeString,
 } from "../../../helpers/parse";
@@ -364,6 +365,7 @@ const craftMatchedTokenString = ({ alert, tokenObj }) => {
   const honeypotString = `Honeypot: <a href="${honeypotUrl}">${formatHoneypot(
     honeypot?.IsHoneypot
   )}</a>`;
+  const taxString = formatTaxString(honeypot);
   const distinctWalletsString = `Distinct wallets: ${distinctAddressesCount}`;
   const totalTxnValueString = `Total txn value: $${totalTxnValue.toLocaleString()}`;
   const tokenUrl = `https://www.candlestick.io/crypto/${buy_token_address}`;
@@ -383,6 +385,7 @@ const craftMatchedTokenString = ({ alert, tokenObj }) => {
     caString,
     ageString,
     honeypotString,
+    taxString,
     distinctWalletsString,
     totalTxnValueString,
     tokenLinkString + "\n",
@@ -464,6 +467,7 @@ const executeAlert = async ({ alert, authToken, portfolioAESKey }) => {
       symbol: token.buy_token_symbol,
     }))
   );
+
   await attachTokensInfo({ matchedTokens });
 
   if (showWalletLinks) {

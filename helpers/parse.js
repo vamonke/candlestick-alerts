@@ -96,3 +96,18 @@ export const formatHoneypot = (result) => {
   if (result === true) return "<b>⚠️ YES</b>";
   return "Unknown";
 };
+
+export const formatTaxString = (tax) => {
+  if (tax === null || tax === undefined) return "Tax: -";
+
+  const buyTax = formatPercentage(tax.BuyTax);
+  const sellTax = formatPercentage(tax.SellTax);
+  const transferTax = formatPercentage(tax.TransferTax);
+
+  return `Tax: Buy ${buyTax} | Sell ${sellTax} | Transfer ${transferTax}`;
+};
+
+const formatPercentage = (tax) => {
+  if (tax === null || tax === undefined) return "-";
+  return `${tax.toFixed(0)}%`;
+};
