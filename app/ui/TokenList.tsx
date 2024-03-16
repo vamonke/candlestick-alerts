@@ -38,7 +38,7 @@ export default async function TokenList(props) {
                       <Text size="1">
                         Honeypot:{" "}
                         {honeypot
-                          ? formatHoneypot(honeypot.IsHoneypot)
+                          ? formatHoneypot(honeypot?.honeypotResult?.isHoneypot)
                           : "Unknown"}
                       </Text>
                     </Box>

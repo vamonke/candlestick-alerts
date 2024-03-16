@@ -10,9 +10,11 @@ export const getSummary = async ({ address, created_at, name, symbol }) => {
     created_at: string;
     name: string;
     symbol: string;
-    priceChart?: { time: Date; price: Number }[];
+    priceChart?: { time: Date; price: number }[];
     honeypot?: void | {
-      IsHoneypot: boolean;
+      honeypotResult: {
+        isHoneypot: boolean;
+      };
     };
   } = {
     address,
@@ -44,8 +46,9 @@ export const getSummary = async ({ address, created_at, name, symbol }) => {
 
   row.honeypot = honeypot;
 
-  if (contractInfo?.name) row.name = (contractInfo.name as unknown) as string;
-  if (contractInfo?.symbol) row.symbol = (contractInfo.symbol as unknown) as string;
+  if (contractInfo?.name) row.name = contractInfo.name as unknown as string;
+  if (contractInfo?.symbol)
+    row.symbol = contractInfo.symbol as unknown as string;
 
   return row;
 };
