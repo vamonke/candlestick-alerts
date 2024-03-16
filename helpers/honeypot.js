@@ -6,13 +6,24 @@ export const checkHoneypot = async (tokenAddress) => {
     const pairsResponse = await fetch(getPairsUrl);
     const pairs = await pairsResponse.json();
     const pair = pairs?.[0]?.Pair?.Address;
-    if (!pair) {
-      console.error("No pair found for token", tokenAddress);
-      return null;
+    if (pair) {
+      console.log("✅ Found pair", pair);
+      // return null;
+    } else {
+      console.warn("No pair found for token", tokenAddress);
     }
-    console.log("✅ Found pair", pair);
 
-    const honeypotUrl = `https://api.honeypot.is/v1/IsHoneypot?address=${tokenAddress}&pair=${pair}&chainID=1`;
+    const honeypotEndpoint = `https://api.honeypot.is/v2/IsHoneypot`;
+    const searchParams = new URLSearchParams();
+    searchParams.set("address", tokenAddress);
+    searchParams.set("chainID", "1");
+    if (pair) {
+      searchParams.set("pair", pair);
+    } else {
+      searchParams.set("forceSimulateLiquidity", "true");
+    }
+    const honeypotUrl = `${honeypotEndpoint}?${searchParams.toString()}`;
+
     console.log("🔗 Fetching honeypot", honeypotUrl);
     const honeypotResponse = await fetch(honeypotUrl);
     const result = await honeypotResponse.json();
@@ -27,55 +38,92 @@ export const checkHoneypot = async (tokenAddress) => {
 
 /*
 {
-  "Token": {
-    "Name": "BlockGames",
-    "Symbol": "BLOCK",
-    "Decimals": 18,
-    "Address": "0xb6f2aa17a2ce2410a116205f13d7d031b69cafa6"
-  },
-  "WithToken": {
-    "Name": "Wrapped Ether",
-    "Symbol": "WETH",
-    "Decimals": 18,
-    "Address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
-  },
-  "IsHoneypot": true,
-  "Error": "HONEYPOT DETECTED",
-  "MaxBuy": null,
-  "MaxSell": null,
-  "BuyTax": 0,
-  "SellTax": 0,
-  "TransferTax": 0,
-  "Flags": [
-    "high_siphon_rate"
-  ],
-  "BuyGas": 144646,
-  "SellGas": 104040,
-  "Chain": {
-    "ID": 1,
-    "Name": "Ethereum",
-    "ShortName": "eth",
-    "Currency": "ETH"
-  },
-  "Router": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
-  "Pair": {
-    "ChainID": 1,
-    "Pair": {
-      "Name": "Uniswap V2: BLOCK-WETH",
-      "Tokens": [
-        "0xb6f2aa17a2ce2410a116205f13d7d031b69cafa6",
-        "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
-      ],
-      "Address": "0x4c33733b4cb70cde907f556ef963f04c12b88897"
+    "token": {
+        "name": "NodeAI",
+        "symbol": "GPU",
+        "decimals": 18,
+        "address": "0x1258D60B224c0C5cD888D37bbF31aa5FCFb7e870",
+        "totalHolders": 16203
     },
-    "Reserves": [
-      2.318286314658952e+28,
-      42000548520456280
-    ],
-    "Liquidity": 334.8132526076103,
-    "Router": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d"
-  },
-  "PairAddress": "0x4c33733b4cb70cde907f556ef963f04c12b88897"
-}
+    "withToken": {
+        "name": "Wrapped Ether",
+        "symbol": "WETH",
+        "decimals": 18,
+        "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        "totalHolders": 791650
+    },
+    "summary": null,
+    "simulationSuccess": true,
+    "honeypotResult": {
+        "isHoneypot": false
+    },
+    "simulationResult": {
+        "buyTax": 3.999999999999995,
+        "sellTax": 3.9988707480822705,
+        "transferTax": 0,
+        "buyGas": "172646",
+        "sellGas": "112088"
+    },
+    "holderAnalysis": {
+        "holders": "11771",
+        "successful": "11770",
+        "failed": "0",
+        "siphoned": "1",
+        "averageTax": 4.013385726423027,
+        "averageGas": 140375.92353440952,
+        "highestTax": 5.84,
+        "highTaxWallets": "0",
+        "taxDistribution": [
+            {
+                "tax": 2,
+                "count": 1
+            },
+            {
+                "tax": 3,
+                "count": 11584
+            },
+            {
+                "tax": 4,
+                "count": 6
+            },
+            {
+                "tax": 5,
+                "count": 179
+            }
+        ],
+        "snipersFailed": 0,
+        "snipersSuccess": 0
+    },
+    "flags": [],
+    "contractCode": {
+        "openSource": true,
+        "rootOpenSource": true,
+        "isProxy": false,
+        "hasProxyCalls": false
+    },
+    "chain": {
+        "id": "1",
+        "name": "Ethereum",
+        "shortName": "eth",
+        "currency": "ETH"
+    },
+    "router": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+    "pair": {
+        "pair": {
+            "name": "Uniswap V2: GPU-WETH",
+            "address": "0x769f539486b31eF310125C44d7F405C6d470cD1f",
+            "token0": "0x1258D60B224c0C5cD888D37bbF31aa5FCFb7e870",
+            "token1": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+            "type": "UniswapV2"
+        },
+        "chainId": "1",
+        "reserves0": "1050457449869616117457948",
+        "reserves1": "324406666917773263906",
+        "liquidity": 2383331.4361114814,
+        "router": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+        "createdAtTimestamp": "1702002671",
+        "creationTxHash": "0x3d88c09c51d29c317d6417468c787155c92c7935f270ffc55ae5a4de1629c335"
+    },
+    "pairAddress": "0x769f539486b31eF310125C44d7F405C6d470cD1f"
 }
 */

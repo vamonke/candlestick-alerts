@@ -201,10 +201,7 @@ const handler = async (request) => {
       const caString = `CA: <code>${contractAddress}</code>`;
       const walletString = `Wallet: <code>${walletAddress}</code>`;
       const ageString = `Token age: ${getRelativeDate(createdAt)}`;
-      const honeypotUrl = `https://honeypot.is/ethereum?address=${contractAddress}`;
-      const honeypotString = `Honeypot: <a href="${honeypotUrl}">${formatHoneypot(
-        honeypot?.IsHoneypot
-      )}</a>`;
+      const honeypotString = formatHoneypot(honeypot, contractAddress);
       const taxString = formatTaxString(honeypot);
       const ownershipString = `Ownership: ${getOwnership(tokenSecurity)}`;
       const distinctWalletsString = `Distinct wallets: 1`;

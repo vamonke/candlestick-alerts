@@ -77,10 +77,10 @@ export const getRelativeDate = (date) => {
 
   let result = ``;
   if (days > 0) {
-    result += `${days}d`;
+    result += `${days}d `;
   } else {
     if (hours > 0) result += `${hours}h `;
-    if (minutes > 0) result += `${minutes}m`;
+    if (minutes > 0) result += `${minutes}m `;
   }
   result += `ago`;
 
@@ -94,22 +94,22 @@ export const getAge = (date) => {
 };
 
 export const formatHoneypot = (honeypot, tokenAddress) => {
-  const IsHoneypot = honeypot?.IsHoneypot;
-  const openSource = honeypot?.contractCode?.openSource;
+  const isHoneypot = honeypot?.honeypotResult?.isHoneypot;
+  const rootOpenSource = honeypot?.contractCode?.rootOpenSource;
+  const honeypotUrl = `https://honeypot.is/ethereum?address=${tokenAddress}`;
 
-  if (!openSource) {
-    return `Contract: CLOSED SOURCE ❗️\n Honeypot: <a href="${honeypotUrl}">UNKNOWN</a>`;
+  if (!rootOpenSource) {
+    return `Contract: CLOSED SOURCE ❗️\nHoneypot: <a href="${honeypotUrl}">UNKNOWN</a>`;
   }
 
   let result = `Honeypot: `;
-  const honeypotUrl = `https://honeypot.is/ethereum?address=${tokenAddress}`;
 
-  if (IsHoneypot === false) {
+  if (isHoneypot === false) {
     result += `<a href="${honeypotUrl}">No</a>`;
     return result;
   }
 
-  if (IsHoneypot === true) {
+  if (isHoneypot === true) {
     result += `<a href="${honeypotUrl}">⚠️ YES</a>`;
     return result;
   }
@@ -118,12 +118,12 @@ export const formatHoneypot = (honeypot, tokenAddress) => {
   return result;
 };
 
-export const formatTaxString = (tax) => {
-  if (tax === null || tax === undefined) return "Tax: -";
+export const formatTaxString = (honeypot) => {
+  if (honeypot === null || honeypot === undefined) return "Tax: -";
 
-  const buyTax = formatPercentage(tax.BuyTax);
-  const sellTax = formatPercentage(tax.SellTax);
-  const transferTax = formatPercentage(tax.TransferTax);
+  const buyTax = formatPercentage(honeypot.simulationResult?.buyTax);
+  const sellTax = formatPercentage(honeypot.simulationResult?.sellTax);
+  const transferTax = formatPercentage(honeypot.simulationResult?.transferTax);
 
   return `Tax: Buy ${buyTax} | Sell ${sellTax} | Transfer ${transferTax}`;
 };
