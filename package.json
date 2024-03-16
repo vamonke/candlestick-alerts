@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "@covalenthq/client-sdk": "^0.9.4",
+    "@goplus/sdk-node": "^1.0.11",
     "@radix-ui/themes": "^2.0.3",
     "@supabase/ssr": "^0.1.0",
     "@supabase/supabase-js": "^2.39.8",
