@@ -11,15 +11,11 @@ const bot = new Bot(BOT_TOKEN);
 // });
 
 bot.on("callback_query", async (ctx) => {
-  console.log("Received callback query:", JSON.stringify(ctx, null, 2));
-  await ctx.answerCallbackQuery({
-    text: "You were curious, indeed!",
-  });
-  // await ctx.answerCallbackQuery();
-});
-
-bot.callbackQuery("click-payload", async (ctx) => {
-  console.log("Received callback query:", JSON.stringify(ctx, null, 2));
+  const callbackQuery = ctx.callbackQuery;
+  console.log(
+    "Received callback query:",
+    JSON.stringify(callbackQuery, null, 2)
+  );
   await ctx.answerCallbackQuery({
     text: "You were curious, indeed!",
   });
@@ -27,8 +23,8 @@ bot.callbackQuery("click-payload", async (ctx) => {
 });
 
 bot.on("message", async (ctx) => {
-  console.log("Received message:", JSON.stringify(ctx, null, 2));
-  // const message = ctx.message; // the message object
+  const message = ctx.message; // the message object
+  console.log("Received message:", message);
   // await ctx.reply("I'm a bot!");
 });
 
