@@ -280,70 +280,20 @@ const evaluateWallets = async ({ alert, matchedTokens }) => {
   return { matchedTokens: matches };
 };
 
-const craftMessage = ({ alert, matchedTokens }) => {
-  const {
-    name,
-    minsAgo,
-    minDistinctWallets,
-    boughtTokenLimit,
-    valueFilter,
-    walletAgeDays,
-    walletStats,
-    showWalletStats,
-  } = alert;
-
-  const minRoi = walletStats?.minRoi;
-  const minWinRate = walletStats?.minWinRate;
-
-  if (matchedTokens.length === 0) {
-    return `🥱 No tokens have been purchased by ${minDistinctWallets} stealth wallets in the past ${minsAgo} mins`;
-  }
-
-  // Alert name
-  const nameString = `<b><i>${name}</i></b>`;
-
-  // Alert conditions
-  const valueFilterString = `Buy ≥ $${valueFilter.toLocaleString()}`;
-  const walletAgeString = `Wallet age ≤ ${walletAgeDays}D`;
-  const minDistinctWalletsString = `Distinct wallets ≥ ${minDistinctWallets}`;
-  const boughtTokenLimitString = boughtTokenLimit ? "Tokens bought ≤ 2" : null;
-  const walletRoiString =
-    showWalletStats && !isNaN(minRoi) ? `ROI ≥ ${minRoi * 100}%` : null;
-  const walletWinRateString =
-    showWalletStats && !isNaN(minWinRate)
-      ? `Win rate ≥ ${minWinRate * 100}%`
-      : null;
-  const windowString = `Past ${minsAgo} mins`;
-  const alertConditionsString =
-    `<i>` +
-    [
-      valueFilterString,
-      walletAgeString,
-      boughtTokenLimitString,
-      walletRoiString,
-      minDistinctWalletsString,
-      walletWinRateString,
-      windowString,
-    ]
-      .filter(Boolean)
-      .join(", ") +
-    `</i>`;
-
-  // Matched tokens
-  const matchedTokensStrings = matchedTokens.map((tokenObj) => {
-    return craftMatchedTokenString({ alert, tokenObj });
-  });
+const craftMessage = ({ alert, token }) => {
+  const alertString = craftAlertString(alert);
+  const tokenString = craftTokenString({ alert, tokenObj: token });
 
   const message = [
-    nameString,
-    alertConditionsString + "\n",
-    matchedTokensStrings.join("\n\n"),
+    //
+    alertString + "\n",
+    tokenString,
   ].join("\n");
 
   return message;
 };
 
-const craftMatchedTokenString = ({ alert, tokenObj }) => {
+const craftTokenString = ({ alert, tokenObj }) => {
   const { showWalletStats, showWalletLinks } = alert;
   const {
     buy_token_symbol,
@@ -400,45 +350,69 @@ const craftMatchedTokenString = ({ alert, tokenObj }) => {
   return message;
 };
 
-const executeAlert = async ({ alert, authToken, portfolioAESKey }) => {
+const craftAlertString = (alert) => {
   const {
-    pageSize,
-    walletAgeDays,
-    valueFilter,
+    name,
+    minsAgo,
+    minDistinctWallets,
     boughtTokenLimit,
+    valueFilter,
+    walletAgeDays,
     walletStats,
     showWalletStats,
-    showWalletLinks,
   } = alert;
 
-  let steathMoney = [];
-  if (USE_MOCK_DATA) {
-    steathMoney = MOCK_DATA;
-  } else {
-    const baseUrl = `${CANDLESTICK_PROXY}/api/v1/stealth-money/degen-explorer-by-stealth-money`;
+  const minRoi = walletStats?.minRoi;
+  const minWinRate = walletStats?.minWinRate;
 
-    const urlParams = new URLSearchParams({
-      current_page: 1,
-      page_size: pageSize,
-      sort_type: 3,
-      oriented: 1,
-      blockchain_id: 2,
-      exploreType: "token",
-      days: walletAgeDays,
-      value_filter: valueFilter,
-      include_noise_trades: false,
-      fundingSource: "ALL",
-      boughtTokenLimit: boughtTokenLimit,
-      hide_first_mins: 0,
-      activeSource: "ETH",
-    });
+  // Alert name
+  const nameString = `<b><i>${name}</i></b>`;
 
-    const url = `${baseUrl}?${urlParams.toString()}`;
-    console.log("🔗 Fetching stealth wallets from:", url);
-    steathMoney = await getStealthWallets({ url, authToken });
+  // Alert conditions
+  const valueFilterString = `Buy ≥ $${valueFilter.toLocaleString()}`;
+  const walletAgeString = `Wallet age ≤ ${walletAgeDays}D`;
+  const minDistinctWalletsString = `Distinct wallets ≥ ${minDistinctWallets}`;
+  const boughtTokenLimitString = boughtTokenLimit ? "Tokens bought ≤ 2" : null;
+  const walletRoiString =
+    showWalletStats && !isNaN(minRoi) ? `ROI ≥ ${minRoi * 100}%` : null;
+  const walletWinRateString =
+    showWalletStats && !isNaN(minWinRate)
+      ? `Win rate ≥ ${minWinRate * 100}%`
+      : null;
+  const windowString = `Past ${minsAgo} mins`;
+
+  const alertConditionsString =
+    `<i>` +
+    [
+      valueFilterString,
+      walletAgeString,
+      boughtTokenLimitString,
+      walletRoiString,
+      minDistinctWalletsString,
+      walletWinRateString,
+      windowString,
+    ]
+      .filter(Boolean)
+      .join(", ") +
+    `</i>`;
+
+  const result = [nameString, alertConditionsString].join("\n");
+  return result;
+};
+
+const executeAlert = async ({ alert, authToken, portfolioAESKey }) => {
+  const { walletStats, showWalletStats, showWalletLinks } = alert;
+
+  const transactions = await getTransactions({
+    alert,
+    authToken,
+  });
+
+  if (transactions.length === 0) {
+    console.log("🥱 No transactions found");
+    return;
   }
 
-  const transactions = steathMoney.data.chart;
   let { matchedTokens, tokensMap } = evaluateTransactions({
     transactions,
     alert,
@@ -480,10 +454,44 @@ const executeAlert = async ({ alert, authToken, portfolioAESKey }) => {
     });
   }
 
-  const message = craftMessage({ alert, matchedTokens });
-  console.log("\n\nMessage:\n" + message);
+  await Promise.all(
+    matchedTokens.map(async (token) => {
+      const tokenMessage = craftMessage({ alert, token });
+      await sendMessage(tokenMessage);
+    })
+  );
+};
 
-  await sendMessage(message);
+const getTransactions = async ({ alert, authToken }) => {
+  const { pageSize, walletAgeDays, valueFilter, boughtTokenLimit } = alert;
+
+  let steathMoney;
+
+  if (USE_MOCK_DATA) {
+    steathMoney = MOCK_DATA;
+  } else {
+    const baseUrl = `${CANDLESTICK_PROXY}/api/v1/stealth-money/degen-explorer-by-stealth-money`;
+    const urlParams = new URLSearchParams({
+      current_page: 1,
+      page_size: pageSize,
+      sort_type: 3,
+      oriented: 1,
+      blockchain_id: 2,
+      exploreType: "token",
+      days: walletAgeDays,
+      value_filter: valueFilter,
+      include_noise_trades: false,
+      fundingSource: "ALL",
+      boughtTokenLimit: boughtTokenLimit,
+      hide_first_mins: 0,
+      activeSource: "ETH",
+    });
+    const url = `${baseUrl}?${urlParams.toString()}`;
+    console.log("🔗 Fetching stealth wallets from:", url);
+    steathMoney = await getStealthWallets({ url, authToken });
+  }
+
+  return steathMoney?.data?.chart ?? [];
 };
 
 const attachTokensInfo = async ({ matchedTokens }) => {

@@ -12,6 +12,7 @@ const USER_IDS = [
 ];
 
 export const sendMessage = async (message) => {
+  console.log("📤 Sending message", message);
   // const recipientIds = USER_IDS;
   const recipientIds = DEV_MODE ? [DEVELOPER_USER_ID] : USER_IDS;
   if (DEV_MODE) {
@@ -25,7 +26,7 @@ export const sendMessage = async (message) => {
     try {
       const result = await safeSend(userId, message);
       if (!DEV_MODE) {
-        console.log(`💌 Sent message to ${userId}`, result);
+        console.log(`📤 Sent message to ${userId}`, result);
       }
     } catch (error) {
       console.error(`📛 Failed to send message to ${userId}`, error);
