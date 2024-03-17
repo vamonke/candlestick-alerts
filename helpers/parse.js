@@ -101,7 +101,7 @@ export const formatHoneypot = (honeypot, tokenAddress) => {
   let result = ``;
 
   if (!rootOpenSource) {
-    return `Contract: ❗️Closed source\n`;
+    result += `Contract: ❗️Closed source\n`;
   }
 
   result += `Honeypot: `;
