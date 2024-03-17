@@ -10,10 +10,10 @@ const bot = new Bot(BOT_TOKEN);
 //   await ctx.reply("Hello!");
 // });
 
-// bot.on("message", async (ctx) => {
-//   const message = ctx.message; // the message object
-//   console.log("message", JSON.stringify(message));
-//   await ctx.reply("I'm a bot!");
-// });
+bot.on("message", async (ctx) => {
+  const message = ctx.message; // the message object
+  console.log("Received message:", message);
+  // await ctx.reply("I'm a bot!");
+});
 
 export default bot;
