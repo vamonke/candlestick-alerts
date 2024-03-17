@@ -98,23 +98,24 @@ export const formatHoneypot = (honeypot, tokenAddress) => {
   const rootOpenSource = honeypot?.contractCode?.rootOpenSource;
   const honeypotUrl = `https://honeypot.is/ethereum?address=${tokenAddress}`;
 
+  let result = ``;
+
   if (!rootOpenSource) {
-    return `Contract: CLOSED SOURCE ❗️\nHoneypot: <a href="${honeypotUrl}">UNKNOWN</a>`;
+    return `Contract: ❗️Closed source\n`;
   }
 
-  let result = `Honeypot: `;
-
+  result += `Honeypot: `;
   if (isHoneypot === false) {
     result += `<a href="${honeypotUrl}">No</a>`;
     return result;
   }
 
   if (isHoneypot === true) {
-    result += `<a href="${honeypotUrl}">⚠️ YES</a>`;
+    result += `<a href="${honeypotUrl}">⚠️YES</a>`;
     return result;
   }
 
-  result += `<a href="${honeypotUrl}">UNKNOWN</a>`;
+  result += `<a href="${honeypotUrl}">Unknown</a>`;
   return result;
 };
 
