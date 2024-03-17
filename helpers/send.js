@@ -11,7 +11,7 @@ const USER_IDS = [
   CHANNEL_ID, // Telegram channel
 ];
 
-export const sendMessage = async (message) => {
+export const sendMessage = async (message, replyMarkup) => {
   console.log("📤 Sending message", message);
   // const recipientIds = USER_IDS;
   const recipientIds = DEV_MODE ? [DEVELOPER_USER_ID] : USER_IDS;
@@ -24,7 +24,7 @@ export const sendMessage = async (message) => {
       continue;
     }
     try {
-      const result = await safeSend(userId, message);
+      const result = await safeSend(userId, message, replyMarkup);
       if (!DEV_MODE) {
         console.log(`📤 Sent message to ${userId}`, result);
       }
@@ -50,7 +50,7 @@ const MAX_RETRIES = 3;
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export const safeSend = async (userId, message) => {
+export const safeSend = async (userId, message, replyMarkup) => {
   let retries = 0;
   let sendError;
   while (retries < MAX_RETRIES) {
@@ -60,6 +60,7 @@ export const safeSend = async (userId, message) => {
         link_preview_options: {
           is_disabled: true,
         },
+        reply_markup: replyMarkup,
       });
       return result;
     } catch (error) {

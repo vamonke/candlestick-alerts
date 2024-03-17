@@ -10,9 +10,17 @@ const bot = new Bot(BOT_TOKEN);
 //   await ctx.reply("Hello!");
 // });
 
+bot.callbackQuery("click-payload", async (ctx) => {
+  console.log("Received callback query:", ctx);
+  await ctx.answerCallbackQuery({
+    text: "You were curious, indeed!",
+  });
+  // await ctx.answerCallbackQuery();
+});
+
 bot.on("message", async (ctx) => {
-  const message = ctx.message; // the message object
-  console.log("Received message:", message);
+  console.log("Received message:", ctx);
+  // const message = ctx.message; // the message object
   // await ctx.reply("I'm a bot!");
 });
 
