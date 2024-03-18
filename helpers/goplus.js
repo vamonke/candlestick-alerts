@@ -27,6 +27,13 @@ export const getOwnership = (tokenSecurity) => {
     : "Not renounced";
 };
 
+export const formatOwnership = (tokenSecurity, tokenAddress) => {
+  if (!tokenSecurity) return "Unknown";
+  const result = getOwnership(tokenSecurity);
+  const url = `https://gopluslabs.io/token-security/1/${tokenAddress}`;
+  return `Ownership: <a href="${url}">${result}</a>`;
+};
+
 /*
 {
   "code": 1,

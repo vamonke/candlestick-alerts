@@ -23,7 +23,7 @@ import {
   constructWalletsTable,
 } from "../../../helpers/table";
 import MOCK_DATA from "../../../mock/mock-data.json";
-import { getOwnership, getTokenSecurity } from "@/helpers/goplus";
+import { formatOwnership, getTokenSecurity } from "@/helpers/goplus";
 
 const { USE_MOCK_DATA, CANDLESTICK_PROXY } = CONFIG;
 
@@ -315,7 +315,7 @@ const craftTokenString = ({ alert, tokenObj }) => {
   const ageString = `Token age: ${getRelativeDate(creationDate)}`;
   const honeypotString = formatHoneypot(honeypot, buy_token_address);
   const taxString = formatTaxString(honeypot);
-  const ownershipString = `Ownership: ${getOwnership(tokenSecurity)}`;
+  const ownershipString = formatOwnership(tokenSecurity, buy_token_address);
   const distinctWalletsString = `Distinct wallets: ${distinctAddressesCount}`;
   const totalTxnValueString = `Total txn value: $${totalTxnValue.toLocaleString()}`;
   const tokenUrl = `https://www.candlestick.io/crypto/${buy_token_address}`;

@@ -29,7 +29,7 @@ import {
   constructWalletsTable,
 } from "../../../../helpers/table";
 import { WALLETS_KEY, walletAlert } from "../../../../helpers/wallets";
-import { getOwnership, getTokenSecurity } from "@/helpers/goplus";
+import { formatOwnership, getTokenSecurity } from "@/helpers/goplus";
 
 const { DEV_MODE } = CONFIG;
 
@@ -204,7 +204,7 @@ const handler = async (request) => {
       const ageString = `Token age: ${getRelativeDate(contractCreation)}`;
       const honeypotString = formatHoneypot(honeypot, contractAddress);
       const taxString = formatTaxString(honeypot);
-      const ownershipString = `Ownership: ${getOwnership(tokenSecurity)}`;
+      const ownershipString = formatOwnership(tokenSecurity, contractAddress);
       const distinctWalletsString = `Distinct wallets: 1`;
       const totalTxnValueString = `Total txn value: ${
         txnValue ? `$${txnValue.toLocaleString()}` : "-"
