@@ -95,6 +95,7 @@ export const getAge = (date) => {
 
 export const formatHoneypot = (honeypot, tokenAddress) => {
   const isHoneypot = honeypot?.honeypotResult?.isHoneypot;
+  const flags = honeypot?.honeypotResult?.flags;
   const rootOpenSource = honeypot?.contractCode?.rootOpenSource;
   const honeypotUrl = `https://honeypot.is/ethereum?address=${tokenAddress}`;
 
@@ -106,12 +107,16 @@ export const formatHoneypot = (honeypot, tokenAddress) => {
 
   result += `Honeypot: `;
   if (isHoneypot === false) {
-    result += `<a href="${honeypotUrl}">No</a>`;
+    result += `<a href="${honeypotUrl}">Low risk</a>`;
     return result;
   }
 
   if (isHoneypot === true) {
-    result += `<a href="${honeypotUrl}">⚠️YES</a>`;
+    if (flags?.length > 0) {
+      result += `<a href="${honeypotUrl}">⚠️Potential</a>`;
+    } else {
+      result += `<a href="${honeypotUrl}">⚠️YES</a>`;
+    }
     return result;
   }
 
