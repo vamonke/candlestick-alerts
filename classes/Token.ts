@@ -1,53 +1,54 @@
+import { CandlestickTransaction } from "./types";
+
 class Token {
-  private symbol: string;
-  private name: string;
-  private address: string;
-  private createdAt: Date;
-  private transactions: object[];
+  public symbol: string;
+  public name: string;
+  public address: string;
+  public createdAt: Date;
+  public transactions: CandlestickTransaction[];
+
+  private authToken: string;
+  private portfolioAESKey: string;
 
   constructor({
     symbol,
     name,
     address,
     createdAt,
+    transactions,
   }: {
     address: string;
     symbol?: string;
     name?: string;
     createdAt?: Date;
+    transactions?: CandlestickTransaction[];
   }) {
     this.symbol = symbol;
     this.name = name;
     this.address = address;
     this.createdAt = createdAt;
+    this.transactions = transactions;
   }
 
-  getSymbol(): string {
-    return this.symbol;
+  getWalletCount(): number {
+    const walletSet = new Set();
+    this.transactions.forEach((txn) => {
+      walletSet.add(txn.address);
+    });
+    return walletSet.size;
   }
 
-  getName(): string {
-    return this.name;
+  getWallets(): string[] {
+    const walletSet: Set<string> = new Set();
+    this.transactions.forEach((txn) => {
+      walletSet.add(txn.address);
+    });
+    return Array.from(walletSet);
   }
 
-  getAddress(): string {
-    return this.address;
-  }
-
-  getCreatedAt(): Date {
-    return this.createdAt;
-  }
-
-  getTransactions(): object[] {
-    return this.transactions;
+  getTotalTxnValue(): number {
+    return this.transactions.reduce((acc, txn) => acc + txn.txn_value, 0);
   }
 }
 
-// Usage example
-const token = new Token({
-  symbol: "ETH",
-  name: "Ethereum",
-  address: "0x1234567890abcdef",
-});
-console.log(token.getSymbol()); // Output: ETH
-console.log(token.getName()); // Output: Ethereum
+export default Token;

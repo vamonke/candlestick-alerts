@@ -1,6 +1,10 @@
 import { USE_MOCK_DATA } from "@/helpers/config";
+import { parseUtcTimeString } from "@/helpers/parse";
 import { sendError } from "@/helpers/send";
 import MOCK_TXNS from "@/mocks/mock-txns.json";
+import Token from "./Token";
+import Wallet from "./Wallet";
+import { CandlestickTransaction } from "./types";
 
 type AlertQuery = {
   pageSize: number;
@@ -17,6 +21,8 @@ type AlertFilter = {
 
 class Alert {
   public name: string;
+  public tokens: Token[] = [];
+
   private query: AlertQuery;
   private filters: AlertFilter;
   private authToken: string;
@@ -59,7 +65,7 @@ class Alert {
     return url;
   }
 
-  async getTransactions(): Promise<object[] | null> {
+  async getTransactions(): Promise<CandlestickTransaction[] | null> {
     if (USE_MOCK_DATA) {
       return this.fetchMockTransactions();
     } else {
@@ -67,11 +73,11 @@ class Alert {
     }
   }
 
-  async fetchMockTransactions(): Promise<object[]> {
+  async fetchMockTransactions(): Promise<CandlestickTransaction[]> {
     return MOCK_TXNS.data.chart;
   }
 
-  async fetchTransactions(): Promise<object[] | null> {
+  async fetchTransactions(): Promise<CandlestickTransaction[] | null> {
     try {
       const url = this.getSearchUrl();
       const authToken = this.authToken;
@@ -93,6 +99,81 @@ class Alert {
     }
   }
 
+  extractTokens(transactions: CandlestickTransaction[]): Token[] {
+    const { minsAgo, minDistinctWallets, excludedTokens } = this.filters;
+
+    const currentTime = USE_MOCK_DATA
+      ? parseUtcTimeString(transactions[0].time)
+      : new Date();
+    const startTime = new Date(currentTime.getTime() - minsAgo * 60 * 1000);
+
+    console.log("Evaluating transactions..");
+
+    const tokensMap = {} as Record<string, Token>;
+    transactions
+      .filter((txn) => {
+        const time = parseUtcTimeString(txn.time);
+        return time > startTime;
+      })
+      .forEach((txn) => {
+        const {
+          buy_token_symbol: tokenSymbol,
+          buy_token_address: tokenAddress,
+        } = txn;
+        const tokenObj = tokensMap[tokenAddress];
+        if (excludedTokens.includes(tokenAddress)) {
+          return;
+        } else if (tokenObj) {
+          tokenObj.transactions.push(txn);
+        } else {
+          tokensMap[tokenAddress] = new Token({
+            symbol: tokenSymbol,
+            address: tokenAddress,
+            transactions: [txn],
+          });
+        }
+      });
+
+    const matchedTokens: Token[] = [];
+
+    if (Object.keys(tokensMap).length === 0) {
+      console.log("Token map: (empty)");
+    } else {
+      console.log("Token map:", JSON.stringify(tokensMap, null, 2));
+    }
+
+    for (const address in tokensMap) {
+      const token = tokensMap[address];
+      const tokenAddress = token.address;
+      const distinctWalletsCount = token.getWalletCount();
+
+      const log = {
+        token: token.symbol,
+        contract_address: token.address,
+        transactions: token.transactions.length,
+        distinctWalletsCount: token.getWalletCount(),
+        distinctWallets: token.getWallets(),
+      };
+      console.log(JSON.stringify(log, null, 2));
+
+      if (excludedTokens.includes(tokenAddress)) {
+        continue;
+      }
+
+      if (distinctWalletsCount < minDistinctWallets) {
+        continue;
+      }
+
+      matchedTokens.push(token);
+    }
+
+    // matchedTokens = matchedTokens.sort(
+    //   (a, b) => b.distinctWalletsCount - a.distinctWalletsCount
+    // );
+
+    return matchedTokens;
+  }
+
   async execute({
     authToken,
     portfolioAESKey,
@@ -109,6 +190,15 @@ class Alert {
       return;
     }
     console.log("✅ Fetched stealth wallet transactions");
+
+    this.tokens = this.extractTokens(txns);
+
+    if (this.tokens.length === 0) {
+      console.log("🥱 No tokens found");
+      return;
+    }
+
+    console.log("✅ Extracted tokens from transactions");
   }
 }
 

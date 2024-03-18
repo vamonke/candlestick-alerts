@@ -42,7 +42,9 @@ const handler = async () => {
         minsAgo: 5,
         // minsAgo: 300, // For testing
         minDistinctWallets: 3,
-        excludedTokens: ["WETH", "weth"],
+        excludedTokens: [
+          "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", // WETH
+        ],
       },
     }),
   ];
