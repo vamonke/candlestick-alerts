@@ -22,7 +22,7 @@ import {
   constructWalletLinks,
   constructWalletsTable,
 } from "../../../helpers/table";
-import MOCK_DATA from "../../../mock/mock-data.json";
+import MOCK_DATA from "../../../mocks/mock-data.json";
 import { formatOwnership, getTokenSecurity } from "@/helpers/goplus";
 
 const { USE_MOCK_DATA, CANDLESTICK_PROXY } = CONFIG;
