@@ -1,4 +1,4 @@
-import { sendError, sendMessage } from "@/helpers/send";
+import { sendError, sendMessageV2 } from "@/helpers/send";
 import { supabaseClient } from "@/helpers/supabase";
 import { constructTxnsTable, constructWalletsTable } from "@/helpers/table";
 import { Message } from "grammy/types";
@@ -118,17 +118,20 @@ class AlertToken {
   }
 
   async craftMessage(): Promise<string> {
+    console.log("Crafting token message...");
     const alertString = this.alert.craftAlertString();
     const tokenString = await this.token.craftTokenString();
     const activitiesString = await this.craftActivitiesString();
-
+    
     const result = [alertString, tokenString, activitiesString].join("\n\n");
+    console.log("✅ Finished crafting token message");
     return result;
   }
 
   async sendAlert(): Promise<void> {
     const text = await this.craftMessage();
-    const result = await sendMessage(text, {
+    const chatIds = this.alert.recipientIds;
+    const replyMarkup = {
       inline_keyboard: [
         [
           {
@@ -137,12 +140,17 @@ class AlertToken {
           },
         ],
       ],
-    });
-    if (!result) return;
-
-    this.message = result;
-    await this.token.save();
-    await this.save();
+    };
+    console.log("Sending alerts to chatIds:", chatIds);
+    await Promise.all(
+      chatIds.map(async (chatId) => {
+        const result = await sendMessageV2(chatId, text, replyMarkup);
+        if (!result) return;
+        this.message = result;
+        await this.token.save();
+        await this.save();
+      })
+    );
   }
 
   async save(): Promise<void> {
@@ -158,6 +166,8 @@ class AlertToken {
       .insert(alertMessage);
     if (error) {
       sendError({ message: "Error saving alert message", error });
+    } else {
+      console.log("✅ Saved alert token", this.token.address);
     }
   }
 
@@ -189,6 +199,7 @@ class AlertToken {
         name: data.alerts.name,
         query: data.alerts.query,
         filter: data.alerts.filter,
+        recipientIds: data.alerts.recipient_ids,
       }),
       token: new Token({
         name: data.tokens.name,

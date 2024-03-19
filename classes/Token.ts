@@ -139,6 +139,8 @@ class Token {
     const { error } = await supabaseClient.from("tokens").upsert(token);
     if (error) {
       sendError({ message: "Error saving token", error });
+    } else {
+      console.log("✅ Saved token", this.address);
     }
   }
 }

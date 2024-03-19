@@ -80,3 +80,17 @@ export const safeSend = async (userId, message, replyMarkup) => {
     throw sendError;
   }
 };
+
+export const sendMessageV2 = async (chatId, message, replyMarkup) => {
+  if (DEV_MODE && chatId.toString() !== DEVELOPER_USER_ID.toString()) {
+    console.log(`DEV MODE: Skipping sending message to ${chatId}`);
+    return;
+  }
+  console.log(`📢 Sending message to ${chatId}:`, message);
+  try {
+    const result = await safeSend(chatId, message, replyMarkup);
+    return result;
+  } catch (error) {
+    console.error(`📛 Failed to send message to ${chatId}`, error);
+  }
+};

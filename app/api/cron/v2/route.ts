@@ -20,7 +20,7 @@ const handler = async () => {
   console.log("🚀 Running cron job");
 
   await config.init();
-  console.log(`Config: ${JSON.stringify(config, null, 2)}`);
+  console.log(`Config: ${config.toString()}`);
 
   const { authToken } = config;
   if (!authToken) {
@@ -69,5 +69,14 @@ const fetchAlerts = async (): Promise<Alert[]> => {
     sendError({ msg: "Failed to fetch alerts", error });
     return [];
   }
-  return data.map((alert) => new Alert(alert));
+  return data.map(
+    (alert) =>
+      new Alert({
+        id: alert.id,
+        name: alert.name,
+        query: alert.query,
+        filter: alert.filter,
+        recipientIds: alert.recipient_ids,
+      })
+  );
 };

@@ -23,6 +23,7 @@ type AlertFilter = {
 class Alert {
   public id: number;
   public name: string;
+  public recipientIds: string[];
 
   private query: AlertQuery;
   private filter: AlertFilter;
@@ -32,17 +33,20 @@ class Alert {
     name,
     query,
     filter,
+    recipientIds,
   }: {
     id: number;
     name: string;
     query: AlertQuery;
     filter: AlertFilter;
     tokens?: Token[];
+    recipientIds?: string[];
   }) {
     this.id = id;
     this.name = name;
     this.query = query;
     this.filter = filter;
+    this.recipientIds = recipientIds;
   }
 
   getSearchUrl(): string {
@@ -226,6 +230,7 @@ class Alert {
 
   async execute(): Promise<void> {
     const alertTokens = await this.findTokens();
+    console.log(`Matched tokens: ${alertTokens.length}`);
     await Promise.all(alertTokens.map((alertToken) => alertToken.sendAlert()));
   }
 }
