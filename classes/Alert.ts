@@ -94,7 +94,13 @@ class Alert {
       });
       // TODO: Handle failed response
       const json = await result.json();
-      const txns = json.data.chart;
+
+      const txns = json?.data?.chart;
+      if (!txns) {
+        sendError({ message: "No transactions found", json });
+        return null;
+      }
+
       console.log(
         "✅ Fetched stealth wallet transactions -",
         txns.length,
