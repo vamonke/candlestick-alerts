@@ -117,13 +117,17 @@ class AlertToken {
     return result;
   }
 
-  async sendAlert(): Promise<void> {
+  async craftMessage(): Promise<string> {
     const alertString = this.alert.craftAlertString();
     const tokenString = await this.token.craftTokenString();
     const activitiesString = await this.craftActivitiesString();
 
-    const text = [alertString, tokenString, activitiesString].join("\n\n");
+    const result = [alertString, tokenString, activitiesString].join("\n\n");
+    return result;
+  }
 
+  async sendAlert(): Promise<void> {
+    const text = await this.craftMessage();
     const result = await sendMessage(text, {
       inline_keyboard: [
         [

@@ -23,8 +23,6 @@ type AlertFilter = {
 class Alert {
   public id: number;
   public name: string;
-  // public tokens: Token[] = [];
-  // public alertTokens: AlertToken[] = [];
 
   private query: AlertQuery;
   private filter: AlertFilter;
