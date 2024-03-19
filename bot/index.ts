@@ -13,16 +13,21 @@ const handleRefresh = async (ctx: Context): Promise<void> => {
 
   const message = ctx.callbackQuery.message;
   if (!message || !message.date) {
-    console.log("Message is too old");
+    console.log("Message is too old. Ignoring.");
     return;
   }
 
-  await ctx.answerCallbackQuery({ text: "Refreshing..." });
+  await ctx.answerCallbackQuery({ text: "Getting latest data..." });
 
   try {
     await config.init();
+
     const alertToken = await AlertToken.getAlertTokenFromMessage(message);
+    console.log("Alert Token:", alertToken);
+
     const text = await alertToken.craftMessage();
+    console.log("New message:", text);
+
     const timestamp = getTimestamp();
     await ctx.editMessageText(text, {
       parse_mode: "HTML",
@@ -40,6 +45,7 @@ const handleRefresh = async (ctx: Context): Promise<void> => {
         ],
       },
     });
+    console.log("✅ Message refreshed");
   } catch (error) {
     console.error("Error refreshing message", error);
   }
