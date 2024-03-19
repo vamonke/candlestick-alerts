@@ -66,7 +66,6 @@ export const constructTxnsTable2 = (transactions) => {
 const WALLET_TABLE_HEADERS = ["Addr", "Win Rate", "ROI", "Tokens"];
 const WALLET_TABLE_MIN_ROWS = 1;
 export const constructWalletsTable = (wallets) => {
-  console.log("constructWalletsTable", wallets);
   const length = wallets.length;
   const rowCount = Math.min(length, MAX_TABLE_ROWS);
   const rows = wallets.slice(0, rowCount);

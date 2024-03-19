@@ -24,20 +24,20 @@ class Alert {
   public tokens: Token[] = [];
 
   private query: AlertQuery;
-  private filters: AlertFilter;
+  private filter: AlertFilter;
 
   constructor({
     name,
     query,
-    filters,
+    filter,
   }: {
     name: string;
     query: AlertQuery;
-    filters: AlertFilter;
+    filter: AlertFilter;
   }) {
     this.name = name;
     this.query = query;
-    this.filters = filters;
+    this.filter = filter;
   }
 
   getSearchUrl(): string {
@@ -99,7 +99,7 @@ class Alert {
   }
 
   extractTokens(transactions: CandlestickTransaction[]): Token[] {
-    const { minsAgo, minDistinctWallets, excludedTokens } = this.filters;
+    const { minsAgo, minDistinctWallets, excludedTokens } = this.filter;
 
     const currentTime = USE_MOCK_DATA
       ? parseUtcTimeString(transactions[0].time)
@@ -188,12 +188,9 @@ class Alert {
     }
 
     const alertString = this.craftAlertString();
-    console.log("🚨 Alert string:", alertString);
 
     const promises = this.tokens.map(async (token) => {
       const tokenString = await token.craftTokenString();
-      console.log(`🚨 Token string:`, tokenString);
-
       const message = [alertString, tokenString].join("\n\n");
       await sendMessage(message);
     });
@@ -202,9 +199,9 @@ class Alert {
   }
 
   craftAlertString(): string {
-    const { name, query, filters } = this;
+    const { name, query, filter } = this;
     const { valueFilter, walletAgeDays, boughtTokenLimit } = query;
-    const { minsAgo, minDistinctWallets } = filters;
+    const { minsAgo, minDistinctWallets } = filter;
 
     // Alert name
     const nameString = `<b><i>${name}</i></b>`;

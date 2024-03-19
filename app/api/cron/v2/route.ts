@@ -37,10 +37,27 @@ const handler = async () => {
         walletAgeDays: 1,
         boughtTokenLimit: true, // Tokens bought <= 2
       },
-      filters: {
+      filter: {
         minsAgo: 5,
         // minsAgo: 300, // For testing
         minDistinctWallets: 3,
+        excludedTokens: [
+          "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", // WETH
+        ],
+      },
+    }),
+    new Alert({
+      name: "🟠 Alert 2 - Stealth Wallets (7D, any token)",
+      query: {
+        pageSize: 100,
+        valueFilter: 120,
+        walletAgeDays: 7,
+        boughtTokenLimit: false, // Any tokens bought
+      },
+      filter: {
+        minsAgo: 5,
+        // minsAgo: 100, // For testing
+        minDistinctWallets: 4,
         excludedTokens: [
           "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", // WETH
         ],
@@ -50,18 +67,30 @@ const handler = async () => {
 
   console.log(`Alerts to execute: ${alerts.length}`);
 
-  const promises = alerts.map(async (alert, index) => {
-    console.log(`Executing alert ${index + 1}: ${alert.name}`);
+  // Parallel execution
+  // const alertPromises = alerts.map(async (alert, index) => {
+  //   console.log(`Executing alert ${index + 1}: ${alert.name}`);
+  //   console.log(`Parameters: ${JSON.stringify(alert, null, 2)}`);
+  //   try {
+  //     await alert.execute();
+  //     console.log(`Finished executing alert ${index + 1}: ${alert.name}`);
+  //   } catch (error) {
+  //     sendError({ message: "Error executing alert", error });
+  //   }
+  // });
+  // await Promise.all(promises);
+
+  // Sequential execution
+  for (const alert of alerts) {
+    console.log(`Executing alert: ${alert.name}`);
     console.log(`Parameters: ${JSON.stringify(alert, null, 2)}`);
     try {
       await alert.execute();
-      console.log(`Finished executing alert ${index + 1}: ${alert.name}`);
+      console.log(`Finished executing alert: ${alert.name}`);
     } catch (error) {
       sendError({ message: "Error executing alert", error });
     }
-  });
-
-  await Promise.all(promises);
+  }
 
   return Response.json({ success: true }, { status: 200 });
 };
