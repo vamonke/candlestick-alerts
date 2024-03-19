@@ -2,6 +2,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { sendError } from "@/helpers/send";
 import Alert from "@/classes/Alert";
 import config from "@/classes/Config";
+import { supabaseClient } from "@/helpers/supabase";
 
 export const maxDuration = 60; // This function can run for a maximum of 60 seconds
 
@@ -28,43 +29,7 @@ const handler = async () => {
     return Response.json({ error }, { status: 500 });
   }
 
-  const alerts: Alert[] = [
-    new Alert({
-      name: "🔴 Alert 1 - Stealth Wallets (1D, 1 token)",
-      query: {
-        pageSize: 100,
-        valueFilter: 120,
-        walletAgeDays: 1,
-        boughtTokenLimit: true, // Tokens bought <= 2
-      },
-      filter: {
-        minsAgo: 5,
-        // minsAgo: 300, // For testing
-        minDistinctWallets: 3,
-        excludedTokens: [
-          "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", // WETH
-        ],
-      },
-    }),
-    // new Alert({
-    //   name: "🟠 Alert 2 - Stealth Wallets (7D, any token)",
-    //   query: {
-    //     pageSize: 100,
-    //     valueFilter: 120,
-    //     walletAgeDays: 7,
-    //     boughtTokenLimit: false, // Any tokens bought
-    //   },
-    //   filter: {
-    //     minsAgo: 5,
-    //     // minsAgo: 100, // For testing
-    //     minDistinctWallets: 4,
-    //     excludedTokens: [
-    //       "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", // WETH
-    //     ],
-    //   },
-    // }),
-  ];
-
+  const alerts = await fetchAlerts();
   console.log(`Alerts to execute: ${alerts.length}`);
 
   // Parallel execution
@@ -93,4 +58,16 @@ const handler = async () => {
   }
 
   return Response.json({ success: true }, { status: 200 });
+};
+
+const fetchAlerts = async (): Promise<Alert[]> => {
+  const { data, error } = await supabaseClient
+    .from("alerts")
+    .select("*")
+    .eq("active", true);
+  if (error) {
+    sendError({ msg: "Failed to fetch alerts", error });
+    return [];
+  }
+  return data.map((alert) => new Alert(alert));
 };

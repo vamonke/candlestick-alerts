@@ -30,14 +30,17 @@ class Alert {
     name,
     query,
     filter,
+    tokens,
   }: {
     name: string;
     query: AlertQuery;
     filter: AlertFilter;
+    tokens?: Token[];
   }) {
     this.name = name;
     this.query = query;
     this.filter = filter;
+    this.tokens = tokens || [];
   }
 
   getSearchUrl(): string {
@@ -169,15 +172,16 @@ class Alert {
     return matchedTokens;
   }
 
-  async execute(): Promise<void> {
+  async findTokens(): Promise<void> {
     const txns = await this.getTransactions();
     if (txns.length === 0) {
       console.log("🥱 No transactions found");
       return;
     }
-    console.log("✅ Fetched stealth wallet transactions");
-
     this.tokens = this.extractTokens(txns);
+  }
+
+  async sendAlert(): Promise<void> {
     if (this.tokens.length === 0) {
       console.log("🥱 No token satisfies conditions");
       return;
@@ -201,6 +205,13 @@ class Alert {
     });
 
     await Promise.all(promises);
+  }
+
+  async saveAlertMessage(): Promise<void> {
+    const alertMessage = {
+      name: this.name,
+      tokens: this.tokens,
+    };
   }
 
   craftAlertString(): string {
@@ -235,6 +246,11 @@ class Alert {
 
     const result = [nameString, alertConditionsString].join("\n");
     return result;
+  }
+
+  async execute(): Promise<void> {
+    await this.findTokens();
+    await this.sendAlert();
   }
 }
 
