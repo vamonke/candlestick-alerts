@@ -1,11 +1,10 @@
 import { USE_MOCK_DATA } from "@/helpers/config";
 import { parseUtcTimeString } from "@/helpers/parse";
-import { sendError } from "@/helpers/send";
+import { sendError, sendMessage } from "@/helpers/send";
 import MOCK_TXNS from "@/mocks/mock-txns.json";
-import Token from "./Token";
-import Wallet from "./Wallet";
-import { CandlestickTransaction } from "./types";
 import config from "./Config";
+import Token from "./Token";
+import { CandlestickTransaction } from "./types";
 
 type AlertQuery = {
   pageSize: number;
@@ -151,8 +150,8 @@ class Alert {
         token: token.symbol,
         contract_address: token.address,
         transactions: token.transactions.length,
-        distinctWalletsCount: token.getWalletCount(),
-        distinctWallets: token.getWallets(),
+        wallet_count: token.getWalletCount(),
+        wallet_addresses: token.getWalletAddresses(),
       };
       console.log(JSON.stringify(log, null, 2));
 
@@ -194,6 +193,9 @@ class Alert {
     const promises = this.tokens.map(async (token) => {
       const tokenString = await token.craftTokenString();
       console.log(`🚨 Token string:`, tokenString);
+
+      const message = [alertString, tokenString].join("\n\n");
+      await sendMessage(message);
     });
 
     await Promise.all(promises);
@@ -246,8 +248,8 @@ export default Alert;
     boughtTokenLimit: true, // Tokens bought <= 2
   },
   filters: {
-    // minsAgo: 300, // For testing
     minsAgo: 5,
+    // minsAgo: 300, // For testing
     minDistinctWallets: 3,
     excludedTokens: ["WETH", "weth"],
   }

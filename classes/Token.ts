@@ -6,6 +6,7 @@ import {
   formatTaxString,
   getRelativeDate,
 } from "@/helpers/parse";
+import { constructTxnsTable, constructWalletsTable } from "@/helpers/table";
 import Wallet from "./Wallet";
 import { CandlestickTransaction, GoPlusTokenSecurity, Honeypot } from "./types";
 
@@ -51,7 +52,15 @@ class Token {
     return walletSet.size;
   }
 
-  getWallets(): string[] {
+  getWallets(): Wallet[] {
+    const walletSet: Set<string> = new Set();
+    this.transactions.forEach((txn) => {
+      walletSet.add(txn.address);
+    });
+    return Array.from(walletSet).map((address) => new Wallet({ address }));
+  }
+
+  getWalletAddresses(): string[] {
     const walletSet: Set<string> = new Set();
     this.transactions.forEach((txn) => {
       walletSet.add(txn.address);
@@ -60,11 +69,10 @@ class Token {
   }
 
   async getWalletsWithStats({ limit = 20 }: { limit: number }) {
-    const walletStats: Wallet[] = [];
-    this.transactions.forEach((txn) => {
-      const wallet = new Wallet({ address: txn.address });
-      walletStats.push(wallet);
-    });
+    const wallets = this.getWallets();
+    const promises = wallets.slice(0, limit).map((wallet) => wallet.getStats());
+    await Promise.all(promises);
+    return wallets;
   }
 
   getTotalTxnValue(): number {
@@ -133,6 +141,22 @@ class Token {
     return this.tokenSecurity;
   }
 
+  async craftWalletsTable(): Promise<string> {
+    const wallets = await this.getWalletsWithStats({ limit: 20 });
+    const walletsTable = constructWalletsTable(wallets);
+    return walletsTable;
+  }
+
+  craftWalletLinks(): string {
+    const wallets = this.getWallets();
+    const links = wallets.map((wallet) => {
+      const addr = wallet.address.slice(-4);
+      const url = wallet.getCandlestickUrl();
+      return `<a href="${url}">${addr}</a>`;
+    });
+    return `View wallets: ${links.join(" | ")}`;
+  }
+
   async craftTokenString(): Promise<string> {
     const tokenName = await this.getName();
     const tokenSymbol = this.symbol.toUpperCase();
@@ -159,9 +183,11 @@ class Token {
     const tokenUrl = `https://www.candlestick.io/crypto/${this.address}`;
     const tokenLinkString = `<a href="${tokenUrl}">View ${tokenSymbol} on candlestick.io</a>`;
 
-    // const transactionsTable = constructTxnsTable(transactions);
-    // const walletsTable = constructWalletsTable(distinctAddresses);
-    // const walletLinks = constructWalletLinks(distinctAddresses);
+    const txns = this.transactions;
+    const transactionsTable = constructTxnsTable(txns);
+
+    const walletsTable = await this.craftWalletsTable();
+    const walletLinks = this.craftWalletLinks();
 
     const message = [
       tokenString,
@@ -173,9 +199,9 @@ class Token {
       distinctWalletsString,
       totalTxnValueString,
       tokenLinkString + "\n",
-      // transactionsTable,
-      // walletsTable,
-      // walletLinks,
+      transactionsTable,
+      walletsTable,
+      walletLinks,
     ]
       .filter(Boolean)
       .join("\n");

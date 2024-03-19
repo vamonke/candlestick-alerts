@@ -65,10 +65,11 @@ export const constructTxnsTable2 = (transactions) => {
 
 const WALLET_TABLE_HEADERS = ["Addr", "Win Rate", "ROI", "Tokens"];
 const WALLET_TABLE_MIN_ROWS = 1;
-export const constructWalletsTable = (distinctAddresses) => {
-  const length = distinctAddresses.length;
+export const constructWalletsTable = (wallets) => {
+  console.log("constructWalletsTable", wallets);
+  const length = wallets.length;
   const rowCount = Math.min(length, MAX_TABLE_ROWS);
-  const rows = distinctAddresses.slice(0, rowCount);
+  const rows = wallets.slice(0, rowCount);
   const paddingCount = Math.max(0, WALLET_TABLE_MIN_ROWS - length);
   const columnCount = WALLET_TABLE_HEADERS.length;
   const tableArray = [
@@ -87,8 +88,8 @@ export const constructWalletsTable = (distinctAddresses) => {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           }) + "%";
-      const coinTraded = isNaN(wallet.coinTraded) ? "-" : wallet.coinTraded;
-      return [addr, winRate, roi, coinTraded];
+      const coinsTraded = isNaN(wallet.coinsTraded) ? "-" : wallet.coinsTraded;
+      return [addr, winRate, roi, coinsTraded];
     }),
     ...Array(paddingCount).fill(Array(columnCount).fill("")),
   ];
@@ -104,7 +105,11 @@ export const constructWalletsTable = (distinctAddresses) => {
   );
   const remainderText = showRemaining(length, rowCount);
   return (
-    `\n📊 <b>Wallet stats - Past 1M</b> \n` + `<pre>` + table + remainderText + `</pre>`
+    `\n📊 <b>Wallet stats - Past month</b> \n` +
+    `<pre>` +
+    table +
+    remainderText +
+    `</pre>`
   );
 };
 
