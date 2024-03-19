@@ -1,12 +1,11 @@
 import { USE_MOCK_DATA } from "@/helpers/config";
 import { parseUtcTimeString } from "@/helpers/parse";
-import { sendError, sendMessage } from "@/helpers/send";
+import { sendError } from "@/helpers/send";
 import MOCK_TXNS from "@/mocks/mock-txns.json";
+import AlertToken from "./AlertToken";
 import config from "./Config";
 import Token from "./Token";
 import { CandlestickTransaction } from "./types";
-import { supabaseClient } from "@/helpers/supabase";
-import { Message } from "grammy/types";
 
 type AlertQuery = {
   pageSize: number;
@@ -24,7 +23,8 @@ type AlertFilter = {
 class Alert {
   public id: number;
   public name: string;
-  public tokens: Token[] = [];
+  // public tokens: Token[] = [];
+  // public alertTokens: AlertToken[] = [];
 
   private query: AlertQuery;
   private filter: AlertFilter;
@@ -34,7 +34,6 @@ class Alert {
     name,
     query,
     filter,
-    tokens,
   }: {
     id: number;
     name: string;
@@ -46,7 +45,6 @@ class Alert {
     this.name = name;
     this.query = query;
     this.filter = filter;
-    this.tokens = tokens || [];
   }
 
   getSearchUrl(): string {
@@ -107,7 +105,7 @@ class Alert {
     }
   }
 
-  extractTokens(transactions: CandlestickTransaction[]): Token[] {
+  extractTokens(transactions: CandlestickTransaction[]): AlertToken[] {
     const { minsAgo, minDistinctWallets, excludedTokens } = this.filter;
 
     const currentTime = USE_MOCK_DATA
@@ -117,7 +115,7 @@ class Alert {
 
     console.log("Evaluating transactions..");
 
-    const tokensMap = {} as Record<string, Token>;
+    const alertTokenMap = {} as Record<string, AlertToken>;
     transactions
       .filter((txn) => {
         const time = parseUtcTimeString(txn.time);
@@ -128,39 +126,46 @@ class Alert {
           buy_token_symbol: tokenSymbol,
           buy_token_address: tokenAddress,
         } = txn;
-        const tokenObj = tokensMap[tokenAddress];
+        const alertToken = alertTokenMap[tokenAddress];
         if (excludedTokens.includes(tokenAddress)) {
           return;
-        } else if (tokenObj) {
-          tokenObj.addTransaction(txn);
+        } else if (alertToken) {
+          alertToken.addTransaction(txn);
         } else {
-          tokensMap[tokenAddress] = new Token({
-            symbol: tokenSymbol,
-            address: tokenAddress,
+          alertTokenMap[tokenAddress] = new AlertToken({
+            alert: this,
+            token: new Token({
+              symbol: tokenSymbol,
+              address: tokenAddress,
+            }),
             transactions: [txn],
           });
         }
       });
 
-    const matchedTokens: Token[] = [];
+    const matchedAlertTokens: AlertToken[] = [];
 
-    if (Object.keys(tokensMap).length === 0) {
+    if (Object.keys(alertTokenMap).length === 0) {
       console.log("Token map: (empty)");
     } else {
-      console.log("Token map:", JSON.stringify(tokensMap, null, 2));
+      console.log("Token map:", JSON.stringify(alertTokenMap, null, 2));
     }
 
-    for (const address in tokensMap) {
-      const token = tokensMap[address];
+    for (const address in alertTokenMap) {
+      const alertToken = alertTokenMap[address];
+      const token = alertToken.token;
       const tokenAddress = token.address;
-      const distinctWalletsCount = token.getWalletCount();
+      const symbol = token.symbol;
+      const txnCount = alertToken.transactions.length;
+      const walletCount = alertToken.getWalletCount();
+      const walletAddresses = alertToken.getWalletAddresses();
 
       const log = {
-        token: token.symbol,
-        contract_address: token.address,
-        transactions: token.transactions.length,
-        wallet_count: token.getWalletCount(),
-        wallet_addresses: token.getWalletAddresses(),
+        token: symbol,
+        contract_address: tokenAddress,
+        transactions: txnCount,
+        wallet_count: walletCount,
+        wallet_addresses: walletAddresses,
       };
       console.log(JSON.stringify(log, null, 2));
 
@@ -168,75 +173,23 @@ class Alert {
         continue;
       }
 
-      if (distinctWalletsCount < minDistinctWallets) {
+      if (walletCount < minDistinctWallets) {
         continue;
       }
 
-      matchedTokens.push(token);
+      matchedAlertTokens.push(alertToken);
     }
 
-    return matchedTokens;
+    return matchedAlertTokens;
   }
 
-  async findTokens(): Promise<void> {
+  async findTokens(): Promise<AlertToken[]> {
     const txns = await this.getTransactions();
     if (txns.length === 0) {
       console.log("🥱 No transactions found");
-      return;
+      return [];
     }
-    this.tokens = this.extractTokens(txns);
-  }
-
-  async sendAlert(): Promise<void> {
-    if (this.tokens.length === 0) {
-      console.log("🥱 No token satisfies conditions");
-      return;
-    }
-
-    const alertString = this.craftAlertString();
-
-    const promises = this.tokens.map(async (token) => {
-      const tokenString = await token.craftTokenString();
-      const text = [alertString, tokenString].join("\n\n");
-      const result = await sendMessage(text, {
-        inline_keyboard: [
-          [
-            {
-              text: "Refresh",
-              callback_data: "refresh",
-            },
-          ],
-        ],
-      });
-      if (result) {
-        await token.save();
-        await this.saveAlertMessage({ token, message: result });
-      }
-    });
-
-    await Promise.all(promises);
-  }
-
-  async saveAlertMessage({
-    token,
-    message,
-  }: {
-    token: Token;
-    message: Message.TextMessage;
-  }): Promise<void> {
-    const alertMessage = {
-      alert_id: this.id,
-      transactions: token.transactions,
-      token_address: token.address,
-      message_id: message.message_id,
-      chat_id: message.chat.id,
-    };
-    const { error } = await supabaseClient
-      .from("alert_messages")
-      .insert(alertMessage);
-    if (error) {
-      sendError({ message: "Error saving alert message", error });
-    }
+    return this.extractTokens(txns);
   }
 
   craftAlertString(): string {
@@ -274,8 +227,8 @@ class Alert {
   }
 
   async execute(): Promise<void> {
-    await this.findTokens();
-    await this.sendAlert();
+    const alertTokens = await this.findTokens();
+    await Promise.all(alertTokens.map((alertToken) => alertToken.sendAlert()));
   }
 }
 
