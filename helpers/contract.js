@@ -81,3 +81,23 @@ export const getContractInfo = async (contractAddress) => {
     return null;
   }
 };
+
+export const getTokenName = async (contractAddress) => {
+  try {
+    const tokenAbi = [
+      {
+        constant: true,
+        inputs: [],
+        name: "name",
+        outputs: [{ name: "", type: "string" }],
+        type: "function",
+      },
+    ];
+    const contract = new web3.eth.Contract(tokenAbi, contractAddress);
+    const name = await contract.methods.name().call();
+    return name;
+  } catch (error) {
+    console.error("Error fetching token name:", error);
+    return null;
+  }
+};
