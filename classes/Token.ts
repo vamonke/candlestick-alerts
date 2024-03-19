@@ -150,10 +150,14 @@ class Token {
     const tokenSecurity = await this.getTokenSecurity();
     const ownershipString = formatOwnership(tokenSecurity, this.address);
 
-    // const distinctWalletsString = `Distinct wallets: ${distinctAddressesCount}`;
-    // const totalTxnValueString = `Total txn value: $${totalTxnValue.toLocaleString()}`;
-    // const tokenUrl = `https://www.candlestick.io/crypto/${this.address}`;
-    // const tokenLinkString = `<a href="${tokenUrl}">View ${tokenSymbolString} on candlestick.io</a>`;
+    const walletCount = this.getWalletCount();
+    const distinctWalletsString = `Distinct wallets: ${walletCount}`;
+
+    const totalTxnValue = this.getTotalTxnValue();
+    const totalTxnValueString = `Total txn value: $${totalTxnValue.toLocaleString()}`;
+
+    const tokenUrl = `https://www.candlestick.io/crypto/${this.address}`;
+    const tokenLinkString = `<a href="${tokenUrl}">View ${tokenSymbol} on candlestick.io</a>`;
 
     // const transactionsTable = constructTxnsTable(transactions);
     // const walletsTable = constructWalletsTable(distinctAddresses);
@@ -166,9 +170,9 @@ class Token {
       honeypotString,
       ownershipString,
       taxString + "\n",
-      // distinctWalletsString,
-      // totalTxnValueString,
-      // tokenLinkString + "\n",
+      distinctWalletsString,
+      totalTxnValueString,
+      tokenLinkString + "\n",
       // transactionsTable,
       // walletsTable,
       // walletLinks,
