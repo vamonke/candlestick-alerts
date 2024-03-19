@@ -1,9 +1,7 @@
 import { unstable_noStore as noStore } from "next/cache";
-import { getAuthToken } from "@/helpers/auth";
-import { fetchPortfolioAESKey } from "@/helpers/portfolioAESKey";
 import { sendError } from "@/helpers/send";
-import * as CONFIG from "@/helpers/config";
 import Alert from "@/classes/Alert";
+import config from "@/classes/Config";
 
 export const maxDuration = 60; // This function can run for a maximum of 60 seconds
 
@@ -19,17 +17,18 @@ export async function GET() {
 
 const handler = async () => {
   console.log("🚀 Running cron job");
-  console.log(`Config: ${JSON.stringify(CONFIG, null, 2)}`);
-  const authToken = await getAuthToken();
-  const portfolioAESKey = await fetchPortfolioAESKey();
 
+  await config.init();
+  console.log(`Config: ${JSON.stringify(config, null, 2)}`);
+
+  const { authToken } = config;
   if (!authToken) {
     const error = "⁉️ Missing token";
     sendError(error);
     return Response.json({ error }, { status: 500 });
   }
 
-  const alerts = [
+  const alerts: Alert[] = [
     new Alert({
       name: "🔴 Alert 1 - Stealth Wallets (1D, 1 token)",
       query: {
@@ -51,16 +50,18 @@ const handler = async () => {
 
   console.log(`Alerts to execute: ${alerts.length}`);
 
-  for (const [index, alert] of alerts.entries()) {
+  const promises = alerts.map(async (alert, index) => {
     console.log(`Executing alert ${index + 1}: ${alert.name}`);
     console.log(`Parameters: ${JSON.stringify(alert, null, 2)}`);
     try {
-      await alert.execute({ authToken, portfolioAESKey });
+      await alert.execute();
       console.log(`Finished executing alert ${index + 1}: ${alert.name}`);
     } catch (error) {
       sendError({ message: "Error executing alert", error });
     }
-  }
+  });
+
+  await Promise.all(promises);
 
   return Response.json({ success: true }, { status: 200 });
 };

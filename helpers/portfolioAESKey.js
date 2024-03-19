@@ -20,7 +20,6 @@ export async function fetchPortfolioAESKey() {
       },
     });
     const htmlContent = await response.text();
-
     // console.log("HTML content:\n" + htmlContent);
 
     // Regular expression to match the portfolioAESKey

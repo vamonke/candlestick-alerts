@@ -5,6 +5,7 @@ import MOCK_TXNS from "@/mocks/mock-txns.json";
 import Token from "./Token";
 import Wallet from "./Wallet";
 import { CandlestickTransaction } from "./types";
+import config from "./Config";
 
 type AlertQuery = {
   pageSize: number;
@@ -25,8 +26,6 @@ class Alert {
 
   private query: AlertQuery;
   private filters: AlertFilter;
-  private authToken: string;
-  private portfolioAESKey: string;
 
   constructor({
     name,
@@ -80,7 +79,8 @@ class Alert {
   async fetchTransactions(): Promise<CandlestickTransaction[] | null> {
     try {
       const url = this.getSearchUrl();
-      const authToken = this.authToken;
+      const authToken = config.authToken;
+
       const result = await fetch(url, {
         headers: { "x-authorization": authToken },
       });
@@ -124,7 +124,7 @@ class Alert {
         if (excludedTokens.includes(tokenAddress)) {
           return;
         } else if (tokenObj) {
-          tokenObj.transactions.push(txn);
+          tokenObj.addTransaction(txn);
         } else {
           tokensMap[tokenAddress] = new Token({
             symbol: tokenSymbol,
@@ -174,16 +174,7 @@ class Alert {
     return matchedTokens;
   }
 
-  async execute({
-    authToken,
-    portfolioAESKey,
-  }: {
-    authToken: string;
-    portfolioAESKey: string;
-  }): Promise<void> {
-    this.authToken = authToken;
-    this.portfolioAESKey = portfolioAESKey;
-
+  async execute(): Promise<void> {
     const txns = await this.getTransactions();
     if (txns.length === 0) {
       console.log("🥱 No transactions found");
@@ -192,13 +183,54 @@ class Alert {
     console.log("✅ Fetched stealth wallet transactions");
 
     this.tokens = this.extractTokens(txns);
-
     if (this.tokens.length === 0) {
-      console.log("🥱 No tokens found");
+      console.log("🥱 No token satisfies conditions");
       return;
     }
 
-    console.log("✅ Extracted tokens from transactions");
+    const alertString = this.craftAlertString();
+    console.log("🚨 Alert string:", alertString);
+
+    const promises = this.tokens.map(async (token) => {
+      const tokenString = await token.craftTokenString();
+      console.log(`🚨 Token string:`, tokenString);
+    });
+
+    await Promise.all(promises);
+  }
+
+  craftAlertString(): string {
+    const { name, query, filters } = this;
+    const { valueFilter, walletAgeDays, boughtTokenLimit } = query;
+    const { minsAgo, minDistinctWallets } = filters;
+
+    // Alert name
+    const nameString = `<b><i>${name}</i></b>`;
+
+    // Alert conditions
+    const valueFilterString = `Buy ≥ $${valueFilter.toLocaleString()}`;
+    const walletAgeString = `Wallet age ≤ ${walletAgeDays}D`;
+    const minDistinctWalletsString = `Distinct wallets ≥ ${minDistinctWallets}`;
+    const boughtTokenLimitString = boughtTokenLimit
+      ? "Tokens bought ≤ 2"
+      : null;
+    const windowString = `Past ${minsAgo} mins`;
+
+    const alertConditionsString =
+      `<i>` +
+      [
+        valueFilterString,
+        walletAgeString,
+        boughtTokenLimitString,
+        minDistinctWalletsString,
+        windowString,
+      ]
+        .filter(Boolean)
+        .join(", ") +
+      `</i>`;
+
+    const result = [nameString, alertConditionsString].join("\n");
+    return result;
   }
 }
 
@@ -219,23 +251,5 @@ export default Alert;
     minDistinctWallets: 3,
     excludedTokens: ["WETH", "weth"],
   }
-}
-*/
-
-/*
-{
-  current_page: 1,
-  page_size: pageSize,
-  sort_type: 3,
-  oriented: 1,
-  blockchain_id: 2,
-  exploreType: "token",
-  days: walletAgeDays,
-  value_filter: valueFilter,
-  include_noise_trades: false,
-  fundingSource: "ALL",
-  boughtTokenLimit: boughtTokenLimit,
-  hide_first_mins: 0,
-  activeSource: "ETH",
 }
 */
