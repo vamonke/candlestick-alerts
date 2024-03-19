@@ -10,7 +10,7 @@ export const checkHoneypot = async (tokenAddress) => {
       console.log("✅ Found pair", pair);
       // return null;
     } else {
-      console.warn("No pair found for token", tokenAddress);
+      console.log("No pair found for token", tokenAddress);
     }
 
     const honeypotEndpoint = `https://api.honeypot.is/v2/IsHoneypot`;
