@@ -5,6 +5,10 @@
       "schedule": "*/2 * * * *"
     },
     {
+      "path": "/api/cron/v2",
+      "schedule": "*/2 * * * *"
+    },
+    {
       "path": "/api/wallets",
       "schedule": "00 22 * * *"
     }
