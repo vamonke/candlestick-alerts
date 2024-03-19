@@ -64,7 +64,8 @@ const fetchAlerts = async (): Promise<Alert[]> => {
   const { data, error } = await supabaseClient
     .from("alerts")
     .select("*")
-    .eq("active", true);
+    .eq("active", true)
+    .order("id", { ascending: false });
   if (error) {
     sendError({ msg: "Failed to fetch alerts", error });
     return [];
