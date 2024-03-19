@@ -18,6 +18,10 @@ export const formatTimestamp = (date) => {
   });
 };
 
+export const getTimestamp = () => {
+  return formatTimestamp(new Date());
+};
+
 export const formatPrice = (number) => {
   if (number === null || number === undefined || number === 0) return "-";
 

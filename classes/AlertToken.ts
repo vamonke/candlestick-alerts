@@ -12,7 +12,7 @@ class AlertToken {
   public alert: Alert;
   public transactions: CandlestickTransaction[] = [];
   public token: Token;
-  public message: Message.TextMessage;
+  public message: Message.CommonMessage;
 
   constructor({
     id,
@@ -132,7 +132,7 @@ class AlertToken {
       inline_keyboard: [
         [
           {
-            text: "Refresh",
+            text: "🔃 Refresh",
             callback_data: "refresh",
           },
         ],
@@ -159,6 +159,46 @@ class AlertToken {
     if (error) {
       sendError({ message: "Error saving alert message", error });
     }
+  }
+
+  static async getAlertTokenFromMessage(
+    message: Message.CommonMessage
+  ): Promise<AlertToken | null> {
+    const {
+      message_id: messageId,
+      chat: { id: chatId },
+    } = message;
+
+    const { data, error } = await supabaseClient
+      .from("alert_messages")
+      .select("*, alerts(*), tokens(*)")
+      .eq("message_id", messageId)
+      .eq("chat_id", chatId)
+      .single();
+
+    if (error) {
+      console.error(error);
+      return null;
+    }
+
+    const alertToken = new AlertToken({
+      id: data.id,
+      transactions: data.transactions,
+      alert: new Alert({
+        id: data.alerts.id,
+        name: data.alerts.name,
+        query: data.alerts.query,
+        filter: data.alerts.filter,
+      }),
+      token: new Token({
+        name: data.tokens.name,
+        symbol: data.tokens.symbol,
+        address: data.tokens.address,
+        creationDate: data.tokens.creation_date,
+      }),
+    });
+
+    return alertToken;
   }
 }
 
