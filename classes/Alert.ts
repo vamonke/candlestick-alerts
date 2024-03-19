@@ -5,6 +5,8 @@ import MOCK_TXNS from "@/mocks/mock-txns.json";
 import config from "./Config";
 import Token from "./Token";
 import { CandlestickTransaction } from "./types";
+import { supabaseClient } from "@/helpers/supabase";
+import { Message } from "grammy/types";
 
 type AlertQuery = {
   pageSize: number;
@@ -20,6 +22,7 @@ type AlertFilter = {
 };
 
 class Alert {
+  public id: number;
   public name: string;
   public tokens: Token[] = [];
 
@@ -27,16 +30,19 @@ class Alert {
   private filter: AlertFilter;
 
   constructor({
+    id,
     name,
     query,
     filter,
     tokens,
   }: {
+    id: number;
     name: string;
     query: AlertQuery;
     filter: AlertFilter;
     tokens?: Token[];
   }) {
+    this.id = id;
     this.name = name;
     this.query = query;
     this.filter = filter;
@@ -191,8 +197,8 @@ class Alert {
 
     const promises = this.tokens.map(async (token) => {
       const tokenString = await token.craftTokenString();
-      const message = [alertString, tokenString].join("\n\n");
-      await sendMessage(message, {
+      const text = [alertString, tokenString].join("\n\n");
+      const result = await sendMessage(text, {
         inline_keyboard: [
           [
             {
@@ -202,16 +208,35 @@ class Alert {
           ],
         ],
       });
+      if (result) {
+        await token.save();
+        await this.saveAlertMessage({ token, message: result });
+      }
     });
 
     await Promise.all(promises);
   }
 
-  async saveAlertMessage(): Promise<void> {
+  async saveAlertMessage({
+    token,
+    message,
+  }: {
+    token: Token;
+    message: Message.TextMessage;
+  }): Promise<void> {
     const alertMessage = {
-      name: this.name,
-      tokens: this.tokens,
+      alert_id: this.id,
+      transactions: token.transactions,
+      token_address: token.address,
+      message_id: message.message_id,
+      chat_id: message.chat.id,
     };
+    const { error } = await supabaseClient
+      .from("alert_messages")
+      .insert(alertMessage);
+    if (error) {
+      sendError({ message: "Error saving alert message", error });
+    }
   }
 
   craftAlertString(): string {

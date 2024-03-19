@@ -9,6 +9,8 @@ import {
 import { constructTxnsTable, constructWalletsTable } from "@/helpers/table";
 import Wallet from "./Wallet";
 import { CandlestickTransaction, GoPlusTokenSecurity, Honeypot } from "./types";
+import { supabaseClient } from "@/helpers/supabase";
+import { sendError } from "@/helpers/send";
 
 class Token {
   public address: string;
@@ -207,6 +209,19 @@ class Token {
       .join("\n");
 
     return message;
+  }
+
+  async save(): Promise<void> {
+    const token = {
+      address: this.address,
+      symbol: this.symbol,
+      name: this.name,
+      creation_date: this.creationDate,
+    };
+    const { error } = await supabaseClient.from("tokens").upsert(token);
+    if (error) {
+      sendError({ message: "Error saving token", error });
+    }
   }
 }
 

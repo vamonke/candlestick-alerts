@@ -27,6 +27,7 @@ export const sendMessage = async (message, replyMarkup) => {
       if (!DEV_MODE) {
         console.log(`📤 Sent message to ${userId}`, result);
       }
+      return result;
     } catch (error) {
       console.error(`📛 Failed to send message to ${userId}`, error);
     }
