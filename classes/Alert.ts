@@ -187,7 +187,7 @@ class Alert {
 
   async findTokens(): Promise<AlertToken[]> {
     const txns = await this.getTransactions();
-    if (txns.length === 0) {
+    if (!txns?.length) {
       console.log("🥱 No transactions found");
       return [];
     }
