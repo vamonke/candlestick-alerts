@@ -192,7 +192,16 @@ class Alert {
     const promises = this.tokens.map(async (token) => {
       const tokenString = await token.craftTokenString();
       const message = [alertString, tokenString].join("\n\n");
-      await sendMessage(message);
+      await sendMessage(message, {
+        inline_keyboard: [
+          [
+            {
+              text: "Refresh",
+              callback_data: "refresh",
+            },
+          ],
+        ],
+      });
     });
 
     await Promise.all(promises);

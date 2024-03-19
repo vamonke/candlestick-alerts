@@ -46,23 +46,23 @@ const handler = async () => {
         ],
       },
     }),
-    new Alert({
-      name: "🟠 Alert 2 - Stealth Wallets (7D, any token)",
-      query: {
-        pageSize: 100,
-        valueFilter: 120,
-        walletAgeDays: 7,
-        boughtTokenLimit: false, // Any tokens bought
-      },
-      filter: {
-        minsAgo: 5,
-        // minsAgo: 100, // For testing
-        minDistinctWallets: 4,
-        excludedTokens: [
-          "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", // WETH
-        ],
-      },
-    }),
+    // new Alert({
+    //   name: "🟠 Alert 2 - Stealth Wallets (7D, any token)",
+    //   query: {
+    //     pageSize: 100,
+    //     valueFilter: 120,
+    //     walletAgeDays: 7,
+    //     boughtTokenLimit: false, // Any tokens bought
+    //   },
+    //   filter: {
+    //     minsAgo: 5,
+    //     // minsAgo: 100, // For testing
+    //     minDistinctWallets: 4,
+    //     excludedTokens: [
+    //       "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", // WETH
+    //     ],
+    //   },
+    // }),
   ];
 
   console.log(`Alerts to execute: ${alerts.length}`);
