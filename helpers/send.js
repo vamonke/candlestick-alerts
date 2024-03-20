@@ -1,7 +1,7 @@
 import bot from "../bot";
 import { DEV_MODE, SEND_MESSAGE } from "./config.js";
 
-const DEVELOPER_USER_ID = 265435469;
+const DEVELOPER_USER_ID = 7160810601;
 const V2_USER_ID = 278239097;
 // const CHANNEL_ID = "@candlestick_alerts";
 
