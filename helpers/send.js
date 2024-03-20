@@ -3,12 +3,12 @@ import { DEV_MODE, SEND_MESSAGE } from "./config.js";
 
 const DEVELOPER_USER_ID = 265435469;
 const V2_USER_ID = 278239097;
-const CHANNEL_ID = "@candlestick_alerts";
+// const CHANNEL_ID = "@candlestick_alerts";
 
 const USER_IDS = [
   DEVELOPER_USER_ID, // Developer
   V2_USER_ID, // User V2
-  CHANNEL_ID, // Telegram channel
+  // CHANNEL_ID, // Telegram channel
 ];
 
 export const sendMessage = async (message, replyMarkup) => {
